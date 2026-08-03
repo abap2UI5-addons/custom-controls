@@ -26,6 +26,17 @@
     <item>
      <ATTRIBUTES>
       <APPLNAME>Z2UI5CC</APPLNAME>
+      <PAGEKEY>CC/SIGNATUREPAD.JS</PAGEKEY>
+      <PAGENAME>cc/SignaturePad.js</PAGENAME>
+      <PAGETYPE>X</PAGETYPE>
+      <LAYOUTLANGU>E</LAYOUTLANGU>
+      <VERSION>A</VERSION>
+      <LANGU>E</LANGU>
+     </ATTRIBUTES>
+    </item>
+    <item>
+     <ATTRIBUTES>
+      <APPLNAME>Z2UI5CC</APPLNAME>
       <PAGEKEY>INDEX.HTML</PAGEKEY>
       <PAGENAME>index.html</PAGENAME>
       <MIMETYPE>text/html</MIMETYPE>
