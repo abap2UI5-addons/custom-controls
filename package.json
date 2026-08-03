@@ -5,6 +5,6 @@
   "description": "abap2UI5 custom controls shipped outside the framework",
   "type": "module",
   "scripts": {
-    "js2abap": "node tools/js2abap.mjs"
+    "app2bsp": "node tools/app2bsp.mjs"
   }
 }

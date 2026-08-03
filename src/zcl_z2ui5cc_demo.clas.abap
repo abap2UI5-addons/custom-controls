@@ -1,6 +1,6 @@
-"! <p class="shorttext synchronized" lang="en">test-cc - demo app for the Counter control</p>
+"! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - demo app</p>
 "!
-"! Start with: <em>?app_start=zcl_testcc_demo</em>
+"! Start with: <em>?app_start=zcl_z2ui5cc_demo</em>
 "!
 "! Verifies that a custom control living outside abap2UI5 integrates exactly
 "! like a built-in one:
@@ -11,7 +11,7 @@
 "!
 "! If the counter shown inside the blue box and the value reported in the log
 "! below it stay in lockstep, all four paths work.
-CLASS zcl_testcc_demo DEFINITION
+CLASS zcl_z2ui5cc_demo DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -45,7 +45,7 @@ CLASS zcl_testcc_demo DEFINITION
 ENDCLASS.
 
 
-CLASS zcl_testcc_demo IMPLEMENTATION.
+CLASS zcl_z2ui5cc_demo IMPLEMENTATION.
 
   METHOD z2ui5_if_app~main.
 
@@ -75,8 +75,8 @@ CLASS zcl_testcc_demo IMPLEMENTATION.
               v = `sap.ui.core.mvc`
         " the whole integration on the view side: one extra namespace
         " declaration pointing at the control library's module namespace
-        )->a( n = |xmlns:{ zcl_testcc_counter=>c_ns }|
-              v = zcl_testcc_counter=>c_ns_uri
+        )->a( n = |xmlns:{ zcl_z2ui5cc_counter=>c_ns }|
+              v = zcl_z2ui5cc_counter=>c_ns_uri
         )->a( n = `displayBlock`
               v = `true`
         )->a( n = `height`
@@ -84,7 +84,7 @@ CLASS zcl_testcc_demo IMPLEMENTATION.
 
         )->open( `Page`
             )->a( n = `title`
-                  v = `test-cc - custom control outside abap2UI5`
+                  v = `abap2UI5 - custom control from its own BSP`
 
             )->open( `VBox`
                 )->a( n = `class`
@@ -95,7 +95,7 @@ CLASS zcl_testcc_demo IMPLEMENTATION.
                           v = `Click the blue box` ).
 
     " the custom control - emitted by its own ABAP class, unknown to abap2UI5
-    box = zcl_testcc_counter=>render( view    = box
+    box = zcl_z2ui5cc_counter=>render( view    = box
                                       text    = client->_bind( label )
                                       count   = client->_bind( counter )
                                       press   = client->_event( `COUNTER_PRESSED` )

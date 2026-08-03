@@ -2,7 +2,7 @@
 #
 # The abap2UI5-linter's headless view render is deliberately not run here: it
 # validates views against the UI5 metadata snapshot, which does not know
-# testcc.cc.Counter - a custom control is invisible to it by definition.
+# z2ui5cc.cc.Counter - a custom control is invisible to it by definition.
 name: check
 
 on:
@@ -29,7 +29,7 @@ jobs:
       - name: abaplint (expect 0 issues)
         run: npx --yes @abaplint/cli@latest abaplint.jsonc
 
-  js2abap:
+  app2bsp:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -37,8 +37,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      # the generated ABAP holder classes must match app/cc/*.js
-      - name: js2abap is up to date
+      # the generated BSP artefacts must match app/webapp - a stale page would
+      # deploy old JavaScript without anyone noticing
+      - name: app2bsp is up to date
         run: |
-          npm run js2abap
+          npm run app2bsp
           git diff --exit-code -- src
+
+  js:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: syntax check the custom controls
+        run: for f in app/webapp/cc/*.js; do node --check "$f"; done

@@ -1,112 +1,107 @@
 # test-cc
 
-A **custom control for abap2UI5 that lives in its own repository** — nothing of
-it is part of the [abap2UI5](https://github.com/abap2UI5/abap2UI5) framework or
-of the [abap2UI5-frontend](https://github.com/abap2UI5/frontend) BSP.
+**abap2UI5 custom controls delivered in their own BSP** — nothing in here is
+part of the [abap2UI5](https://github.com/abap2UI5/abap2UI5) framework or of
+the [abap2UI5-frontend](https://github.com/abap2UI5/frontend) BSP.
 
-It exists to answer one question: *can custom controls be delivered separately,
+It exists to answer one question: *can custom controls be shipped separately,
 so the framework stays small and a new control does not need a pull request
 against abap2UI5?*
+
+## How it works
+
+The abap2UI5 frontend reserves **one resourceRoot by convention** in its
+`manifest.json`:
+
+```jsonc
+"sap.ui5": {
+  "resourceRoots": { "z2ui5cc": "../z2ui5cc/" }
+}
+```
+
+That is the whole integration. The path is a sibling of the frontend BSP, so a
+control BSP deployed as **`Z2UI5CC`** is served from
+`/sap/bc/ui5_ui5/sap/z2ui5cc/` and every module under `z2ui5cc/…` resolves
+there — in the standalone BSP and inside the Fiori Launchpad alike.
+
+Registration is lazy: on a system without the `Z2UI5CC` BSP nothing is ever
+requested, so the entry costs nothing for everyone who has no custom controls.
+
+The ABAP side needs no framework support either. `z2ui5_cl_ai_xml` declares
+arbitrary namespaces, so a foreign control needs neither an entry in the
+framework's namespace map nor a method in `z2ui5_cl_xml_view_cc`:
+
+```abap
+view->a( n = `xmlns:z2ui5cc` v = `z2ui5cc.cc` ).      " once, on the root
+zcl_z2ui5cc_counter=>render( view  = box
+                             text  = client->_bind( label )
+                             count = client->_bind( counter )
+                             press = client->_event( `COUNTER_PRESSED` ) ).
+```
+
+From there the control behaves like any built-in one: properties bind, the
+control writes `count` back into the model, and `press` arrives in `on_event`
+as a normal abap2UI5 event.
 
 ## What is in here
 
 | Path | What it is |
 |---|---|
-| `app/cc/Counter.js` | the control — plain UI5, the single source of truth |
-| `src/zcl_testcc_counter_js.clas.abap` | **generated** from it by `npm run js2abap` |
-| `src/zcl_testcc_counter.clas.abap` | the ABAP half: view builder + JS accessor |
-| `src/zcl_testcc_bootstrap.clas.abap` | collects the JS of all controls |
-| `src/zcl_testcc_exit.clas.abap` | hands it to abap2UI5 via `z2ui5_if_exit` |
-| `src/zcl_testcc_demo.clas.abap` | demo app — `?app_start=zcl_testcc_demo` |
+| `app/webapp/cc/Counter.js` | the control — plain UI5, the single source of truth |
+| `app/webapp/index.html` | placeholder start page; the BSP has no UI of its own |
+| `src/z2ui5cc.wapa.*` | **generated** BSP artefacts (`npm run app2bsp`) |
+| `src/zcl_z2ui5cc_counter.clas.abap` | the ABAP half: the view builder |
+| `src/zcl_z2ui5cc_demo.clas.abap` | demo app — `?app_start=zcl_z2ui5cc_demo` |
 
-Install with abapGit, then start `?app_start=zcl_testcc_demo`.
+## Install
 
-## How it plugs in
-
-Two public extension points, no framework change:
-
-**1. The JavaScript reaches the browser through `z2ui5_if_exit`.**
-`cs_config-custom_js` is appended to the `z2ui5/Component.js` entry of the
-frontend preload (see `z2ui5_cl_app_preload=>get`), so it runs before the first
-XML view is built. Every control declares itself with an **explicit module
-name**:
-
-```js
-sap.ui.define("testcc/cc/Counter", ["sap/ui/core/Control"], (Control) => { ... });
-```
-
-The named define registers the module in the ui5loader, so the view resolves it
-from the registry — no HTTP request, no `resourceRoot`, no second BSP.
-
-**2. The XML element comes from this repo's own view builder.**
-`z2ui5_cl_ai_xml` declares arbitrary namespaces, so a foreign control needs no
-entry in the framework's namespace map and no method in
-`z2ui5_cl_xml_view_cc`:
-
-```abap
-view->a( n = `xmlns:testcc` v = `testcc.cc` ).       " once, on the root
-zcl_testcc_counter=>render( view  = box
-                            text  = client->_bind( label )
-                            count = client->_bind( counter )
-                            press = client->_event( `COUNTER_PRESSED` ) ).
-```
-
-From there the control behaves like any built-in one: properties bind, the
-control writes `count` back into the model, and `press` arrives in
-`on_event` as a normal abap2UI5 event.
+1. Install this repository with abapGit — it deploys the ABAP classes **and**
+   the BSP application `Z2UI5CC`.
+2. Make sure the abap2UI5 frontend BSP declares the `z2ui5cc` resourceRoot
+   (see above).
+3. Start `?app_start=zcl_z2ui5cc_demo`.
 
 ## Verified
 
-Checked headless against the transpiled abap2UI5 backend
-(`ai-demokit`'s `npm run node:build` + `node:serve`, `?app_start=zcl_testcc_demo`):
+Checked headless against the transpiled abap2UI5 backend (`ai-demokit`'s
+`npm run node:build` + `node:serve`), with the `Z2UI5CC` BSP stood in for by
+serving `app/webapp/` at the resolved resourceRoot URL:
 
-- `<testcc:Counter/>` resolves and renders — the foreign module namespace works
+- the manifest entry drives module resolution — UI5 requests
+  `cc/Counter.js` from the registered root, not from the framework
+- `<z2ui5cc:Counter/>` resolves and renders (foreign XML namespace)
 - `text` / `count` arrive from the ABAP model
 - clicking raises `count`, writes it back into the model, and ABAP sees the new
   value on the next roundtrip (two-way binding)
-- `press` reaches `on_event` and the log/`Reset` roundtrips behave normally
+- `press` reaches `on_event`; log and `Reset` roundtrips behave normally
 
-## Known limitation — this only covers the HTTP-service setup
+## Scope of the convention
 
-`custom_js` is consumed in `z2ui5_cl_http_handler=>_http_get`, i.e. in the
-**standalone HTTP-service mode**, where abap2UI5 generates `index.html` itself.
+One reserved name, one control BSP. That covers the common case — a customer
+collects their controls in `Z2UI5CC` — and costs no protocol and no backend
+code.
 
-It does **not** reach a system that runs the abap2UI5-frontend **BSP** (the
-common production setup) or the Fiori Launchpad: there the shell comes from the
-BSP's static `index.html` — or, in the FLP, from the app descriptor — and the
-backend never gets to touch the bootstrap.
+It does **not** cover several independently deployed control BSPs, or control
+BSPs under a name the customer chooses. That needs the loader configuration to
+travel over the abap2UI5 protocol (a `t_resource_roots` in
+`ty_s_next_frontend`, applied in the frontend's `Server.js` via
+`sap.ui.loader.config({ paths })` before `XMLView.create`) — an additive change
+that can be layered on top of this convention later without breaking it.
 
-Closing that gap needs one additive change in abap2UI5, not in this repo: carry
-the loader configuration over the **protocol** instead of the bootstrap —
-a `t_resource_roots` (or the JS bundle itself) in `ty_s_next_frontend`, applied
-in the frontend's `Server.js` with `sap.ui.loader.config({ paths })` before
-`XMLView.create`. That works identically in all three modes and would let this
-repo ship its controls as its own BSP instead of as ABAP string constants.
+Note also that the convention is a **frontend-BSP** mechanism. In the
+standalone HTTP-service setup abap2UI5 generates `index.html` itself and there
+is no sibling BSP path; there the `cs_config-custom_js` exit field is the way
+to get control JavaScript into the shell.
 
 ## Adding a control
 
-1. write `app/cc/<Name>.js` — `sap.ui.define("testcc/cc/<Name>", …)` with the
-   explicit module name
-2. `npm run js2abap` — regenerates the ABAP holder class
-3. add a `render( )` builder class next to `zcl_testcc_counter`
-4. add one line to `zcl_testcc_bootstrap=>get_js( )`
-
-## Caveat: only one abap2UI5 exit per system
-
-`z2ui5_cl_exit=>get_user_exit_class( )` collects all implementations of
-`Z2UI5_IF_EXIT`, sorts them by name and takes the first. If your system already
-has an exit, **delete `ZCL_TESTCC_EXIT`** after the pull and call the bootstrap
-from your own exit instead:
-
-```abap
-METHOD z2ui5_if_exit~set_config_http_get.
-  cs_config-custom_js = zcl_testcc_bootstrap=>get_js( ).
-ENDMETHOD.
-```
+1. write `app/webapp/cc/<Name>.js`
+2. `npm run app2bsp` — regenerates the BSP artefacts under `src/`
+3. add a `render( )` builder class next to `zcl_z2ui5cc_counter`
 
 ## Checks
 
 `abaplint.jsonc` runs against the abap2UI5 framework as a dependency. The
 abap2UI5-linter's headless render is deliberately **not** wired up: it renders
 views against the UI5 metadata snapshot, which by design knows nothing about
-`testcc.cc.Counter`.
+`z2ui5cc.cc.Counter`.

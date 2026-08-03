@@ -1,11 +1,14 @@
-// testcc.cc.Counter - a test custom control that lives OUTSIDE abap2UI5.
+// z2ui5cc.cc.Counter - a test custom control that lives OUTSIDE abap2UI5.
 //
 // The point of this control is not what it does, but where it comes from: no
-// file of it is part of the abap2UI5 framework or the abap2UI5-frontend BSP.
-// It is registered under its own module namespace "testcc" and reaches the
-// browser through the public z2ui5_if_exit extension point (see
-// ZCL_TESTCC_EXIT), so a new custom control never needs a pull request
-// against abap2UI5.
+// file of it is part of the abap2UI5 framework or of the abap2UI5-frontend
+// BSP. It ships in its own BSP (Z2UI5CC) and the frontend finds it through the
+// reserved resourceRoot declared in the frontend's manifest.json:
+//
+//   "sap.ui5": { "resourceRoots": { "z2ui5cc": "../z2ui5cc/" } }
+//
+// so this file is served from /sap/bc/ui5_ui5/sap/z2ui5cc/cc/Counter.js and a
+// new custom control never needs a pull request against abap2UI5.
 //
 // It deliberately exercises all three integration paths a real custom control
 // needs from the framework:
@@ -15,15 +18,12 @@
 //                              next roundtrip (two-way binding)
 //   3. event dispatch        - press is wired to an abap2UI5 backend event
 //
-// The explicit module name in sap.ui.define() is what makes this work without
-// a second BSP: the module registers itself in the ui5loader at bootstrap, so
-// the XML view resolves <testcc:Counter/> from the registry instead of firing
-// an HTTP request. Registering a resourceRoot for "testcc" and serving this
-// file from its own BSP is the other half of the story - see README.md.
-sap.ui.define("testcc/cc/Counter", ["sap/ui/core/Control"], (Control) => {
+// Plain anonymous sap.ui.define: the module name follows from its path under
+// the registered resourceRoot, exactly like any other UI5 module.
+sap.ui.define(["sap/ui/core/Control"], (Control) => {
   "use strict";
 
-  return Control.extend("testcc.cc.Counter", {
+  return Control.extend("z2ui5cc.cc.Counter", {
     metadata: {
       properties: {
         text: { type: "string", defaultValue: "" },
@@ -55,6 +55,7 @@ sap.ui.define("testcc/cc/Counter", ["sap/ui/core/Control"], (Control) => {
         const enabled = control.getEnabled();
 
         rm.openStart("div", control);
+        rm.class("z2ui5ccCounter");
         rm.style("display", "inline-block");
         rm.style("padding", "0.75rem 1.25rem");
         rm.style("border", "2px solid #0a6ed1");

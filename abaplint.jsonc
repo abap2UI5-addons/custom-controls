@@ -27,7 +27,9 @@
     "superclass_final": true,
     "unknown_types": true,
     "allowed_object_types": {
-      "allowed": ["CLAS", "DEVC", "INTF"]
+      // WAPA is the BSP application Z2UI5CC that carries the custom-control
+      // JavaScript (generated from app/webapp by 'npm run app2bsp')
+      "allowed": ["CLAS", "DEVC", "INTF", "WAPA"]
     },
     "obsolete_statement": true,
     "definitions_top": false,

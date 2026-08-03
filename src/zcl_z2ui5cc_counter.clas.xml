@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_TESTCC_COUNTER</CLSNAME>
+    <CLSNAME>ZCL_Z2UI5CC_COUNTER</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>test-cc - Counter custom control</DESCRIPT>
+    <DESCRIPT>abap2UI5 custom controls - Counter</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>

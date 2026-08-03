@@ -1,14 +1,14 @@
-"! <p class="shorttext synchronized" lang="en">test-cc - Counter custom control</p>
+"! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - Counter</p>
 "!
-"! The ABAP half of the testcc.cc.Counter custom control: the view builder
-"! that emits its XML element, plus the accessor for the JavaScript that
-"! defines it in the browser.
+"! The ABAP half of the z2ui5cc.cc.Counter custom control: the view builder
+"! that emits its XML element.
 "!
-"! One class per custom control keeps a control self-contained - its markup,
-"! its JavaScript and its documentation travel together and can be deleted in
-"! one go. Nothing here is known to abap2UI5; the framework only ever sees the
-"! finished XML string.
-CLASS zcl_testcc_counter DEFINITION
+"! The JavaScript is NOT here - it ships in this repository's own BSP
+"! (Z2UI5CC, generated from app/webapp by 'npm run app2bsp'), and the abap2UI5
+"! frontend resolves it through the reserved resourceRoot in its manifest.
+"! Nothing of this control is known to abap2UI5; the framework only ever sees
+"! the finished XML string.
+CLASS zcl_z2ui5cc_counter DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -16,17 +16,13 @@ CLASS zcl_testcc_counter DEFINITION
   PUBLIC SECTION.
 
     "! XML namespace prefix used for this control library's elements
-    CONSTANTS c_ns TYPE string VALUE `testcc`.
-    "! UI5 module namespace the prefix resolves to
-    CONSTANTS c_ns_uri TYPE string VALUE `testcc.cc`.
+    CONSTANTS c_ns TYPE string VALUE `z2ui5cc`.
+    "! UI5 module namespace the prefix resolves to - the part before `.cc`
+    "! matches the resourceRoot key the abap2UI5 frontend reserves in its
+    "! manifest.json, which is what makes the BSP findable
+    CONSTANTS c_ns_uri TYPE string VALUE `z2ui5cc.cc`.
 
-    "! The JavaScript defining testcc.cc.Counter - collected by
-    "! ZCL_TESTCC_BOOTSTRAP and delivered to the browser at bootstrap.
-    CLASS-METHODS get_js
-      RETURNING
-        VALUE(result) TYPE string.
-
-    "! Emit <testcc:Counter/> into an existing view.
+    "! Emit <z2ui5cc:Counter/> into an existing view.
     "!
     "! Mirrors z2ui5_cl_ai_xml=>leaf: the element is added as a child and the
     "! cursor stays on the current node, so the caller can keep chaining.
@@ -52,13 +48,7 @@ CLASS zcl_testcc_counter DEFINITION
 ENDCLASS.
 
 
-CLASS zcl_testcc_counter IMPLEMENTATION.
-
-  METHOD get_js.
-
-    result = zcl_testcc_counter_js=>get( ).
-
-  ENDMETHOD.
+CLASS zcl_z2ui5cc_counter IMPLEMENTATION.
 
   METHOD render.
 
