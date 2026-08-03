@@ -1,16 +1,11 @@
-"! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - demo app</p>
+"! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - overview</p>
 "!
 "! Start with: <em>?app_start=zcl_z2ui5cc_demo</em>
 "!
-"! Verifies that a custom control living outside abap2UI5 integrates exactly
-"! like a built-in one:
-"!   1. the foreign XML namespace resolves and the control renders
-"!   2. text/count are bound from the ABAP model into the control
-"!   3. clicking writes the raised count BACK into the model (two-way)
-"!   4. the press event reaches this class as a normal abap2UI5 event
-"!
-"! If the counter shown inside the blue box and the value reported in the log
-"! below it stay in lockstep, all four paths work.
+"! Front door of this control library: lists every custom control it ships and
+"! launches its demo app. Use it to check an installation - if the list renders
+"! and a demo runs, the Z2UI5CC BSP is deployed and the abap2UI5 frontend
+"! resolves the reserved resourceRoot correctly.
 CLASS zcl_z2ui5cc_demo DEFINITION
   PUBLIC
   FINAL
@@ -21,25 +16,22 @@ CLASS zcl_z2ui5cc_demo DEFINITION
 
     " ONLY bound data here - PUBLIC attributes are serialized every roundtrip
     TYPES:
-      BEGIN OF ty_s_log,
-        text TYPE string,
-      END OF ty_s_log.
+      BEGIN OF ty_s_control,
+        name        TYPE string,
+        module      TYPE string,
+        description TYPE string,
+        app         TYPE string,
+      END OF ty_s_control.
 
-    DATA label   TYPE string.
-    DATA counter TYPE i.
-    DATA info    TYPE string.
-    DATA t_log   TYPE STANDARD TABLE OF ty_s_log WITH EMPTY KEY.
+    DATA t_controls TYPE STANDARD TABLE OF ty_s_control WITH EMPTY KEY.
 
   PROTECTED SECTION.
-    DATA client   TYPE REF TO z2ui5_if_client.
-    "! roundtrips handled in ABAP - compared against the value the control
-    "! wrote into the model, so a broken write-back is immediately visible
-    DATA mv_presses TYPE i.
+    DATA client TYPE REF TO z2ui5_if_client.
 
     METHODS view_display.
     METHODS on_event.
+    METHODS on_launch.
     METHODS model_init.
-    METHODS info_refresh.
 
   PRIVATE SECTION.
 ENDCLASS.
@@ -65,18 +57,12 @@ CLASS zcl_z2ui5cc_demo IMPLEMENTATION.
 
     DATA(view) = z2ui5_cl_ai_xml=>factory( ).
 
-    " keep the cursor: factory( ) returns the empty root, every open( )
-    " returns the NEW node - the VBox is what the control is added to
-    DATA(box) = view->open( n  = `View`
-                            ns = `mvc`
+    view->open( n  = `View`
+                ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
               v = `sap.ui.core.mvc`
-        " the whole integration on the view side: one extra namespace
-        " declaration pointing at the control library's module namespace
-        )->a( n = |xmlns:{ zcl_z2ui5cc_counter=>c_ns }|
-              v = zcl_z2ui5cc_counter=>c_ns_uri
         )->a( n = `displayBlock`
               v = `true`
         )->a( n = `height`
@@ -84,48 +70,72 @@ CLASS zcl_z2ui5cc_demo IMPLEMENTATION.
 
         )->open( `Page`
             )->a( n = `title`
-                  v = `abap2UI5 - custom control from its own BSP`
+                  v = `abap2UI5 custom controls`
 
-            )->open( `VBox`
+            )->open( `MessageStrip`
+                )->a( n = `text`
+                      v = `These controls are delivered by the Z2UI5CC BSP, ` &&
+                          `not by abap2UI5 or its frontend.`
+                )->a( n = `type`
+                      v = `Information`
+                )->a( n = `showIcon`
+                      v = `true`
                 )->a( n = `class`
-                      v = `sapUiMediumMargin`
+                      v = `sapUiSmallMargin`
+            )->shut(
 
-                )->leaf( `Title`
-                    )->a( n = `text`
-                          v = `Click the blue box` ).
+            )->open( `Table`
+                )->a( n = `items`
+                      v = client->_bind( t_controls )
+                )->a( n = `class`
+                      v = `sapUiSmallMarginBeginEnd`
 
-    " the custom control - emitted by its own ABAP class, unknown to abap2UI5
-    box = zcl_z2ui5cc_counter=>render( view    = box
-                                      text    = client->_bind( label )
-                                      count   = client->_bind( counter )
-                                      press   = client->_event( `COUNTER_PRESSED` )
-                                      enabled = `true` ).
+                )->open( `columns`
+                    )->open( `Column`
+                        )->leaf( `Text`
+                            )->a( n = `text`
+                                  v = `Control`
+                    )->shut(
+                    )->open( `Column`
+                        )->leaf( `Text`
+                            )->a( n = `text`
+                                  v = `Module`
+                    )->shut(
+                    )->open( `Column`
+                        )->leaf( `Text`
+                            )->a( n = `text`
+                                  v = `What it does`
+                    )->shut(
+                    )->open( `Column`
+                        )->a( n = `hAlign`
+                              v = `End`
+                        )->leaf( `Text`
+                            )->a( n = `text`
+                                  v = `Demo`
+                    )->shut(
+                )->shut(
 
-    box->leaf( `Text`
-           )->a( n = `text`
-                 v = client->_bind( info )
-           )->a( n = `class`
-                 v = `sapUiSmallMarginTop`
-
-       )->leaf( `Button`
-           )->a( n = `text`
-                 v = `Reset`
-           )->a( n = `press`
-                 v = client->_event( `RESET` )
-           )->a( n = `class`
-                 v = `sapUiSmallMarginTop`
-
-       )->open( `List`
-           )->a( n = `headerText`
-                 v = `Roundtrip log`
-           )->a( n = `items`
-                 v = client->_bind( t_log )
-           )->a( n = `class`
-                 v = `sapUiSmallMarginTop`
-           )->open( `items`
-               )->leaf( `StandardListItem`
-                   )->a( n = `title`
-                         v = `{TEXT}` ).
+                )->open( `items`
+                    )->open( `ColumnListItem`
+                        )->open( `cells`
+                            )->leaf( `Text`
+                                )->a( n = `text`
+                                      v = `{NAME}`
+                            )->leaf( `Text`
+                                )->a( n = `text`
+                                      v = `{MODULE}`
+                            )->leaf( `Text`
+                                )->a( n = `text`
+                                      v = `{DESCRIPTION}`
+                            )->leaf( `Button`
+                                )->a( n = `text`
+                                      v = `Open`
+                                )->a( n = `icon`
+                                      v = `sap-icon://play`
+                                )->a( n = `press`
+                                      v = client->_event(
+                                              val   = `LAUNCH`
+                                              t_arg = VALUE #( ( `${APP}` ) ) ) ).
 
     client->view_display( view->stringify( ) ).
 
@@ -134,42 +144,44 @@ CLASS zcl_z2ui5cc_demo IMPLEMENTATION.
   METHOD on_event.
 
     CASE client->get( )-event.
-
-      WHEN `COUNTER_PRESSED`.
-        " counter already carries the value the CONTROL wrote into the model
-        mv_presses = mv_presses + 1.
-        INSERT VALUE #( text = |press { mv_presses }: control reported count = { counter }| )
-               INTO TABLE t_log.
-        info_refresh( ).
-        client->view_model_update( ).
-
-      WHEN `RESET`.
-        mv_presses = 0.
-        counter    = 0.
-        CLEAR t_log.
-        info_refresh( ).
-        client->view_model_update( ).
-
+      WHEN `LAUNCH`.
+        on_launch( ).
     ENDCASE.
+
+  ENDMETHOD.
+
+  METHOD on_launch.
+
+    " the demo class name is resolved on the client from the pressed row
+    DATA(lv_class) = to_upper( client->get_event_arg( 1 ) ).
+    IF lv_class IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    DATA li_app TYPE REF TO z2ui5_if_app.
+    TRY.
+        CREATE OBJECT li_app TYPE (lv_class).
+      CATCH cx_root.
+        client->message_box_display( text = |Demo app { lv_class } not found.|
+                                     type = `error` ).
+        RETURN.
+    ENDTRY.
+
+    client->nav_app_call( li_app ).
 
   ENDMETHOD.
 
   METHOD model_init.
 
-    label   = `presses`.
-    counter = 0.
-    info_refresh( ).
-
-  ENDMETHOD.
-
-  METHOD info_refresh.
-
-    " computed in ABAP, bound as a finished string - no frontend formatter
-    IF mv_presses = counter.
-      info = |OK - control count { counter } matches { mv_presses } roundtrip(s) handled in ABAP.|.
-    ELSE.
-      info = |MISMATCH - control count { counter }, but { mv_presses } roundtrip(s) handled in ABAP.|.
-    ENDIF.
+    t_controls = VALUE #(
+      ( name        = `Counter`
+        module      = `z2ui5cc/cc/Counter`
+        description = `Click target that raises a counter and writes it back into the model`
+        app         = `ZCL_Z2UI5CC_DEMO_COUNTER` )
+      ( name        = `SignaturePad`
+        module      = `z2ui5cc/cc/SignaturePad`
+        description = `Canvas for mouse, finger or stylus; hands the stroke over as a base64 PNG`
+        app         = `ZCL_Z2UI5CC_DEMO_SIGNATURE` ) ).
 
   ENDMETHOD.
 

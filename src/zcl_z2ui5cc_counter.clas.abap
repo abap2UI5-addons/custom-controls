@@ -15,13 +15,6 @@ CLASS zcl_z2ui5cc_counter DEFINITION
 
   PUBLIC SECTION.
 
-    "! XML namespace prefix used for this control library's elements
-    CONSTANTS c_ns TYPE string VALUE `z2ui5cc`.
-    "! UI5 module namespace the prefix resolves to - the part before `.cc`
-    "! matches the resourceRoot key the abap2UI5 frontend reserves in its
-    "! manifest.json, which is what makes the BSP findable
-    CONSTANTS c_ns_uri TYPE string VALUE `z2ui5cc.cc`.
-
     "! Emit <z2ui5cc:Counter/> into an existing view.
     "!
     "! Mirrors z2ui5_cl_ai_xml=>leaf: the element is added as a child and the
@@ -53,7 +46,7 @@ CLASS zcl_z2ui5cc_counter IMPLEMENTATION.
   METHOD render.
 
     result = view->leaf( n  = `Counter`
-                         ns = c_ns ).
+                         ns = zcl_z2ui5cc=>c_ns ).
 
     " only emit the attributes the caller actually set - an empty attribute
     " would override the control's own defaultValue with an empty string
