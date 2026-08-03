@@ -58,22 +58,6 @@ frontend-internal and not part of the public contract, so a control shipped
 from its own BSP must not reach into it — a refactor there would break the
 control silently.
 
-### `Favicon` — `z2ui5cc/cc/Favicon`
-
-Sets the browser tab icon of the running app. Renders nothing; its whole effect
-is on `<head>`.
-
-| | |
-|---|---|
-| ABAP builder | `zcl_z2ui5cc_favicon=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_favicon` |
-| Properties | `href` (URL or `data:` URI, bind two-way), `type` |
-
-It owns exactly one `<link>` element and rewrites its `href`, and it restores
-the icon the page had before — so trying five icons leaves no stale link
-elements behind, and leaving the app does not leave the Launchpad wearing this
-app's favicon.
-
 ### `ExportSpreadsheet` — `z2ui5cc/cc/ExportSpreadsheet`
 
 A button that exports the rows a table is bound to as an `.xlsx` file. The
@@ -89,23 +73,6 @@ makes a second trip to the backend and nothing has to be built in ABAP.
 
 Needs SAPUI5 — `sap.ui.export` does not ship with OpenUI5, where the button
 renders disabled and says so in its tooltip.
-
-### `Messaging` — `z2ui5cc/cc/Messaging`
-
-Two-way bridge between the UI5 message model and an ABAP internal table. A
-binding whose type constraints are violated files a UI5 message automatically;
-bind `items` and those messages appear in ABAP. Rows the backend puts into the
-table become UI5 messages, with the value state on the field they point at.
-
-| | |
-|---|---|
-| ABAP builder | `zcl_z2ui5cc_messaging=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_messaging` |
-| Properties | `items` (bind a `ty_t_item` table two-way), `registerView` |
-| Events | `messagesChange` |
-
-`target` is `<control id>/<property>` with the id as the app wrote it in the
-view, e.g. `quantity/value`. Needs UI5 1.118 or newer.
 
 ### `Validator` — `z2ui5cc/cc/Validator`
 
@@ -370,20 +337,33 @@ look identical from inside the app.
 
 ## Where these came from
 
-Ten of the controls replace two addon repositories that shipped custom controls
-the old way — the JavaScript built as ABAP string literals and injected into
-each view through `_cc_plain_xml`:
+Eight of the controls replace two addon repositories that shipped custom
+controls the old way — the JavaScript built as ABAP string literals and
+injected into each view through `_cc_plain_xml`:
 
 | Repository | Ported to |
 |---|---|
-| [abap2UI5-addons/custom-controls](https://github.com/abap2UI5-addons/custom-controls) | `Favicon`, `ExportSpreadsheet`, `Messaging`, `Validator` |
+| [abap2UI5-addons/custom-controls](https://github.com/abap2UI5-addons/custom-controls) | `ExportSpreadsheet`, `Validator` |
 | [abap2UI5-addons/js-libraries](https://github.com/abap2UI5-addons/js-libraries) | `ChartJs`, `Barcode`, `DriverJs`, `FontAwesome`, `AnimateCss`, `ImageMapster` |
 
 Each control's JS file names the class it came from and lists what changed.
-Two things were deliberately **not** carried over:
 
-- **`z2ui5_cl_cc_message_m`** — a second, near-identical Messaging control on
-  the deprecated `sap.ui.core.message.MessageManager`. `Messaging` covers it.
+### Already in the framework — not ported
+
+Two of the addons' controls have a maintained counterpart in abap2UI5 itself.
+This repository is for controls the framework does **not** carry, so they stay
+where they are:
+
+- **Favicon** → `z2ui5.cc.Favicon`, built with
+  `z2ui5_cl_xml_view_cc=>favicon( )`.
+- **Messaging** / **MessageManager** → `z2ui5.cc.MessageManager`, built with
+  `z2ui5_cl_xml_view_cc=>message_manager( )`. It reconciles by a stable message
+  key, so a roundtrip cannot duplicate the list, and resolves the messaging
+  facade through `z2ui5/core/Lib` — which keeps it working below UI5 1.118,
+  where `sap/ui/core/Messaging` does not exist yet.
+
+### Not carried over
+
 - **the ImageMapster editor** — a 2000-line inline HTML/JS tool for drawing
   image-map coordinates. It is an authoring tool, not a control, and porting it
   into a UI5 control would not have made it one.
