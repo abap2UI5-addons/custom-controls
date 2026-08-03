@@ -1,0 +1,184 @@
+// z2ui5cc.cc.Messaging - two-way bridge between the UI5 message model and an
+// ABAP internal table.
+//
+// UI5 collects messages in one place: type constraints on a binding
+// (maxLength, minLength, a type that cannot parse the input) file a message
+// there automatically, and so does anything else that registers a message
+// processor. That model lives in the frontend, so an abap2UI5 app normally
+// cannot see it. This control mirrors it into a bound table, in both
+// directions:
+//
+//   frontend -> ABAP  every change of the message model is written into the
+//                     bound table, so the app sees validation errors the user
+//                     produced without a single line of JavaScript
+//   ABAP -> frontend  putting rows into the table posts them as UI5 messages,
+//                     so a backend check can put a red border on the field it
+//                     failed on and feed a MessagePopover
+//
+// TARGET is `<control id>/<property>`, with the id as the app wrote it in the
+// view (`testInput/value`). It is resolved against the view this control was
+// rendered in, so nested views and popups need no special handling.
+//
+// Ported from abap2UI5-addons/custom-controls, which had two nearly identical
+// classes for it: z2ui5_cl_cc_messaging (sap/ui/core/Messaging) and
+// z2ui5_cl_cc_message_m (the deprecated sap.ui.core.message.MessageManager).
+// Only the modern one is carried over - it needs UI5 1.118 or newer.
+//
+// Changes of substance against the original:
+//
+//   1. the target id was hardcoded to `testINPUT`, the id of an input in one
+//      of the samples, so any other field was addressed wrongly. Targets are
+//      resolved properly now.
+//   2. writing the table from ABAP added the messages to the ones already
+//      there, so every roundtrip duplicated the list. The table is now the
+//      authority: what it contains is what the message model holds.
+//   3. the change listener was attached in the renderer, once per instance and
+//      never detached; it is now attached in init() and released in exit().
+sap.ui.define(
+  [
+    "sap/ui/core/Control",
+    "sap/ui/core/Messaging",
+    "sap/ui/core/message/Message",
+    "sap/ui/core/message/ControlMessageProcessor",
+    "z2ui5cc/cc/Util",
+  ],
+  (Control, Messaging, Message, ControlMessageProcessor, Util) => {
+    "use strict";
+
+    // The model rows an abap2UI5 app sees: field names upper case, like every
+    // other ABAP structure in the JSON model.
+    const toRow = (message) => ({
+      MESSAGE: message.getMessage() || "",
+      DESCRIPTION: message.getDescription() || "",
+      TYPE: message.getType() || "",
+      TARGET: (message.getTargets && message.getTargets()[0]) || "",
+      ADDITIONALTEXT: message.getAdditionalText() || "",
+      DATE: message.getDate ? String(message.getDate() || "") : "",
+      DESCRIPTIONURL: message.getDescriptionUrl() || "",
+      PERSISTENT: message.getPersistent() ? "X" : "",
+    });
+
+    return Control.extend("z2ui5cc.cc.Messaging", {
+      metadata: {
+        properties: {
+          // bind two-way: rows go out as UI5 messages, UI5 messages come back
+          items: { type: "object[]", defaultValue: [] },
+          // register the view so binding type constraints file messages
+          registerView: { type: "boolean", defaultValue: true },
+        },
+        events: {
+          // fired whenever the frontend changed the message list, so the app
+          // can pull the fresh table with one roundtrip
+          messagesChange: {
+            parameters: { count: { type: "int" } },
+          },
+        },
+      },
+
+      init() {
+        this._processor = new ControlMessageProcessor();
+        Messaging.registerMessageProcessor(this._processor);
+
+        this._onMessagesChange = this._publish.bind(this);
+        Messaging.getMessageModel().attachPropertyChange(this._onMessagesChange);
+        // the message model is a JSON model - a message added or removed is a
+        // property change on `/`, but list changes arrive on the binding
+        this._binding = Messaging.getMessageModel().bindList("/");
+        this._binding.attachChange(this._onMessagesChange);
+      },
+
+      // Resolves `<control id>/<property>` to the target UI5 wants:
+      // `<fully prefixed control id>/<property>`. A target that already
+      // contains a prefixed id, or that names no control, is left alone.
+      _resolveTarget(target) {
+        if (!target) return "";
+        const slash = target.lastIndexOf("/");
+        if (slash < 0) return target;
+        const id = target.slice(0, slash);
+        const property = target.slice(slash + 1);
+        const control = Util.resolveControl(this, id);
+        return control ? `${control.getId()}/${property}` : target;
+      },
+
+      // model -> UI5. The bound table is the authority: everything this
+      // control posted before is dropped first, so a roundtrip cannot
+      // duplicate the list.
+      _applyToMessaging() {
+        if (this._mine && this._mine.length) {
+          Messaging.removeMessages(this._mine);
+        }
+        const rows = this.getItems() || [];
+        this._mine = rows.map(
+          (row) =>
+            new Message({
+              message: row.MESSAGE || "",
+              description: row.DESCRIPTION || "",
+              type: row.TYPE || "None",
+              target: this._resolveTarget(row.TARGET),
+              additionalText: row.ADDITIONALTEXT || "",
+              descriptionUrl: row.DESCRIPTIONURL || "",
+              persistent: Boolean(row.PERSISTENT),
+              processor: this._processor,
+            }),
+        );
+        if (this._mine.length) Messaging.addMessages(this._mine);
+      },
+
+      // UI5 -> model. Suppress invalidation: the control renders nothing, and
+      // the write-back to ABAP goes through the binding either way.
+      _publish() {
+        if (Util.isDestroyed(this)) return;
+        const rows = Messaging.getMessageModel().getData().map(toRow);
+        this._publishing = true;
+        this.setProperty("items", rows, true);
+        this._publishing = false;
+        this.fireMessagesChange({ count: rows.length });
+      },
+
+      setItems(value) {
+        this.setProperty("items", value, true);
+        // ignore the echo of our own _publish - applying it would remove and
+        // recreate every message on every frontend change
+        if (!this._publishing) this._applyToMessaging();
+        return this;
+      },
+
+      onAfterRendering() {
+        if (this._registered || !this.getRegisterView()) return;
+        const view = Util.ownerView(this);
+        if (!view) return;
+        // makes UI5 file the binding's own type/constraint violations as
+        // messages - the whole point of using the message model at all
+        Messaging.registerObject(view, true);
+        this._registered = true;
+      },
+
+      exit() {
+        if (this._binding) {
+          this._binding.detachChange(this._onMessagesChange);
+          this._binding.destroy();
+          this._binding = null;
+        }
+        Messaging.getMessageModel().detachPropertyChange(this._onMessagesChange);
+        if (this._mine && this._mine.length) Messaging.removeMessages(this._mine);
+        this._mine = [];
+        if (this._processor) {
+          Messaging.unregisterMessageProcessor(this._processor);
+          this._processor.destroy();
+          this._processor = null;
+        }
+      },
+
+      // Nothing visible - the control is a bridge, not a widget.
+      renderer: {
+        apiVersion: 2,
+        render(rm, control) {
+          rm.openStart("span", control);
+          rm.style("display", "none");
+          rm.openEnd();
+          rm.close("span");
+        },
+      },
+    });
+  },
+);

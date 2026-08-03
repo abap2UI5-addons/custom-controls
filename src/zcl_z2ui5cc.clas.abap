@@ -42,6 +42,31 @@ CLASS zcl_z2ui5cc DEFINITION
       RETURNING
         VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
 
+    "! Emit one element of this library, skipping the attributes the caller
+    "! left empty.
+    "!
+    "! Every control here is a leaf, and every one of them has more optional
+    "! attributes than a typical call sets. Passing an EMPTY attribute is not
+    "! the same as passing none: it would override the control's own
+    "! defaultValue with an empty string. So the builders collect their
+    "! parameters as `key=value` strings and let this method drop the ones
+    "! whose value is initial.
+    "!
+    "! Mirrors z2ui5_cl_ai_xml=>leaf: the element is added as a child and the
+    "! cursor stays on the current node, so the caller can keep chaining.
+    "!
+    "! @parameter view   | the builder positioned at the parent element
+    "! @parameter name   | element name, without the namespace prefix
+    "! @parameter a      | attributes as `key=value`; empty values are dropped
+    "! @parameter result | the unchanged view builder, for chaining
+    CLASS-METHODS leaf
+      IMPORTING
+        view          TYPE REF TO z2ui5_cl_ai_xml
+        name          TYPE string
+        a             TYPE z2ui5_cl_ai_xml=>ty_t_attr OPTIONAL
+      RETURNING
+        VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -53,6 +78,30 @@ CLASS zcl_z2ui5cc IMPLEMENTATION.
 
     result = view->a( n = |xmlns:{ c_ns }|
                       v = c_ns_uri ).
+
+  ENDMETHOD.
+
+  METHOD leaf.
+
+    DATA lt_attr TYPE z2ui5_cl_ai_xml=>ty_t_attr.
+
+    LOOP AT a INTO DATA(lv_attr).
+
+      DATA(lv_off) = find( val = lv_attr
+                           sub = `=` ).
+      " no `=` at all is a malformed attribute, `key=` an unset one - both
+      " would end up as an empty attribute value in the rendered XML
+      IF lv_off < 0 OR strlen( lv_attr ) <= lv_off + 1.
+        CONTINUE.
+      ENDIF.
+
+      APPEND lv_attr TO lt_attr.
+
+    ENDLOOP.
+
+    result = view->leaf( n  = name
+                         ns = c_ns
+                         a  = lt_attr ).
 
   ENDMETHOD.
 

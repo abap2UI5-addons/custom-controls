@@ -1,0 +1,233 @@
+// z2ui5cc.cc.ChartJs - a Chart.js canvas driven by a bound ABAP structure.
+//
+// `config` is the Chart.js configuration verbatim - {type, data, options} -
+// so anything the Chart.js documentation describes can be expressed from
+// ABAP without this control knowing about it. Changing the bound structure and
+// calling view_model_update( ) updates the chart in place; only a changed
+// chart type rebuilds it.
+//
+// Ported from abap2UI5-addons/js-libraries (z2ui5_cl_cc_chartjs). Changes of
+// substance:
+//
+//   1. the canvas id was a property the app had to invent and keep unique
+//      ("bar", "pie", ...), and the Chart instance was parked on
+//      window[canvas_id + "_chartjs"]. Two charts with the same id on one page
+//      silently fought over one canvas. The canvas is now the control's own
+//      DOM child and the instance lives on the control.
+//   2. the chart was created in the renderer behind a setTimeout(150) and
+//      never destroyed - navigating away leaked every chart the session had
+//      drawn. It is created in onAfterRendering and destroyed in exit().
+//   3. plugins are named, not pasted as URLs: `plugins="datalabels,venn"`
+//      loads them in order and registers them with Chart.js.
+sap.ui.define(
+  ["sap/ui/core/Control", "z2ui5cc/cc/Util"],
+  (Control, Util) => {
+    "use strict";
+
+    const CHART_URL = "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js";
+
+    // The plugins and chart types the original repo shipped, by name. `global`
+    // is where the UMD build parks itself; entries without one register
+    // themselves with Chart.js on load.
+    const PLUGINS = {
+      datalabels: {
+        url: "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2",
+        global: "ChartDataLabels",
+      },
+      autocolors: {
+        url: "https://cdn.jsdelivr.net/npm/chartjs-plugin-autocolors@0.3.1/dist/chartjs-plugin-autocolors.min.js",
+        global: "chartjs-plugin-autocolors",
+      },
+      deferred: {
+        url: "https://cdn.jsdelivr.net/npm/chartjs-plugin-deferred@2.0.0/dist/chartjs-plugin-deferred.min.js",
+        global: "chartjs-plugin-deferred",
+      },
+      annotation: {
+        url: "https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js",
+        global: "chartjs-plugin-annotation",
+      },
+      venn: {
+        url: "https://cdn.jsdelivr.net/npm/chartjs-chart-venn@4.2.7/build/index.umd.min.js",
+      },
+      wordcloud: {
+        url: "https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud@4.3.2/build/index.umd.min.js",
+      },
+    };
+
+    // Keys an ABAP structure cannot spell the way Chart.js wants them.
+    //
+    //   dataVenn/dataRadial  ABAP needs one component per shape of `data`
+    //                        (a string table, a set list, x/y/r points) and
+    //                        cannot give three of them the same name
+    //   scaleID/xScaleID     the camelCase mapper lower-cases the trailing
+    //                        capitals of an ABAP field, so scale_id arrives
+    //                        as scaleid and the annotation plugin ignores it
+    const RENAME = {
+      dataVenn: "data",
+      dataRadial: "data",
+      scaleid: "scaleID",
+      xScaleid: "xScaleID",
+      yScaleid: "yScaleID",
+    };
+
+    // Depth-first rename. The original did a string replace over the whole
+    // serialized config, which renamed the first hit only and happily
+    // rewrote a matching data VALUE too.
+    function normalize(value) {
+      if (Array.isArray(value)) return value.map(normalize);
+      if (value === null || typeof value !== "object") return value;
+      const out = {};
+      for (const [key, entry] of Object.entries(value)) {
+        out[RENAME[key] || key] = normalize(entry);
+      }
+      return out;
+    }
+
+    return Control.extend("z2ui5cc.cc.ChartJs", {
+      metadata: {
+        properties: {
+          // Chart.js configuration: { type, data, options }
+          config: { type: "object", defaultValue: null },
+          width: { type: "string", defaultValue: "100%" },
+          height: { type: "string", defaultValue: "300px" },
+          // comma separated plugin names, see PLUGINS above
+          plugins: { type: "string", defaultValue: "" },
+          libUrl: { type: "string", defaultValue: CHART_URL },
+        },
+        events: {
+          // a click on a bar/slice/point; index/datasetIndex identify it in
+          // the config the app sent
+          elementPress: {
+            parameters: {
+              index: { type: "int" },
+              datasetIndex: { type: "int" },
+              label: { type: "string" },
+            },
+          },
+        },
+      },
+
+      _canvas() {
+        return document.getElementById(`${this.getId()}-canvas`);
+      },
+
+      // Chart.js is global once loaded; the plugin globals have to be handed
+      // to Chart.register explicitly.
+      _load() {
+        const names = Util.toList(this.getPlugins());
+        const unknown = names.filter((name) => !PLUGINS[name]);
+        if (unknown.length) {
+          Util.logError(`ChartJs: unknown plugin(s) ${unknown.join(", ")}`);
+        }
+        const known = names.filter((name) => PLUGINS[name]);
+
+        return Util
+          .loadScript(this.getLibUrl(), () => typeof window.Chart !== "undefined")
+          .then(() => Util.loadScripts(known.map((name) => PLUGINS[name].url)))
+          .then(() => {
+            known.forEach((name) => {
+              const key = PLUGINS[name].global;
+              if (!key) return; // self-registering build
+              const plugin = window[key];
+              if (plugin) window.Chart.register(plugin);
+              else Util.logError(`ChartJs: plugin '${name}' did not expose ${key}`);
+            });
+          });
+      },
+
+      _draw() {
+        const canvas = this._canvas();
+        const config = this.getConfig();
+        if (!canvas || !config) return;
+
+        const next = normalize(config);
+        // Route clicks out as a UI5 event. Done here rather than in the
+        // config so an app never has to send a function from ABAP.
+        next.options = next.options || {};
+        next.options.onClick = (event, elements) => {
+          if (!elements || !elements.length) return;
+          const hit = elements[0];
+          const labels = (next.data && next.data.labels) || [];
+          this.fireElementPress({
+            index: hit.index,
+            datasetIndex: hit.datasetIndex,
+            label: String(labels[hit.index] ?? ""),
+          });
+        };
+
+        // A changed chart type cannot be applied in place - Chart.js keeps
+        // the controller of the type it was constructed with.
+        if (this._chart && this._chart.config.type !== next.type) {
+          this._chart.destroy();
+          this._chart = null;
+        }
+
+        if (this._chart) {
+          this._chart.data = next.data;
+          this._chart.options = next.options;
+          this._chart.update();
+          return;
+        }
+
+        try {
+          this._chart = new window.Chart(canvas, next);
+        } catch (e) {
+          Util.logError("ChartJs: could not create the chart", e);
+        }
+      },
+
+      _render() {
+        this._load()
+          .then(() => {
+            if (Util.isDestroyed(this)) return;
+            this._draw();
+          })
+          .catch((e) => Util.logError("ChartJs: library not available", e));
+      },
+
+      setConfig(value) {
+        this.setProperty("config", value, true);
+        // Suppress invalidation: a re-render would throw the canvas away and
+        // rebuild the chart from scratch, losing its animation state. Update
+        // the live chart instead - or draw it for the first time, which is
+        // the case when the app had no data yet on the initial render.
+        if (this.getDomRef()) this._render();
+        return this;
+      },
+
+      onAfterRendering() {
+        // a re-render replaced the canvas element - the old instance points
+        // at a detached node
+        if (this._chart) {
+          this._chart.destroy();
+          this._chart = null;
+        }
+        this._render();
+      },
+
+      exit() {
+        if (this._chart) {
+          this._chart.destroy();
+          this._chart = null;
+        }
+      },
+
+      renderer: {
+        apiVersion: 2,
+        render(rm, control) {
+          rm.openStart("div", control);
+          rm.style("width", Util.toCssSize(control.getWidth()));
+          rm.style("height", Util.toCssSize(control.getHeight()));
+          rm.style("position", "relative");
+          rm.openEnd();
+
+          rm.openStart("canvas", `${control.getId()}-canvas`);
+          rm.openEnd();
+          rm.close("canvas");
+
+          rm.close("div");
+        },
+      },
+    });
+  },
+);
