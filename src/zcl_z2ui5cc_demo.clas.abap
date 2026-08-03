@@ -213,7 +213,11 @@ CLASS zcl_z2ui5cc_demo IMPLEMENTATION.
       ( name        = `ImageMapster`
         module      = `z2ui5cc/cc/ImageMapster`
         description = `Image map that highlights, selects and reports the region clicked`
-        app         = `ZCL_Z2UI5CC_DEMO_IMAGEMAPSTER` ) ).
+        app         = `ZCL_Z2UI5CC_DEMO_IMAGEMAPSTER` )
+      ( name        = `ImageMapEditor`
+        module      = `z2ui5cc/cc/ImageMapEditor`
+        description = `Draw the regions of an image map and hand them to ABAP as a table`
+        app         = `ZCL_Z2UI5CC_DEMO_IMAP_EDITOR` ) ).
 
   ENDMETHOD.
 
