@@ -28,8 +28,9 @@
     "unknown_types": true,
     "allowed_object_types": {
       // WAPA is the BSP application Z2UI5CC that carries the custom-control
-      // JavaScript (generated from app/webapp by 'npm run app2bsp')
-      "allowed": ["CLAS", "DEVC", "INTF", "WAPA"]
+      // JavaScript, SICF are the ICF nodes it is served from (both generated
+      // from app/webapp by 'npm run app2bsp')
+      "allowed": ["CLAS", "DEVC", "INTF", "WAPA", "SICF"]
     },
     "obsolete_statement": true,
     "definitions_top": false,

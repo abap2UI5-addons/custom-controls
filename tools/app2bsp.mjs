@@ -16,6 +16,18 @@ const BSP = "Z2UI5CC";
 const PREFIX = "z2ui5cc.wapa.";
 const MAPPING_PAGE = "UI5RepositoryPathMapping.xml";
 const START_PAGE = "index.html";
+const BSP_TEXT = "abap2UI5 custom controls";
+
+// ICF nodes the BSP is served from. Without them abapGit creates the BSP
+// application but no URL resolves to it and the browser gets
+// "ICF Node NOT found!". The parent GUIDs are the SAP standard nodes
+// /sap/bc/ui5_ui5/sap/ and /sap/bc/bsp/sap/ and are system-independent.
+// abapGit names an SICF file <icf_name padded to 15><25-char parent guid>.
+const ICF_PARENTS = [
+  { guid: "0ec96042f38e7e75ceadd96a5", url: "/sap/bc/ui5_ui5/sap/" },
+  { guid: "cc3e0011031e2f3f4be478dc5", url: "/sap/bc/bsp/sap/" },
+];
+const ICF_NAME_WIDTH = 15;
 
 // BSP pages are stored on the SAP system as fixed-width 255-character lines.
 // abapGit serializes them back exactly like that: every line space-padded to
@@ -139,7 +151,7 @@ function buildWapaXml(pages) {
       "    <SECURITY>X</SECURITY>",
       "    <ORIGLANG>E</ORIGLANG>",
       "    <MODIFLANG>E</MODIFLANG>",
-      "    <TEXT>abap2UI5 custom controls</TEXT>",
+      `    <TEXT>${BSP_TEXT}</TEXT>`,
       "   </ATTRIBUTES>",
       "   <PAGES>",
       ...sorted.map(buildPageItem),
@@ -152,10 +164,39 @@ function buildWapaXml(pages) {
   );
 }
 
-// only the generated BSP artefacts are cleared - src also holds the ABAP
-// classes, which must survive
+function buildSicfXml(url) {
+  return (
+    "﻿" +
+    [
+      '<?xml version="1.0" encoding="utf-8"?>',
+      '<abapGit version="v1.0.0" serializer="LCL_OBJECT_SICF" serializer_version="v1.0.0">',
+      ' <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">',
+      "  <asx:values>",
+      `   <URL>${url}</URL>`,
+      "   <ICFSERVICE>",
+      `    <ICF_NAME>${BSP}</ICF_NAME>`,
+      `    <ORIG_NAME>${BSP.toLowerCase()}</ORIG_NAME>`,
+      "   </ICFSERVICE>",
+      "   <ICFDOCU>",
+      `    <ICF_NAME>${BSP}</ICF_NAME>`,
+      "    <ICF_LANGU>E</ICF_LANGU>",
+      `    <ICF_DOCU>${BSP_TEXT}</ICF_DOCU>`,
+      "   </ICFDOCU>",
+      "  </asx:values>",
+      " </asx:abap>",
+      "</abapGit>",
+      "",
+    ].join("\n")
+  );
+}
+
+const sicfFileName = (guid) =>
+  `${BSP.toLowerCase().padEnd(ICF_NAME_WIDTH)}${guid}.sicf.xml`;
+
+// only the generated artefacts are cleared - src also holds the ABAP classes,
+// which must survive
 for (const f of readdirSync(TARGET_DIR)) {
-  if (f.startsWith(PREFIX)) rmSync(join(TARGET_DIR, f));
+  if (f.startsWith(PREFIX) || f.endsWith(".sicf.xml")) rmSync(join(TARGET_DIR, f));
 }
 
 const files = collect(SOURCE_DIR);
@@ -180,3 +221,9 @@ console.log(`generated ${targetFileName(MAPPING_PAGE)}`);
 const pages = [...files, MAPPING_PAGE];
 writeFileSync(join(TARGET_DIR, `${PREFIX}xml`), buildWapaXml(pages), "utf8");
 console.log(`generated ${PREFIX}xml with ${pages.length} pages`);
+
+for (const parent of ICF_PARENTS) {
+  const name = sicfFileName(parent.guid);
+  writeFileSync(join(TARGET_DIR, name), buildSicfXml(`${parent.url}${BSP.toLowerCase()}/`), "utf8");
+  console.log(`generated ${name} -> ${parent.url}${BSP.toLowerCase()}/`);
+}
