@@ -1,0 +1,182 @@
+// Generates the abapGit BSP artefacts for the Z2UI5CC control BSP from
+// app/webapp/.
+//
+// Same approach as the abap2UI5-frontend repo's .github/app2bsp/run.js, cut
+// down to what a control container needs: every file under app/webapp becomes
+// a BSP page, plus the UI5 repository path mapping and the page directory
+// (z2ui5cc.wapa.xml) the abapGit WAPA deserializer reads.
+//
+// Run: npm run app2bsp
+import { readdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { join, relative, sep, dirname } from "node:path";
+
+const SOURCE_DIR = "app/webapp";
+const TARGET_DIR = "src";
+const BSP = "Z2UI5CC";
+const PREFIX = "z2ui5cc.wapa.";
+const MAPPING_PAGE = "UI5RepositoryPathMapping.xml";
+const START_PAGE = "index.html";
+
+// BSP pages are stored on the SAP system as fixed-width 255-character lines.
+// abapGit serializes them back exactly like that: every line space-padded to
+// 255 characters, longer lines wrapped into 255-character chunks, LF endings
+// and no newline after the last line. Emitting the same format means pulling
+// into SAP and re-serializing produces no diff.
+const LINE_WIDTH = 255;
+
+function collect(dir, base = dir) {
+  const files = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, entry.name);
+    if (entry.isDirectory()) files.push(...collect(p, base));
+    else if (entry.isFile()) files.push(relative(base, p).split(sep).join("/"));
+  }
+  return files;
+}
+
+function toBspPageFormat(content) {
+  const lines = content.split(/\r\n|\r|\n/);
+  if (lines.length > 1 && lines[lines.length - 1] === "") lines.pop();
+  const padded = [];
+  for (const line of lines) {
+    if (line.length <= LINE_WIDTH) {
+      padded.push(line.padEnd(LINE_WIDTH));
+    } else {
+      for (let o = 0; o < line.length; o += LINE_WIDTH) {
+        padded.push(line.slice(o, o + LINE_WIDTH).padEnd(LINE_WIDTH));
+      }
+    }
+  }
+  return padded.join("\n");
+}
+
+const escapeXml = (v) =>
+  v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+const targetFileName = (rel) => PREFIX + rel.replace(/\//g, "_-").toLowerCase();
+
+// every directory between a file and the webapp root needs its own folder
+// entry in the mapping, or the UI5 repository refuses the upload
+function foldersOf(files) {
+  const dirs = new Set();
+  for (const f of files) {
+    let d = dirname(f);
+    while (d && d !== ".") {
+      dirs.add(d);
+      d = dirname(d);
+    }
+  }
+  return [...dirs].sort();
+}
+
+function buildMapping(files) {
+  const entry = (path, isFolder) =>
+    [
+      "",
+      "  <MappingEntry",
+      `   path              = "${escapeXml(path)}"`,
+      `   is_folder         = "${isFolder ? "X" : ""}"`,
+      `   internal_rep      = "${isFolder ? "" : "B"}"`,
+      `   internal_rep_path = "${isFolder ? "" : escapeXml(path)}" />`,
+    ].join("\n");
+
+  const entries = [
+    ...foldersOf(files).map((d) => entry(d, true)),
+    ...[...files].sort().map((f) => entry(f, false)),
+  ];
+
+  return [
+    '<?xml version="1.0"?>',
+    "",
+    '<UI5RepMapping version="1.0" xmlns="sap.ui5.tools.repository.mapping">',
+    " <MappingEntries>",
+    ...entries,
+    "",
+    " </MappingEntries>",
+    "</UI5RepMapping>",
+  ].join("\n");
+}
+
+function buildPageItem(page) {
+  // the start page carries MIMETYPE/IS_START_PAGE instead of PAGETYPE,
+  // matching the abapGit WAPA serializer output
+  const typeLines =
+    page === START_PAGE
+      ? ["      <MIMETYPE>text/html</MIMETYPE>", "      <IS_START_PAGE>X</IS_START_PAGE>"]
+      : ["      <PAGETYPE>X</PAGETYPE>"];
+  return [
+    "    <item>",
+    "     <ATTRIBUTES>",
+    `      <APPLNAME>${BSP}</APPLNAME>`,
+    `      <PAGEKEY>${escapeXml(page.toUpperCase())}</PAGEKEY>`,
+    `      <PAGENAME>${escapeXml(page)}</PAGENAME>`,
+    ...typeLines,
+    "      <LAYOUTLANGU>E</LAYOUTLANGU>",
+    "      <VERSION>A</VERSION>",
+    "      <LANGU>E</LANGU>",
+    "     </ATTRIBUTES>",
+    "    </item>",
+  ].join("\n");
+}
+
+function buildWapaXml(pages) {
+  const sorted = [...pages].sort((a, b) =>
+    a.toUpperCase() < b.toUpperCase() ? -1 : a.toUpperCase() > b.toUpperCase() ? 1 : 0,
+  );
+  // abapGit writes its XML with a UTF-8 BOM; emit one so a pull/push cycle
+  // produces no diff
+  return (
+    "﻿" +
+    [
+      '<?xml version="1.0" encoding="utf-8"?>',
+      '<abapGit version="v1.0.0" serializer="LCL_OBJECT_WAPA" serializer_version="v1.0.0">',
+      ' <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">',
+      "  <asx:values>",
+      "   <ATTRIBUTES>",
+      `    <APPLNAME>${BSP}</APPLNAME>`,
+      "    <APPLCLAS>/UI5/CL_UI5_BSP_APPLICATION</APPLCLAS>",
+      `    <APPLEXT>${BSP}</APPLEXT>`,
+      "    <SECURITY>X</SECURITY>",
+      "    <ORIGLANG>E</ORIGLANG>",
+      "    <MODIFLANG>E</MODIFLANG>",
+      "    <TEXT>abap2UI5 custom controls</TEXT>",
+      "   </ATTRIBUTES>",
+      "   <PAGES>",
+      ...sorted.map(buildPageItem),
+      "   </PAGES>",
+      "  </asx:values>",
+      " </asx:abap>",
+      "</abapGit>",
+      "",
+    ].join("\n")
+  );
+}
+
+// only the generated BSP artefacts are cleared - src also holds the ABAP
+// classes, which must survive
+for (const f of readdirSync(TARGET_DIR)) {
+  if (f.startsWith(PREFIX)) rmSync(join(TARGET_DIR, f));
+}
+
+const files = collect(SOURCE_DIR);
+if (files.length === 0) {
+  console.error(`no files found under ${SOURCE_DIR}/`);
+  process.exit(1);
+}
+
+for (const rel of files) {
+  const content = readFileSync(join(SOURCE_DIR, rel), "utf8");
+  writeFileSync(join(TARGET_DIR, targetFileName(rel)), toBspPageFormat(content), "utf8");
+  console.log(`${rel} -> ${TARGET_DIR}/${targetFileName(rel)}`);
+}
+
+writeFileSync(
+  join(TARGET_DIR, targetFileName(MAPPING_PAGE)),
+  toBspPageFormat(buildMapping(files)),
+  "utf8",
+);
+console.log(`generated ${targetFileName(MAPPING_PAGE)}`);
+
+const pages = [...files, MAPPING_PAGE];
+writeFileSync(join(TARGET_DIR, `${PREFIX}xml`), buildWapaXml(pages), "utf8");
+console.log(`generated ${PREFIX}xml with ${pages.length} pages`);

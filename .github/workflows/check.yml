@@ -1,0 +1,56 @@
+# abaplint against the abap2UI5 framework dependency.
+#
+# The abap2UI5-linter's headless view render is deliberately not run here: it
+# validates views against the UI5 metadata snapshot, which does not know
+# z2ui5cc.cc.Counter - a custom control is invisible to it by definition.
+name: check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  abaplint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: abaplint (expect 0 issues)
+        run: npx --yes @abaplint/cli@latest abaplint.jsonc
+
+  app2bsp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # the generated BSP artefacts must match app/webapp - a stale page would
+      # deploy old JavaScript without anyone noticing
+      - name: app2bsp is up to date
+        run: |
+          npm run app2bsp
+          git diff --exit-code -- src
+
+  js:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: syntax check the custom controls
+        run: for f in app/webapp/cc/*.js; do node --check "$f"; done
