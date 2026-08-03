@@ -1,0 +1,44 @@
+# abaplint against the abap2UI5 framework dependency.
+#
+# The abap2UI5-linter's headless view render is deliberately not run here: it
+# validates views against the UI5 metadata snapshot, which does not know
+# testcc.cc.Counter - a custom control is invisible to it by definition.
+name: check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  abaplint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: abaplint (expect 0 issues)
+        run: npx --yes @abaplint/cli@latest abaplint.jsonc
+
+  js2abap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # the generated ABAP holder classes must match app/cc/*.js
+      - name: js2abap is up to date
+        run: |
+          npm run js2abap
+          git diff --exit-code -- src

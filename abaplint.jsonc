@@ -1,0 +1,44 @@
+{
+  "global": {
+    "files": "/src/**/*.*"
+  },
+  "dependencies": [
+    {
+      // the abap2UI5 framework these controls plug into - cloned by abaplint
+      // for dependency resolution (z2ui5_if_app, z2ui5_if_client,
+      // z2ui5_if_exit, z2ui5_cl_ai_xml)
+      "url": "https://github.com/abap2UI5/abap2UI5",
+      "files": "/src/**/*.*"
+    }
+  ],
+  "syntax": {
+    "version": "v750",
+    "errorNamespace": "^(Z|Y)"
+  },
+  "rules": {
+    "begin_end_names": true,
+    "check_ddic": true,
+    "check_include": true,
+    "check_syntax": true,
+    "global_class": true,
+    "implement_methods": true,
+    "method_implemented_twice": true,
+    "parser_error": true,
+    "superclass_final": true,
+    "unknown_types": true,
+    "allowed_object_types": {
+      "allowed": ["CLAS", "DEVC", "INTF"]
+    },
+    "obsolete_statement": true,
+    "definitions_top": false,
+    "7bit_ascii": true,
+    "line_length": {
+      "length": 255
+    },
+    "object_naming": {
+      "patternKind": "required",
+      "clas": "^ZCL_|^ZCX_",
+      "intf": "^ZIF_"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "test-cc",
+  "version": "0.0.1",
+  "private": true,
+  "description": "abap2UI5 custom controls shipped outside the framework",
+  "type": "module",
+  "scripts": {
+    "js2abap": "node tools/js2abap.mjs"
+  }
+}
