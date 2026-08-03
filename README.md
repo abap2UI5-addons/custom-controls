@@ -50,16 +50,22 @@ as a normal abap2UI5 event.
 | `app/webapp/cc/Counter.js` | the control — plain UI5, the single source of truth |
 | `app/webapp/index.html` | placeholder start page; the BSP has no UI of its own |
 | `src/z2ui5cc.wapa.*` | **generated** BSP artefacts (`npm run app2bsp`) |
+| `src/z2ui5cc *.sicf.xml` | **generated** ICF nodes the BSP is served from |
 | `src/zcl_z2ui5cc_counter.clas.abap` | the ABAP half: the view builder |
 | `src/zcl_z2ui5cc_demo.clas.abap` | demo app — `?app_start=zcl_z2ui5cc_demo` |
 
 ## Install
 
-1. Install this repository with abapGit — it deploys the ABAP classes **and**
-   the BSP application `Z2UI5CC`.
-2. Make sure the abap2UI5 frontend BSP declares the `z2ui5cc` resourceRoot
-   (see above).
-3. Start `?app_start=zcl_z2ui5cc_demo`.
+1. Install this repository with abapGit — it deploys the ABAP classes, the BSP
+   application `Z2UI5CC` and the two ICF nodes it is served from
+   (`/sap/bc/ui5_ui5/sap/z2ui5cc/` and `/sap/bc/bsp/sap/z2ui5cc/`).
+2. Check the BSP answers: `/sap/bc/ui5_ui5/sap/z2ui5cc/cc/Counter.js` must
+   return the JavaScript. `ICF Node NOT found!` means the SICF objects were
+   not deserialized — activate the node in `SICF` and re-check.
+3. Make sure the abap2UI5 frontend BSP declares the `z2ui5cc` resourceRoot
+   (see above); `sap.ui.require.toUrl("z2ui5cc/cc/Counter.js")` in the browser
+   console must return the BSP path, not `resources/…`.
+4. Start `?app_start=zcl_z2ui5cc_demo`.
 
 ## Verified
 
