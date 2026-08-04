@@ -25,16 +25,21 @@ CLASS zcl_z2ui5cc_driverjs DEFINITION
 
   PUBLIC SECTION.
 
-    "! which buttons a popover shows, as a JSON array literal
+    "! Which buttons a popover shows, as a comma separated list.
+    "!
+    "! driver.js wants a JavaScript array here; the control splits the list.
+    "! The addon this was ported from put a JSON array LITERAL into an ABAP
+    "! string (<em>['next','close']</em>), which reaches the frontend as a
+    "! string and never as an array - so the option silently did nothing.
     CONSTANTS:
       BEGIN OF cs_buttons,
-        all            TYPE string VALUE `['next','previous','close']`,
-        next           TYPE string VALUE `['next']`,
-        previous       TYPE string VALUE `['previous']`,
-        close          TYPE string VALUE `['close']`,
-        next_previous  TYPE string VALUE `['next','previous']`,
-        next_close     TYPE string VALUE `['next','close']`,
-        previous_close TYPE string VALUE `['previous','close']`,
+        all            TYPE string VALUE `next,previous,close`,
+        next           TYPE string VALUE `next`,
+        previous       TYPE string VALUE `previous`,
+        close          TYPE string VALUE `close`,
+        next_previous  TYPE string VALUE `next,previous`,
+        next_close     TYPE string VALUE `next,close`,
+        previous_close TYPE string VALUE `previous,close`,
       END OF cs_buttons.
 
     "! which side of the element the popover sits on

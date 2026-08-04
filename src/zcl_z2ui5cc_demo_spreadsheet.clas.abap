@@ -125,15 +125,44 @@ CLASS zcl_z2ui5cc_demo_spreadsheet IMPLEMENTATION.
                         custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                             iv_first_json_upper = abap_false ) ) ).
 
+    " Eight columns without widths make sap.m.Table as wide as their content
+    " wants, which pushes the toolbar's Export button off the right edge. Fixed
+    " widths keep the table inside the page; the ones that are only detail get
+    " demandPopin so a narrow screen folds them under the row.
     DATA(columns) = table->open( `columns` ).
-    columns->open( `Column` )->leaf( `Text` )->a( n = `text` v = `Row` )->shut( ).
-    columns->open( `Column` )->leaf( `Text` )->a( n = `text` v = `Product` )->shut( ).
-    columns->open( `Column` )->leaf( `Text` )->a( n = `text` v = `Created` )->shut( ).
-    columns->open( `Column` )->leaf( `Text` )->a( n = `text` v = `Author` )->shut( ).
-    columns->open( `Column` )->leaf( `Text` )->a( n = `text` v = `Location` )->shut( ).
-    columns->open( `Column` )->leaf( `Text` )->a( n = `text` v = `Quantity` )->shut( ).
-    columns->open( `Column` )->leaf( `Text` )->a( n = `text` v = `Unit` )->shut( ).
-    columns->open( `Column` )->leaf( `Text` )->a( n = `text` v = `Price` )->shut( ).
+    columns->open( `Column`
+        )->a( n = `width` v = `5rem`
+        )->leaf( `Text` )->a( n = `text` v = `Row` )->shut( ).
+    columns->open( `Column`
+        )->a( n = `width` v = `9rem`
+        )->leaf( `Text` )->a( n = `text` v = `Product` )->shut( ).
+    columns->open( `Column`
+        )->a( n = `width` v = `8rem`
+        )->a( n = `minScreenWidth` v = `Tablet`
+        )->a( n = `demandPopin` v = `true`
+        )->leaf( `Text` )->a( n = `text` v = `Created` )->shut( ).
+    columns->open( `Column`
+        )->a( n = `width` v = `8rem`
+        )->a( n = `minScreenWidth` v = `Tablet`
+        )->a( n = `demandPopin` v = `true`
+        )->leaf( `Text` )->a( n = `text` v = `Author` )->shut( ).
+    columns->open( `Column`
+        )->a( n = `minScreenWidth` v = `Desktop`
+        )->a( n = `demandPopin` v = `true`
+        )->leaf( `Text` )->a( n = `text` v = `Location` )->shut( ).
+    columns->open( `Column`
+        )->a( n = `width` v = `7rem`
+        )->a( n = `hAlign` v = `End`
+        )->leaf( `Text` )->a( n = `text` v = `Quantity` )->shut( ).
+    columns->open( `Column`
+        )->a( n = `width` v = `5rem`
+        )->a( n = `minScreenWidth` v = `Tablet`
+        )->a( n = `demandPopin` v = `true`
+        )->leaf( `Text` )->a( n = `text` v = `Unit` )->shut( ).
+    columns->open( `Column`
+        )->a( n = `width` v = `8rem`
+        )->a( n = `hAlign` v = `End`
+        )->leaf( `Text` )->a( n = `text` v = `Price` )->shut( ).
 
     table->open( `items`
         )->open( `ColumnListItem`

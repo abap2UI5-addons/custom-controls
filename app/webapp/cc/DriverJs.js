@@ -66,15 +66,38 @@ sap.ui.define(
         return control ? `#${control.getId()}` : element;
       },
 
+      // driver.js wants arrays for showButtons/disableButtons, but ABAP has no
+      // natural way to send one per option, so they travel as comma separated
+      // lists and are split here. An empty list is dropped rather than sent as
+      // [], which would mean "no buttons at all" and strand the user in a tour
+      // with no way forward and no way out.
+      _buttons(target, source) {
+        ["showButtons", "disableButtons"].forEach((key) => {
+          if (typeof source[key] !== "string") return;
+          const list = Util.toList(source[key]);
+          if (list.length) target[key] = list;
+          else delete target[key];
+        });
+      },
+
       _resolveSteps(config) {
-        if (!config || !Array.isArray(config.steps)) return config;
-        return {
-          ...config,
-          steps: config.steps.map((step) => ({
-            ...step,
-            element: this._selector(step.element),
-          })),
-        };
+        if (!config) return config;
+
+        const out = { ...config };
+        this._buttons(out, config);
+
+        if (Array.isArray(config.steps)) {
+          out.steps = config.steps.map((step) => {
+            const next = { ...step, element: this._selector(step.element) };
+            if (next.popover) {
+              next.popover = { ...next.popover };
+              this._buttons(next.popover, step.popover);
+            }
+            return next;
+          });
+        }
+
+        return out;
       },
 
       _applyCustomCss() {
@@ -101,6 +124,10 @@ sap.ui.define(
 
         const base = this._resolveSteps(this.getConfig()) || {};
         const config = {
+          // Spelled out rather than left to driver.js' default: a tour with no
+          // navigation traps the user on step one, so the buttons must not
+          // depend on anything the backend did or did not send.
+          showButtons: ["next", "previous", "close"],
           ...base,
           onHighlighted: (element, step, options) => {
             const index = options && options.state ? options.state.activeIndex : 0;
