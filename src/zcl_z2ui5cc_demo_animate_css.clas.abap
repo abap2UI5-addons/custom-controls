@@ -25,12 +25,13 @@ CLASS zcl_z2ui5cc_demo_animate_css DEFINITION
         class TYPE string,
       END OF ty_s_row.
 
-    DATA t_row     TYPE STANDARD TABLE OF ty_s_row WITH EMPTY KEY.
-    DATA duration  TYPE string.
-    DATA repeat    TYPE string.
+    DATA duration TYPE string.
+    DATA repeat   TYPE string.
 
   PROTECTED SECTION.
     DATA client TYPE REF TO z2ui5_if_client.
+    " not bound - the rows are emitted into the XML, see view_display( )
+    DATA t_row  TYPE STANDARD TABLE OF ty_s_row WITH EMPTY KEY.
 
     METHODS view_display.
     METHODS on_event.
@@ -112,8 +113,6 @@ CLASS zcl_z2ui5cc_demo_animate_css IMPLEMENTATION.
                   v = client->_event( `REPLAY` ) ).
 
     DATA(table) = page->open( `Table`
-                      )->a( n = `items`
-                            v = client->_bind( t_row )
                       )->a( n = `class`
                             v = `sapUiSmallMargin`
                       )->a( n = `mode`
@@ -125,19 +124,26 @@ CLASS zcl_z2ui5cc_demo_animate_css IMPLEMENTATION.
         )->open( `Column` )->leaf( `Text` )->a( n = `text` v = `Class`
         )->shut( ).
 
-    " the class comes out of the model, so the whole table is data driven -
-    " the animation name and the class that plays it are the same string
-    table->open( `items`
-        )->open( `ColumnListItem`
-            )->open( `cells`
-                )->leaf( `Title`
-                    )->a( n = `text`
-                          v = `{NAME}`
-                    )->a( n = `class`
-                          v = |{ zcl_z2ui5cc_animate_css=>cs_base } \{CLASS\}|
-                )->leaf( `Text`
-                    )->a( n = `text`
-                          v = `{CLASS}` ).
+    " The rows are built here, in ABAP, instead of binding the table to
+    " t_row - because `class` in a UI5 XML view is NOT a bindable property.
+    " It is a static style-class attribute the view parser hands to
+    " addStyleClass, so a binding expression in it is never substituted and
+    " every row would end up carrying that expression as its literal class
+    " name. The class has to reach the XML as a literal, which means emitting
+    " one row per animation - the way the addon's sample did it.
+    DATA(items) = table->open( `items` ).
+    LOOP AT t_row INTO DATA(ls_row).
+      items->open( `ColumnListItem`
+          )->open( `cells`
+              )->leaf( `Title`
+                  )->a( n = `text`
+                        v = ls_row-name
+                  )->a( n = `class`
+                        v = |{ zcl_z2ui5cc_animate_css=>cs_base } { ls_row-class }|
+              )->leaf( `Text`
+                  )->a( n = `text`
+                        v = ls_row-class ).
+    ENDLOOP.
 
     client->view_display( view->stringify( ) ).
 

@@ -87,8 +87,14 @@ CLASS zcl_z2ui5cc_demo IMPLEMENTATION.
             )->open( `Table`
                 )->a( n = `items`
                       v = client->_bind( t_controls )
+                " width=auto belongs WITH the margin class: a sap.m.Table is
+                " 100% wide by default, so adding a left and right margin makes
+                " it 100% + 2rem and the last column hangs off the right edge.
+                " `auto` lets the margins come out of the width instead.
+                )->a( n = `width`
+                      v = `auto`
                 )->a( n = `class`
-                      v = `sapUiSmallMarginBeginEnd`
+                      v = `sapUiResponsiveMargin`
 
                 " Widths matter here: without them sap.m.Table hands every
                 " column as much room as its content wants, and three long text
@@ -183,7 +189,9 @@ CLASS zcl_z2ui5cc_demo IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    DATA li_app TYPE REF TO z2ui5_if_app.
+    " instantiated only to fail early with a readable message - the tab below
+    " would otherwise open on a dump
+    DATA li_app TYPE REF TO z2ui5_if_app ##NEEDED.
     TRY.
         CREATE OBJECT li_app TYPE (lv_class).
       CATCH cx_root.
@@ -192,7 +200,12 @@ CLASS zcl_z2ui5cc_demo IMPLEMENTATION.
         RETURN.
     ENDTRY.
 
-    client->nav_app_call( li_app ).
+    " Open in a new tab rather than navigating: the overview stays put, so
+    " trying the next control does not mean walking back first. The URL is
+    " relative on purpose - open_new_tab refuses anything that does not
+    " resolve to the same origin.
+    client->follow_up_action( val   = client->cs_event-open_new_tab
+                              t_arg = VALUE #( ( |?app_start={ lv_class }| ) ) ).
 
   ENDMETHOD.
 

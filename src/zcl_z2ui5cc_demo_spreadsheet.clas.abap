@@ -99,8 +99,12 @@ CLASS zcl_z2ui5cc_demo_spreadsheet IMPLEMENTATION.
                             v = `exportTable`
                       )->a( n = `items`
                             v = client->_bind( t_row )
+                      " see zcl_z2ui5cc_demo: width=auto belongs with a margin
+                      " class, or the table is 100% + margins and overflows
+                      )->a( n = `width`
+                            v = `auto`
                       )->a( n = `class`
-                            v = `sapUiSmallMargin` ).
+                            v = `sapUiResponsiveMargin` ).
 
     " the export button lives in the table's own toolbar
     DATA(toolbar) = table->open( `headerToolbar`
