@@ -85,7 +85,8 @@ Reads the bound table in the browser, so the data makes no second trip to the
 backend. Needs SAPUI5 — under OpenUI5 `sap.ui.export` is missing and the button
 renders disabled.
 
-<img width="769" height="666" alt="image" src="https://github.com/user-attachments/assets/16967120-1728-4bb6-b65f-64e9e4ee1555" />
+<img width="1252" height="459" alt="image" src="https://github.com/user-attachments/assets/d56be5d4-f43c-4812-94f8-083e38d0fcc2" />
+
 
 ### Validator
 
@@ -95,7 +96,7 @@ Rule fields: `field`, `type` (`number`/`integer`), `format` (`email`/`date`),
 `pattern`, `required`, `minlength`, `maxlength`, `minimum`, `maximum`,
 `message`. No external library — works without internet access.
 
-<img width="763" height="629" alt="image" src="https://github.com/user-attachments/assets/cb361379-6255-4c4b-a719-0ddc46914fea" />
+<img width="1252" height="639" alt="image" src="https://github.com/user-attachments/assets/4e2d1f59-c376-449b-97e1-0321ee88c6dd" />
 
 
 ### ChartJs
