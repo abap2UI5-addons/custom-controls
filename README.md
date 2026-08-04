@@ -221,7 +221,7 @@ document it expects and keeps its CSS and its globals to itself.
 
 `editorUrl` defaults to the copy in this BSP and is a plain property, so the
 editor may equally be served from another BSP, a web server or a CDN. The
-contract is the postMessage protocol in `app/webapp/lib/imagemap-editor/bridge.js`
+contract is the postMessage protocol in `app/webapp/editor/bridge.js`
 — four messages, all plain data. Note that some CDNs serve `.html` as
 `text/plain` on purpose (an anti-hosting measure); an iframe pointed at one
 would then show source text rather than the editor.
@@ -281,7 +281,7 @@ injected into every view that used them.
 ### The one exception: the image-map editor
 
 `ImageMapEditor` is the only control whose library ships **inside** this
-repository, under `app/webapp/lib/imagemap-editor/`:
+repository, under `app/webapp/editor/`:
 
 | File | What it is |
 |---|---|
@@ -356,7 +356,7 @@ written back into the model, and events arrive in `on_event`.
 |---|---|
 | `app/webapp/cc/*.js` | the controls — plain UI5, the single source of truth |
 | `app/webapp/cc/Util.js` | the loader / id-resolution helpers the controls share |
-| `app/webapp/lib/imagemap-editor/` | the editor page `ImageMapEditor` shows — the one vendored library here |
+| `app/webapp/editor/` | the editor page `ImageMapEditor` shows — the one vendored library here |
 | `app/webapp/index.html` | placeholder start page; the BSP has no UI of its own |
 | `tools/app2bsp.mjs` | generates the abapGit BSP artefacts from `app/webapp` |
 | `src/z2ui5cc.wapa.*` | **generated**: BSP pages, page directory, path mapping |
@@ -369,6 +369,21 @@ written back into the model, and events arrive in `on_event`.
 BSP pages are written space-padded to 255-character lines, the same format the
 frontend repo's `app2bsp` uses, so a pull into SAP and a re-serialize produce no
 diff.
+
+**File names under `app/webapp` become BSP page names, and SAP validates
+those.** Keep to at most one directory level and to letters, digits, `_` and
+`.` — the shape the frontend BSP has always shipped. `app2bsp` refuses anything
+else, because the alternative is finding out on import:
+
+```
+CL_O2_API_PAGES=>CREATE_NEW_PAGE sy-subrc=2 (invalid_name)
+page='lib/imagemap-editor/bridge.js' ...
+Import of object Z2UI5CC failed
+```
+
+That is a real failure this repository produced — a two-level path with a
+hyphen in it. Which of the two SAP objected to was never established, so
+neither is used.
 
 ## Install
 
@@ -387,7 +402,7 @@ Those two checks separate a BSP problem from a frontend-manifest problem, which
 look identical from inside the app.
 
 **If you use `ImageMapEditor`**, check one more thing:
-`/sap/bc/ui5_ui5/sap/z2ui5cc/lib/imagemap-editor/index.html` must come back
+`/sap/bc/ui5_ui5/sap/z2ui5cc/editor/index.html` must come back
 with `Content-Type: text/html`. Only the BSP's own start page carries an
 explicit MIME type in the generated artefacts; a page in a subfolder relies on
 the UI5 repository deriving the type from the extension. If your system serves

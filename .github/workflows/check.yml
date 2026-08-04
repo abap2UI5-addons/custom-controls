@@ -55,4 +55,4 @@ jobs:
       # lib/ too: the image-map editor is served from this BSP, so a syntax
       # error there breaks a control just as surely as one under cc/
       - name: syntax check the custom controls
-        run: for f in app/webapp/cc/*.js app/webapp/lib/*/*.js; do node --check "$f"; done
+        run: for f in app/webapp/cc/*.js app/webapp/editor/*.js; do node --check "$f"; done

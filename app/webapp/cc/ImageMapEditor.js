@@ -31,9 +31,12 @@ sap.ui.define(
 
     // Resolved against this control's own module, so it keeps working from the
     // Z2UI5CC BSP, from the Launchpad and from the standalone service alike.
-    const DEFAULT_URL = sap.ui.require.toUrl(
-      "z2ui5cc/lib/imagemap-editor/index.html",
-    );
+    //
+    // The path is deliberately flat and plain: `editor/`, one level, no
+    // hyphen - see tools/app2bsp.mjs, which rejects anything else. A BSP page
+    // name that SAP will not accept only surfaces on import, long after the
+    // generated artefacts looked fine in git.
+    const DEFAULT_URL = sap.ui.require.toUrl("z2ui5cc/editor/index.html");
 
     // postMessage needs a concrete target origin. Same-origin is the normal
     // case (the editor ships in this BSP); for an absolute URL take its
