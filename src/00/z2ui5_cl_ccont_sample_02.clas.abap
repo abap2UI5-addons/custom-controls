@@ -96,7 +96,7 @@ CLASS z2ui5_cl_ccont_sample_02 IMPLEMENTATION.
                             v = `exportTable`
                       )->a( n = `items`
                             v = client->_bind( t_row )
-                      " see z2ui5_cl_ccont_overview: width=auto belongs with a margin
+                      " see z2ui5_cl_ccont_sample_00: width=auto belongs with a margin
                       " class, or the table is 100% + margins and overflows
                       )->a( n = `width`
                             v = `auto`

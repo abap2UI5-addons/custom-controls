@@ -1,12 +1,12 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - overview</p>
 "!
-"! Start with: <em>?app_start=z2ui5_cl_ccont_overview</em>
+"! Start with: <em>?app_start=z2ui5_cl_ccont_sample_00</em>
 "!
 "! Front door of this control library: lists every custom control it ships and
 "! launches its demo app. Use it to check an installation - if the list renders
 "! and a demo runs, the Z2UI5CC BSP is deployed and the abap2UI5 frontend
 "! resolves the reserved resourceRoot correctly.
-CLASS z2ui5_cl_ccont_overview DEFINITION
+CLASS z2ui5_cl_ccont_sample_00 DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -37,7 +37,7 @@ CLASS z2ui5_cl_ccont_overview DEFINITION
 ENDCLASS.
 
 
-CLASS z2ui5_cl_ccont_overview IMPLEMENTATION.
+CLASS z2ui5_cl_ccont_sample_00 IMPLEMENTATION.
 
   METHOD z2ui5_if_app~main.
 
