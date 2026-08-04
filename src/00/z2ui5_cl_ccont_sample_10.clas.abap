@@ -2,10 +2,11 @@
 "!
 "! Start with: <em>?app_start=z2ui5_cl_ccont_sample_10</em>
 "!
-"! Editor on the left, rendered document on the right. Both are bound to the
-"! SAME ABAP attribute, so the preview follows every keystroke without a
-"! roundtrip - the control re-renders from the model the TextArea writes into.
-"! That is the whole integration: no live-change event, no view_model_update( ).
+"! Editor on the left, rendered document on the right - two controls of this
+"! library side by side. Both are bound to the SAME ABAP attribute, so the
+"! preview follows every keystroke without a roundtrip: the Markdown control
+"! re-renders from the model the CodeEditor writes into. That is the whole
+"! integration - no live-change event, no view_model_update( ).
 "!
 "! The examples cover what Markdown is normally reached for here: a document
 "! with headings and a table, a code block, in-app links, and the raw-HTML case
@@ -150,7 +151,7 @@ CLASS z2ui5_cl_ccont_sample_10 IMPLEMENTATION.
         )->a( n = `alignItems`
               v = `Stretch` ).
 
-    grid->open( `VBox`
+    DATA(left) = grid->open( `VBox`
         )->a( n = `class`
               v = `sapUiTinyMarginEnd`
         )->a( n = `width`
@@ -158,19 +159,18 @@ CLASS z2ui5_cl_ccont_sample_10 IMPLEMENTATION.
 
         )->leaf( `Label`
             )->a( n = `text`
-                  v = `Markdown source`
-        )->leaf( `TextArea`
-            )->a( n = `value`
-                  " same attribute the control below renders - that is what
-                  " makes the preview live without an event
-                  v = client->_bind( source )
-            )->a( n = `rows`
-                  v = `22`
-            )->a( n = `growing`
-                  v = `false`
-            )->a( n = `width`
-                  v = `100%`
-    )->shut( ).
+                  v = `Markdown source` ).
+
+    " The editor is UI5's own sap.ui.codeeditor - monospace, line numbers and
+    " markdown highlighting, loaded from the UI5 distribution rather than a
+    " CDN. `value` is bound to the SAME attribute the preview renders, which
+    " is what makes the preview follow the typing without an event.
+    z2ui5_cl_ccont_code_editor=>render( view   = left
+                                        value  = client->_bind( source )
+                                        type   = z2ui5_cl_ccont_code_editor=>cs_type-markdown
+                                        height = `28rem` ).
+
+    left->shut( ).
 
     DATA(right) = grid->open( `VBox`
         )->a( n = `width`
