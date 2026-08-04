@@ -74,6 +74,8 @@ Sample classes are `z2ui5_cl_ccont_sample_NN` — start any of them directly wit
 The value is published on pointer-up, not per mouse move. To clear the pad, set
 the bound variable to empty.
 
+<img width="769" height="597" alt="image" src="https://github.com/user-attachments/assets/8aa59505-c73e-4f56-8df9-71b127fea574" />
+
 ### ExportSpreadsheet
 
 `tableid`, `columns` (a `ty_t_column` table), `filename`, `sheetname`, `text`,
@@ -83,6 +85,8 @@ Reads the bound table in the browser, so the data makes no second trip to the
 backend. Needs SAPUI5 — under OpenUI5 `sap.ui.export` is missing and the button
 renders disabled.
 
+<img width="769" height="666" alt="image" src="https://github.com/user-attachments/assets/16967120-1728-4bb6-b65f-64e9e4ee1555" />
+
 ### Validator
 
 `rules` (a `ty_t_rule` table), `trigger`, `valid`, `errors` · event `validated`.
@@ -90,6 +94,9 @@ renders disabled.
 Rule fields: `field`, `type` (`number`/`integer`), `format` (`email`/`date`),
 `pattern`, `required`, `minlength`, `maxlength`, `minimum`, `maximum`,
 `message`. No external library — works without internet access.
+
+<img width="763" height="629" alt="image" src="https://github.com/user-attachments/assets/cb361379-6255-4c4b-a719-0ddc46914fea" />
+
 
 ### ChartJs
 
@@ -102,6 +109,8 @@ update in place. `plugins` takes the names from
 `z2ui5_cl_ccont_chartjs=>cs_plugin` (`datalabels`, `autocolors`, `deferred`,
 `annotation`, `venn`, `wordcloud`).
 
+<img width="1248" height="630" alt="image" src="https://github.com/user-attachments/assets/7b20eb12-1823-4b25-a3ad-0dfcab95077a" />
+
 ### Barcode
 
 `bcid`, `text`, `alttext`, `scale`, `height`, `includetext`, `textalign`,
@@ -112,6 +121,8 @@ event `error`.
 values that encode cleanly. Leave `height` empty for 2D codes — a fixed height
 squashes a QR code.
 
+<img width="1250" height="626" alt="image" src="https://github.com/user-attachments/assets/5dbed958-a00d-4b4d-9bc1-e36007e51e7c" />
+
 ### DriverJs
 
 `config` (a `ty_s_config` structure), `highlight`, `mode`, `trigger`,
@@ -119,6 +130,9 @@ squashes a QR code.
 
 A step's `element` is the **control id from your view**, not a CSS selector; it
 is resolved in the frontend, so a step may point into a nested view or a dialog.
+
+<img width="1244" height="565" alt="image" src="https://github.com/user-attachments/assets/a32d6e9d-ac58-4152-8af0-8d191fc51598" />
+
 
 ### FontAwesome
 
@@ -129,6 +143,8 @@ One element in the view and Font Awesome is available two ways: as UI5 icons
 (`class="fa-brands fa-github"`). `fonturi` points at a directory holding the font
 *and* the metadata JSON the UI5 IconPool needs.
 
+<img width="1248" height="507" alt="image" src="https://github.com/user-attachments/assets/1545f3d3-0c26-4797-aba9-d1a1de108d4c" />
+
 ### AnimateCss
 
 `duration`, `delay`, `repeat`, `cssurl`.
@@ -138,6 +154,8 @@ animates. The class names are constants on `z2ui5_cl_ccont_animate_css`
 (`cs_base`, `cs_attention-*`, `cs_entrance-*`, `cs_exit-*`, `cs_modifier-*`).
 `duration`/`delay`/`repeat` retune every animation on the page at once.
 
+<img width="1253" height="623" alt="image" src="https://github.com/user-attachments/assets/b6969b85-73e6-4a27-a7e2-91d78d170b5f" />
+
 ### ImageMapster
 
 `src`, `areas` (a `ty_t_area` table), `config`, `selectedkeys` (bind two-way),
@@ -146,6 +164,8 @@ animates. The class names are constants on `z2ui5_cl_ccont_animate_css`
 Turns a floor plan or a machine drawing into an input control: regions highlight,
 the selection is written back into the model and a click raises a backend event
 carrying the region key. Colours are hex **without** a leading `#`.
+
+<img width="1245" height="508" alt="image" src="https://github.com/user-attachments/assets/b42ba83a-ed4a-43eb-9d06-25f46a493804" />
 
 ## Two things to know
 
@@ -168,6 +188,8 @@ ABAP has no "unset" for a structure component: fields you never touched still
 serialize as `""`, `0` or `false`, and `borderWidth: 0` draws no border. The
 filter drops initial values so the library's own defaults survive. The flip side:
 a value that *is* meaningfully zero, empty or false cannot be sent this way.
+
+
 
 ### Third-party libraries and systems without internet
 
