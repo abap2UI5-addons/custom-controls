@@ -96,7 +96,7 @@ Rule fields: `field`, `type` (`number`/`integer`), `format` (`email`/`date`),
 `pattern`, `required`, `minlength`, `maxlength`, `minimum`, `maximum`,
 `message`. No external library — works without internet access.
 
-<img width="1252" height="639" alt="image" src="https://github.com/user-attachments/assets/4e2d1f59-c376-449b-97e1-0321ee88c6dd" />
+<img width="1246" height="636" alt="image" src="https://github.com/user-attachments/assets/c47560cc-503e-439e-a907-f2ff76790b70" />
 
 
 ### ChartJs
