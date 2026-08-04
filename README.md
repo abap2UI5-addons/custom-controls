@@ -1,9 +1,9 @@
 # abap2UI5 custom controls
 
-Nine ready-to-use custom controls for
+Ten ready-to-use custom controls for
 [abap2UI5](https://github.com/abap2UI5/abap2UI5) — signature pad, charts,
-barcodes, Excel export, form validation, product tours, Font Awesome, animations
-and clickable image maps.
+barcodes, Excel export, form validation, product tours, Font Awesome, animations,
+clickable image maps and Markdown.
 
 They ship in their **own BSP** (`Z2UI5CC`), not inside the framework. Install this
 repository and the controls are there; nothing in abap2UI5 or in the frontend BSP
@@ -62,6 +62,7 @@ and events arrive in `on_event` like for any built-in control.
 | FontAwesome | [Font Awesome](https://fontawesome.com) as UI5 icons and CSS classes | `z2ui5_cl_ccont_font_awesome` | `..._sample_07` |
 | AnimateCss | [animate.css](https://animate.style) class names on any control | `z2ui5_cl_ccont_animate_css` | `..._sample_08` |
 | ImageMapster | clickable, highlighting regions on an image | `z2ui5_cl_ccont_imagemapster` | `..._sample_09` |
+| Markdown | Markdown from ABAP as HTML, with [marked](https://marked.js.org) | `z2ui5_cl_ccont_markdown` | `..._sample_10` |
 
 Sample classes are `z2ui5_cl_ccont_sample_NN` — start any of them directly with
 `?app_start=…`, or browse them from `z2ui5_cl_ccont_sample_00`.
@@ -168,6 +169,27 @@ carrying the region key. Colours are hex **without** a leading `#`.
 
 <img width="1245" height="508" alt="image" src="https://github.com/user-attachments/assets/b42ba83a-ed4a-43eb-9d06-25f46a493804" />
 
+### Markdown
+
+`value` (the Markdown source), `sanitize`, `breaks`, `gfm`, `width`, `height`,
+`liburl`, `purifyurl` · event `linkpress`.
+
+UI5 has no Markdown control. `sap.m.FormattedText` takes HTML and whitelists
+only a few tags, so anything with a heading, a table and a code block has to be
+assembled as HTML in ABAP — bind a Markdown string instead. Useful for long
+texts, release notes, help pages and LLM answers, which come out of every model
+as Markdown already.
+
+Bind the same attribute to a `TextArea` and to this control and the preview
+follows every keystroke without a roundtrip.
+
+The rendered HTML goes through [DOMPurify](https://github.com/cure53/DOMPurify)
+unless `sanitize` is set to `false`. Leave it on for anything a user typed or a
+model produced: Markdown carries raw HTML through, and unsanitized that HTML
+runs with the user's session. A link whose href starts with `#` does not
+navigate — it raises `linkpress` with the href, which is how a help text links
+into the app it documents. Every other link opens in a new tab.
+
 ## Two things to know
 
 ### Binding a configuration structure
@@ -194,8 +216,9 @@ a value that *is* meaningfully zero, empty or false cannot be sent this way.
 
 ### Third-party libraries and systems without internet
 
-Six controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
-driver.js 1, Font Awesome 6, animate.css 4, jquery.imagemapster 1.5. Nothing is
+Seven controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
+driver.js 1, Font Awesome 6, animate.css 4, jquery.imagemapster 1.5, and
+marked 12 together with DOMPurify 3. Nothing is
 vendored here; each control loads its library on first use from the URL in its
 `liburl` / `cssurl` property, which defaults to jsDelivr. Loading is cached per
 URL, so ten charts on a page fetch Chart.js once.
