@@ -1,5 +1,5 @@
 {
-  "name": "test-cc",
+  "name": "custom-controls",
   "version": "0.0.1",
   "private": true,
   "description": "abap2UI5 custom controls shipped outside the framework",

@@ -11,7 +11,9 @@ import { readdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { join, relative, sep, dirname } from "node:path";
 
 const SOURCE_DIR = "app/webapp";
-const TARGET_DIR = "src";
+// the BSP artefacts live in their own subpackage - src/ root carries the
+// library and the view builders, src/00 the samples
+const TARGET_DIR = "src/01";
 const BSP = "Z2UI5CC";
 const PREFIX = "z2ui5cc.wapa.";
 const MAPPING_PAGE = "UI5RepositoryPathMapping.xml";
@@ -35,6 +37,36 @@ const ICF_NAME_WIDTH = 15;
 // and no newline after the last line. Emitting the same format means pulling
 // into SAP and re-serializing produces no diff.
 const LINE_WIDTH = 255;
+
+// SAP validates a BSP page name on import, and a rejected one fails the whole
+// deserialization with a bare
+//   CL_O2_API_PAGES=>CREATE_NEW_PAGE sy-subrc=2 (invalid_name)
+// - after the generated artefacts looked perfectly fine in git and in CI. So
+// the check happens here instead.
+//
+// The shape below is the one the abap2UI5 frontend BSP has always shipped and
+// that is therefore known to import: at most one directory level, and names
+// built from letters, digits, underscore and dot only. A two-level path with a
+// hyphen in it (`lib/imagemap-editor/bridge.js`) was rejected by a real system;
+// which of the two SAP objected to was never established, so neither is used.
+const PAGE_SEGMENT = /^[A-Za-z0-9_.]+$/;
+const MAX_DEPTH = 1;
+
+function assertPageName(rel) {
+  const parts = rel.split("/");
+  if (parts.length - 1 > MAX_DEPTH) {
+    throw new Error(
+      `${rel}: BSP pages may be at most ${MAX_DEPTH} directory level deep`,
+    );
+  }
+  const bad = parts.filter((p) => !PAGE_SEGMENT.test(p));
+  if (bad.length) {
+    throw new Error(
+      `${rel}: BSP page names allow letters, digits, '_' and '.' only - ` +
+        `offending: ${bad.join(", ")}`,
+    );
+  }
+}
 
 function collect(dir, base = dir) {
   const files = [];
@@ -202,6 +234,14 @@ for (const f of readdirSync(TARGET_DIR)) {
 const files = collect(SOURCE_DIR);
 if (files.length === 0) {
   console.error(`no files found under ${SOURCE_DIR}/`);
+  process.exit(1);
+}
+
+// fail here, not on the customer's import
+try {
+  files.forEach(assertPageName);
+} catch (e) {
+  console.error(e.message);
   process.exit(1);
 }
 

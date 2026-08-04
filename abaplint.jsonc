@@ -9,6 +9,15 @@
       // z2ui5_if_exit, z2ui5_cl_ai_xml)
       "url": "https://github.com/abap2UI5/abap2UI5",
       "files": "/src/**/*.*"
+    },
+    {
+      // SAP standard objects abaplint cannot know by itself - here
+      // if_serializable_object, which every custom filter/mapper handed to
+      // client->_bind( ) has to implement. Same dependency the abap2UI5
+      // samples repository uses.
+      "url": "https://github.com/abapedia/steampunk-2305-api-intersect-702",
+      "folder": "/deps",
+      "files": "/src/**/*.*"
     }
   ],
   "syntax": {
@@ -40,8 +49,10 @@
     },
     "object_naming": {
       "patternKind": "required",
-      "clas": "^ZCL_|^ZCX_",
-      "intf": "^ZIF_"
+      // Z2UI5_CL_CCONT_* - same shape as the framework and the samples
+      // repository use, not the generic ZCL_ prefix
+      "clas": "^Z2UI5_CL_|^Z2UI5_CX_",
+      "intf": "^Z2UI5_IF_"
     }
   }
 }
