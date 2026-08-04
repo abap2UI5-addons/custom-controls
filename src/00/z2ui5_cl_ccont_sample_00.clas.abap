@@ -251,6 +251,10 @@ CLASS z2ui5_cl_ccont_sample_00 IMPLEMENTATION.
       ( name        = `Markdown`
         module      = `z2ui5cc/cc/Markdown`
         description = `Renders a bound Markdown string as HTML, sanitized by default`
+        app         = `Z2UI5_CL_CCONT_SAMPLE_10` )
+      ( name        = `CodeEditor`
+        module      = `z2ui5cc/cc/CodeEditor`
+        description = `Makes UI5's own sap.ui.codeeditor usable from a view, without eval`
         app         = `Z2UI5_CL_CCONT_SAMPLE_10` ) ).
 
   ENDMETHOD.

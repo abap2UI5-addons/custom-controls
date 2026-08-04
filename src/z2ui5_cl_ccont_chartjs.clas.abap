@@ -588,10 +588,10 @@ CLASS z2ui5_cl_ccont_chartjs DEFINITION
         options TYPE ty_options,
       END OF ty_chart.
 
-    "! Plugin names the control knows, for the `plugins` parameter of
-    "! render( ). Pass them comma separated - they are loaded in that order,
-    "! after Chart.js itself, and registered with it.
     CONSTANTS:
+      "! Plugin names the control knows, for the `plugins` parameter of
+      "! render( ). Pass them comma separated - they are loaded in that order,
+      "! after Chart.js itself, and registered with it.
       BEGIN OF cs_plugin,
         "! value labels on the data points
         datalabels TYPE string VALUE `datalabels`,
@@ -607,7 +607,7 @@ CLASS z2ui5_cl_ccont_chartjs DEFINITION
         wordcloud  TYPE string VALUE `wordcloud`,
       END OF cs_plugin.
 
-    "! Emit <z2ui5cc:ChartJs/> into an existing view.
+    "! Emit &lt;z2ui5cc:ChartJs/&gt; into an existing view.
     "!
     "! @parameter view         | the builder positioned at the parent element
     "! @parameter config       | bind of a ty_chart structure, see above

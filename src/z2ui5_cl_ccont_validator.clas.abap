@@ -20,13 +20,13 @@ CLASS z2ui5_cl_ccont_validator DEFINITION
 
   PUBLIC SECTION.
 
-    "! One rule. <em>field</em> is the control id as the app wrote it in the
-    "! view; it is resolved against the view the control sits in.
-    "!
-    "! Leave a constraint initial and it is not checked (see
-    "! z2ui5_cl_ccont_json_filter). An empty field only fails <em>required</em> -
-    "! every other constraint measures a filled value.
     TYPES:
+      "! One rule. <em>field</em> is the control id as the app wrote it in the
+      "! view; it is resolved against the view the control sits in.
+      "!
+      "! Leave a constraint initial and it is not checked (see
+      "! z2ui5_cl_ccont_json_filter). An empty field only fails <em>required</em> -
+      "! every other constraint measures a filled value.
       BEGIN OF ty_s_rule,
         field      TYPE string,
         "! `number`, `integer` or empty for a plain string
@@ -45,15 +45,15 @@ CLASS z2ui5_cl_ccont_validator DEFINITION
       END OF ty_s_rule.
     TYPES ty_t_rule TYPE STANDARD TABLE OF ty_s_rule WITH EMPTY KEY.
 
-    "! One rejected field, as the control writes it back.
     TYPES:
+      "! One rejected field, as the control writes it back.
       BEGIN OF ty_s_error,
         field   TYPE string,
         message TYPE string,
       END OF ty_s_error.
     TYPES ty_t_error TYPE STANDARD TABLE OF ty_s_error WITH EMPTY KEY.
 
-    "! Emit <z2ui5cc:Validator/> into an existing view.
+    "! Emit &lt;z2ui5cc:Validator/&gt; into an existing view.
     "!
     "! Bind `rules` with this library's JSON filter, or every constraint the
     "! app left alone arrives as 0 and rejects everything:

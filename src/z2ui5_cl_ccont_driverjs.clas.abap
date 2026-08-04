@@ -25,13 +25,13 @@ CLASS z2ui5_cl_ccont_driverjs DEFINITION
 
   PUBLIC SECTION.
 
-    "! Which buttons a popover shows, as a comma separated list.
-    "!
-    "! driver.js wants a JavaScript array here; the control splits the list.
-    "! The addon this was ported from put a JSON array LITERAL into an ABAP
-    "! string (<em>['next','close']</em>), which reaches the frontend as a
-    "! string and never as an array - so the option silently did nothing.
     CONSTANTS:
+      "! Which buttons a popover shows, as a comma separated list.
+      "!
+      "! driver.js wants a JavaScript array here; the control splits the list.
+      "! The addon this was ported from put a JSON array LITERAL into an ABAP
+      "! string (<em>['next','close']</em>), which reaches the frontend as a
+      "! string and never as an array - so the option silently did nothing.
       BEGIN OF cs_buttons,
         all            TYPE string VALUE `next,previous,close`,
         next           TYPE string VALUE `next`,
@@ -42,8 +42,8 @@ CLASS z2ui5_cl_ccont_driverjs DEFINITION
         previous_close TYPE string VALUE `previous,close`,
       END OF cs_buttons.
 
-    "! which side of the element the popover sits on
     CONSTANTS:
+      "! which side of the element the popover sits on
       BEGIN OF cs_side,
         top    TYPE string VALUE `top`,
         right  TYPE string VALUE `right`,
@@ -52,16 +52,16 @@ CLASS z2ui5_cl_ccont_driverjs DEFINITION
         over   TYPE string VALUE `over`,
       END OF cs_side.
 
-    "! how the popover lines up along that side
     CONSTANTS:
+      "! how the popover lines up along that side
       BEGIN OF cs_align,
         start  TYPE string VALUE `start`,
         center TYPE string VALUE `center`,
         end    TYPE string VALUE `end`,
       END OF cs_align.
 
-    "! how the control is started
     CONSTANTS:
+      "! how the control is started
       BEGIN OF cs_mode,
         "! walk through every step
         tour      TYPE string VALUE `tour`,
@@ -69,10 +69,10 @@ CLASS z2ui5_cl_ccont_driverjs DEFINITION
         highlight TYPE string VALUE `highlight`,
       END OF cs_mode.
 
-    "! The bubble shown next to a step's element. `title` and `description`
-    "! are rendered as HTML, so simple markup works - and unescaped user input
-    "! does not belong in them.
     TYPES:
+      "! The bubble shown next to a step's element. `title` and `description`
+      "! are rendered as HTML, so simple markup works - and unescaped user input
+      "! does not belong in them.
       BEGIN OF ty_s_popover,
         title           TYPE string,
         description     TYPE string,
@@ -88,10 +88,10 @@ CLASS z2ui5_cl_ccont_driverjs DEFINITION
         popover_class   TYPE string,
       END OF ty_s_popover.
 
-    "! One stop of the tour. `element` is the control id as the app wrote it
-    "! in the view; a value starting with `#`, `.` or `[` is passed to
-    "! driver.js as a CSS selector instead.
     TYPES:
+      "! One stop of the tour. `element` is the control id as the app wrote it
+      "! in the view; a value starting with `#`, `.` or `[` is passed to
+      "! driver.js as a CSS selector instead.
       BEGIN OF ty_s_step,
         element TYPE string,
         popover TYPE ty_s_popover,
@@ -121,7 +121,7 @@ CLASS z2ui5_cl_ccont_driverjs DEFINITION
         done_btn_text              TYPE string,
       END OF ty_s_config.
 
-    "! Emit <z2ui5cc:DriverJs/> into an existing view.
+    "! Emit &lt;z2ui5cc:DriverJs/&gt; into an existing view.
     "!
     "! @parameter view        | the builder positioned at the parent element
     "! @parameter config      | bind of a ty_s_config structure

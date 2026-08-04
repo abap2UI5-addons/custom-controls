@@ -19,7 +19,7 @@ CLASS z2ui5_cl_ccont_signature_pad DEFINITION
 
   PUBLIC SECTION.
 
-    "! Emit <z2ui5cc:SignaturePad/> into an existing view.
+    "! Emit &lt;z2ui5cc:SignaturePad/&gt; into an existing view.
     "!
     "! Mirrors z2ui5_cl_ai_xml=>leaf: the element is added as a child and the
     "! cursor stays on the current node, so the caller can keep chaining.
