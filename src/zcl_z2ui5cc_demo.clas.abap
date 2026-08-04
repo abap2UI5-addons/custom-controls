@@ -174,10 +174,6 @@ CLASS zcl_z2ui5cc_demo IMPLEMENTATION.
   METHOD model_init.
 
     t_controls = VALUE #(
-      ( name        = `Counter`
-        module      = `z2ui5cc/cc/Counter`
-        description = `Click target that raises a counter and writes it back into the model`
-        app         = `ZCL_Z2UI5CC_DEMO_COUNTER` )
       ( name        = `SignaturePad`
         module      = `z2ui5cc/cc/SignaturePad`
         description = `Canvas for mouse, finger or stylus; hands the stroke over as a base64 PNG`

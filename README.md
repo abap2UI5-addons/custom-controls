@@ -11,24 +11,6 @@ to its demo.
 
 ## The controls
 
-### `Counter` — `z2ui5cc/cc/Counter`
-
-A click target that raises a counter and writes it back into the model. It is
-the smallest possible control that still exercises every integration path, and
-exists mainly as the reference and the installation check.
-
-| | |
-|---|---|
-| ABAP builder | `zcl_z2ui5cc_counter=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_counter` |
-| Properties | `text` (string), `count` (int, bind two-way), `enabled` (boolean) |
-| Events | `press` — fired after the click, with the raised `count` |
-
-Clicking raises `count` through `setProperty`, so a two-way binding carries the
-new value to ABAP with the roundtrip the `press` event triggers. The demo
-compares the count the control reported against the number of roundtrips it
-handled itself and shows `MISMATCH` if they drift apart.
-
 ### `SignaturePad` — `z2ui5cc/cc/SignaturePad`
 
 A canvas the user signs on with mouse, finger or stylus. The stroke is handed
@@ -341,10 +323,10 @@ DATA(root) = view->open( n = `View` ns = `mvc`
 
 zcl_z2ui5cc=>xmlns( root ).          " declares xmlns:z2ui5cc once
 
-zcl_z2ui5cc_counter=>render( view  = box
-                             text  = client->_bind( label )
-                             count = client->_bind( counter )
-                             press = client->_event( `COUNTER_PRESSED` ) ).
+zcl_z2ui5cc_signature_pad=>render( view   = box
+                                   value  = client->_bind( signature )
+                                   height = `200px`
+                                   change = client->_event( `SIGNED` ) ).
 ```
 
 From there a control behaves like any built-in one: properties bind, values are
@@ -390,10 +372,10 @@ neither is used.
 1. Install this repository with abapGit — it deploys the ABAP classes, the BSP
    application `Z2UI5CC` and the two ICF nodes it is served from
    (`/sap/bc/ui5_ui5/sap/z2ui5cc/` and `/sap/bc/bsp/sap/z2ui5cc/`).
-2. Check the BSP answers: `/sap/bc/ui5_ui5/sap/z2ui5cc/cc/Counter.js` must
+2. Check the BSP answers: `/sap/bc/ui5_ui5/sap/z2ui5cc/cc/SignaturePad.js` must
    return the JavaScript. `ICF Node NOT found!` means the SICF objects were not
    deserialized — activate the node in `SICF` and re-check.
-3. Check the frontend resolves it: `sap.ui.require.toUrl("z2ui5cc/cc/Counter.js")`
+3. Check the frontend resolves it: `sap.ui.require.toUrl("z2ui5cc/cc/SignaturePad.js")`
    in the browser console must return the BSP path, not `resources/…`. If it
    returns `resources/…`, the frontend BSP predates the reserved resourceRoot.
 4. Start `?app_start=zcl_z2ui5cc_demo`.

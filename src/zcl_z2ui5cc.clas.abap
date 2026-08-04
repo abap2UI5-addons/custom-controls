@@ -9,8 +9,8 @@
 "!
 "!   "sap.ui5": \{ "resourceRoots": \{ "z2ui5cc": "../z2ui5cc/" \} \}
 "!
-"! so <em>z2ui5cc/cc/Counter</em> is served from
-"! <em>/sap/bc/ui5_ui5/sap/z2ui5cc/cc/Counter.js</em>.
+"! so <em>z2ui5cc/cc/SignaturePad</em> is served from
+"! <em>/sap/bc/ui5_ui5/sap/z2ui5cc/cc/SignaturePad.js</em>.
 CLASS zcl_z2ui5cc DEFINITION
   PUBLIC
   FINAL
