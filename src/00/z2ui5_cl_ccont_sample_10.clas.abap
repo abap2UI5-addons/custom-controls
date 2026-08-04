@@ -155,7 +155,7 @@ CLASS z2ui5_cl_ccont_sample_10 IMPLEMENTATION.
         )->a( n = `class`
               v = `sapUiTinyMarginEnd`
         )->a( n = `width`
-              v = `30rem`
+              v = `44rem`
 
         )->leaf( `Label`
             )->a( n = `text`
@@ -168,13 +168,13 @@ CLASS z2ui5_cl_ccont_sample_10 IMPLEMENTATION.
     z2ui5_cl_ccont_code_editor=>render( view   = left
                                         value  = client->_bind( source )
                                         type   = z2ui5_cl_ccont_code_editor=>cs_type-markdown
-                                        height = `28rem` ).
+                                        height = `40rem` ).
 
     left->shut( ).
 
     DATA(right) = grid->open( `VBox`
         )->a( n = `width`
-              v = `34rem`
+              v = `48rem`
 
         )->leaf( `Label`
             )->a( n = `text`
@@ -189,7 +189,7 @@ CLASS z2ui5_cl_ccont_sample_10 IMPLEMENTATION.
         view      = right
         value     = client->_bind( source )
         sanitize  = client->_bind( sanitize )
-        height    = `28rem`
+        height    = `40rem`
         linkpress = client->_event( val   = `LINK`
                                     t_arg = VALUE #( ( `${$parameters>/href}` ) ) ) ).
 
