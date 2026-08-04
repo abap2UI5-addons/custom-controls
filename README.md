@@ -1,9 +1,9 @@
 # abap2UI5 custom controls
 
-Ten ready-to-use custom controls for
+Eleven ready-to-use custom controls for
 [abap2UI5](https://github.com/abap2UI5/abap2UI5) — signature pad, charts,
 barcodes, Excel export, form validation, product tours, Font Awesome, animations,
-clickable image maps and Markdown.
+clickable image maps, Markdown and a code editor.
 
 They ship in their **own BSP** (`Z2UI5CC`), not inside the framework. Install this
 repository and the controls are there; nothing in abap2UI5 or in the frontend BSP
@@ -63,6 +63,7 @@ and events arrive in `on_event` like for any built-in control.
 | AnimateCss | [animate.css](https://animate.style) class names on any control | `z2ui5_cl_ccont_animate_css` | `..._sample_08` |
 | ImageMapster | clickable, highlighting regions on an image | `z2ui5_cl_ccont_imagemapster` | `..._sample_09` |
 | Markdown | Markdown from ABAP as HTML, with [marked](https://marked.js.org) | `z2ui5_cl_ccont_markdown` | `..._sample_10` |
+| CodeEditor | UI5's own `sap.ui.codeeditor`, reachable from a view | `z2ui5_cl_ccont_code_editor` | `..._sample_10` |
 
 Sample classes are `z2ui5_cl_ccont_sample_NN` — start any of them directly with
 `?app_start=…`, or browse them from `z2ui5_cl_ccont_sample_00`.
@@ -189,6 +190,26 @@ model produced: Markdown carries raw HTML through, and unsanitized that HTML
 runs with the user's session. A link whose href starts with `#` does not
 navigate — it raises `linkpress` with the href, which is how a help text links
 into the app it documents. Every other link opens in a new tab.
+
+### CodeEditor
+
+`value` (bind two-way), `type`, `width`, `height`, `editable`, `linenumbers`,
+`colortheme` · event `livechange`.
+
+This one wraps no library at all. UI5 already ships an editor — `sap.ui.codeeditor`,
+an ACE editor with syntax highlighting for some eighty languages, served from the
+UI5 distribution rather than a CDN, so it also highlights in a system without
+internet. Types are on `z2ui5_cl_ccont_code_editor=>cs_type`.
+
+What the control adds is a way to **reach** it. `sap.ui.codeeditor` is not among
+the abap2UI5 manifest dependencies, and on 1.71 the XML is still processed with
+the synchronous strategy: a CodeEditor written straight into a view is fetched
+by synchronous XHR and executed with `eval`, which a Content-Security-Policy
+without `unsafe-eval` blocks. So the view names this control instead, and the
+editor is required asynchronously and created here.
+
+Give it a resolvable `height` — ACE cannot lay out against a percentage unless
+the parent has a height of its own.
 
 ## Two things to know
 

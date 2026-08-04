@@ -2,10 +2,11 @@
 "!
 "! Start with: <em>?app_start=z2ui5_cl_ccont_sample_10</em>
 "!
-"! Editor on the left, rendered document on the right. Both are bound to the
-"! SAME ABAP attribute, so the preview follows every keystroke without a
-"! roundtrip - the control re-renders from the model the TextArea writes into.
-"! That is the whole integration: no live-change event, no view_model_update( ).
+"! Editor on the left, rendered document on the right - two controls of this
+"! library side by side. Both are bound to the SAME ABAP attribute, so the
+"! preview follows every keystroke without a roundtrip: the Markdown control
+"! re-renders from the model the CodeEditor writes into. That is the whole
+"! integration - no live-change event, no view_model_update( ).
 "!
 "! The examples cover what Markdown is normally reached for here: a document
 "! with headings and a table, a code block, in-app links, and the raw-HTML case
@@ -23,6 +24,11 @@ CLASS z2ui5_cl_ccont_sample_10 DEFINITION
     DATA sanitize TYPE abap_bool.
     DATA info     TYPE string.
 
+    " Public because ABAP requires it - CLASS_CONSTRUCTOR is always public,
+    " wherever it is declared. It is not part of the app's surface, and being
+    " a method it is not serialized between roundtrips either.
+    CLASS-METHODS class_constructor.
+
   PROTECTED SECTION.
     " A backtick cannot be written inside a backtick-delimited literal without
     " doubling it, and a Markdown code fence is three of them - unreadable
@@ -35,8 +41,6 @@ CLASS z2ui5_cl_ccont_sample_10 DEFINITION
     " control library deliberately does not build on abap2UI5 internals, and
     " one class-constructor is cheaper than that coupling.
     CLASS-DATA mv_nl TYPE c LENGTH 1.
-
-    CLASS-METHODS class_constructor.
 
     DATA client TYPE REF TO z2ui5_if_client.
 
@@ -147,31 +151,30 @@ CLASS z2ui5_cl_ccont_sample_10 IMPLEMENTATION.
         )->a( n = `alignItems`
               v = `Stretch` ).
 
-    grid->open( `VBox`
+    DATA(left) = grid->open( `VBox`
         )->a( n = `class`
               v = `sapUiTinyMarginEnd`
         )->a( n = `width`
-              v = `30rem`
+              v = `44rem`
 
         )->leaf( `Label`
             )->a( n = `text`
-                  v = `Markdown source`
-        )->leaf( `TextArea`
-            )->a( n = `value`
-                  " same attribute the control below renders - that is what
-                  " makes the preview live without an event
-                  v = client->_bind( source )
-            )->a( n = `rows`
-                  v = `22`
-            )->a( n = `growing`
-                  v = `false`
-            )->a( n = `width`
-                  v = `100%`
-    )->shut( ).
+                  v = `Markdown source` ).
+
+    " The editor is UI5's own sap.ui.codeeditor - monospace, line numbers and
+    " markdown highlighting, loaded from the UI5 distribution rather than a
+    " CDN. `value` is bound to the SAME attribute the preview renders, which
+    " is what makes the preview follow the typing without an event.
+    z2ui5_cl_ccont_code_editor=>render( view   = left
+                                        value  = client->_bind( source )
+                                        type   = z2ui5_cl_ccont_code_editor=>cs_type-markdown
+                                        height = `40rem` ).
+
+    left->shut( ).
 
     DATA(right) = grid->open( `VBox`
         )->a( n = `width`
-              v = `34rem`
+              v = `48rem`
 
         )->leaf( `Label`
             )->a( n = `text`
@@ -186,7 +189,7 @@ CLASS z2ui5_cl_ccont_sample_10 IMPLEMENTATION.
         view      = right
         value     = client->_bind( source )
         sanitize  = client->_bind( sanitize )
-        height    = `28rem`
+        height    = `40rem`
         linkpress = client->_event( val   = `LINK`
                                     t_arg = VALUE #( ( `${$parameters>/href}` ) ) ) ).
 

@@ -21,8 +21,8 @@ CLASS z2ui5_cl_ccont_animate_css DEFINITION
     "! every animated element needs this class next to the animation itself
     CONSTANTS cs_base TYPE string VALUE `animate__animated`.
 
-    "! modifiers - combine them with an animation
     CONSTANTS:
+      "! modifiers - combine them with an animation
       BEGIN OF cs_modifier,
         infinite  TYPE string VALUE `animate__infinite`,
         repeat_2  TYPE string VALUE `animate__repeat-2`,
@@ -35,8 +35,8 @@ CLASS z2ui5_cl_ccont_animate_css DEFINITION
         slower    TYPE string VALUE `animate__slower`,
       END OF cs_modifier.
 
-    "! attention seekers - animations that run in place
     CONSTANTS:
+      "! attention seekers - animations that run in place
       BEGIN OF cs_attention,
         bounce      TYPE string VALUE `animate__bounce`,
         flash       TYPE string VALUE `animate__flash`,
@@ -52,8 +52,8 @@ CLASS z2ui5_cl_ccont_animate_css DEFINITION
         heart_beat  TYPE string VALUE `animate__heartBeat`,
       END OF cs_attention.
 
-    "! entrances - animations that bring an element in
     CONSTANTS:
+      "! entrances - animations that bring an element in
       BEGIN OF cs_entrance,
         bounce_in       TYPE string VALUE `animate__bounceIn`,
         bounce_in_down  TYPE string VALUE `animate__bounceInDown`,
@@ -71,8 +71,8 @@ CLASS z2ui5_cl_ccont_animate_css DEFINITION
         roll_in         TYPE string VALUE `animate__rollIn`,
       END OF cs_entrance.
 
-    "! exits - animations that take an element out
     CONSTANTS:
+      "! exits - animations that take an element out
       BEGIN OF cs_exit,
         bounce_out       TYPE string VALUE `animate__bounceOut`,
         bounce_out_down  TYPE string VALUE `animate__bounceOutDown`,
@@ -85,7 +85,7 @@ CLASS z2ui5_cl_ccont_animate_css DEFINITION
         roll_out         TYPE string VALUE `animate__rollOut`,
       END OF cs_exit.
 
-    "! Emit <z2ui5cc:AnimateCss/> into an existing view.
+    "! Emit &lt;z2ui5cc:AnimateCss/&gt; into an existing view.
     "!
     "! @parameter view     | the builder positioned at the parent element
     "! @parameter duration | how long one animation runs, e.g. `1s`, `500ms`

@@ -23,13 +23,13 @@ CLASS z2ui5_cl_ccont_imagemapster DEFINITION
 
   PUBLIC SECTION.
 
-    "! One clickable region. <em>coords</em> is the HTML image map coordinate
-    "! list for the shape - `x1,y1,x2,y2,...` for a polygon, `x,y,r` for a
-    "! circle, `x1,y1,x2,y2` for a rectangle.
-    "!
-    "! The render fields override the map-wide options for this one region;
-    "! leave them initial and the option from <em>config</em> applies.
     TYPES:
+      "! One clickable region. <em>coords</em> is the HTML image map coordinate
+      "! list for the shape - `x1,y1,x2,y2,...` for a polygon, `x,y,r` for a
+      "! circle, `x1,y1,x2,y2` for a rectangle.
+      "!
+      "! The render fields override the map-wide options for this one region;
+      "! leave them initial and the option from <em>config</em> applies.
       BEGIN OF ty_s_area,
         key          TYPE string,
         "! `poly`, `circle` or `rect`
@@ -48,8 +48,8 @@ CLASS z2ui5_cl_ccont_imagemapster DEFINITION
       END OF ty_s_area.
     TYPES ty_t_area TYPE STANDARD TABLE OF ty_s_area WITH EMPTY KEY.
 
-    "! How a region is drawn in one state.
     TYPES:
+      "! How a region is drawn in one state.
       BEGIN OF ty_s_render,
         fill           TYPE abap_bool,
         fill_color     TYPE string,
@@ -62,9 +62,9 @@ CLASS z2ui5_cl_ccont_imagemapster DEFINITION
         fade_duration  TYPE i,
       END OF ty_s_render.
 
-    "! Map-wide options. Colours are hex WITHOUT a leading `#`, the way
-    "! ImageMapster wants them: `ff0000`, not `#ff0000`.
     TYPES:
+      "! Map-wide options. Colours are hex WITHOUT a leading `#`, the way
+      "! ImageMapster wants them: `ff0000`, not `#ff0000`.
       BEGIN OF ty_s_config,
         fill             TYPE abap_bool,
         fill_color       TYPE string,
@@ -88,7 +88,7 @@ CLASS z2ui5_cl_ccont_imagemapster DEFINITION
         render_select    TYPE ty_s_render,
       END OF ty_s_config.
 
-    "! Emit <z2ui5cc:ImageMapster/> into an existing view.
+    "! Emit &lt;z2ui5cc:ImageMapster/&gt; into an existing view.
     "!
     "! @parameter view         | the builder positioned at the parent element
     "! @parameter src          | the image, as a URL or a data: URI

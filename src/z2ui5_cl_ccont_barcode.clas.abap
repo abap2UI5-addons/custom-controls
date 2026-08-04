@@ -15,8 +15,8 @@ CLASS z2ui5_cl_ccont_barcode DEFINITION
 
   PUBLIC SECTION.
 
-    "! One symbology, with an example value and the options it wants.
     TYPES:
+      "! One symbology, with an example value and the options it wants.
       BEGIN OF ty_s_type,
         bcid    TYPE string,
         text    TYPE string,
@@ -35,7 +35,7 @@ CLASS z2ui5_cl_ccont_barcode DEFINITION
       RETURNING
         VALUE(result) TYPE ty_t_type.
 
-    "! Emit <z2ui5cc:Barcode/> into an existing view.
+    "! Emit &lt;z2ui5cc:Barcode/&gt; into an existing view.
     "!
     "! @parameter view            | the builder positioned at the parent element
     "! @parameter bcid            | symbology, e.g. `qrcode`, `ean13`
