@@ -323,6 +323,38 @@ CLASS zcl_z2ui5cc_demo_chartjs IMPLEMENTATION.
     s_doughnut = s_pie.
     s_doughnut-type = `doughnut`.
 
+    LOOP AT s_wordcloud-data-datasets ASSIGNING <ds>.
+      rotate( CHANGING val = <ds>-data ).
+    ENDLOOP.
+
+    " The bubble chart carries x/y/r points and the venn chart a set list per
+    " entry, so neither uses the plain `data` table the others rotate - they
+    " need their own shift, or the second carousel page would sit still while
+    " the first one updates.
+    DATA ls_point TYPE zcl_z2ui5cc_chartjs=>ty_x_y_r_data.
+    LOOP AT s_bubble-data-datasets ASSIGNING <ds>.
+      IF lines( <ds>-data_radial ) >= 2.
+        ls_point = <ds>-data_radial[ 1 ].
+        DELETE <ds>-data_radial INDEX 1.
+        APPEND ls_point TO <ds>-data_radial.
+      ENDIF.
+    ENDLOOP.
+
+    " rotate the values across the sets, so the circles resize while the sets
+    " themselves stay where they are
+    DATA lv_value TYPE string.
+    DATA lv_last  TYPE i.
+    LOOP AT s_venn-data-datasets ASSIGNING <ds>.
+      lv_last = lines( <ds>-data_venn ).
+      IF lv_last >= 2.
+        lv_value = <ds>-data_venn[ 1 ]-value.
+        DO lv_last - 1 TIMES.
+          <ds>-data_venn[ sy-index ]-value = <ds>-data_venn[ sy-index + 1 ]-value.
+        ENDDO.
+        <ds>-data_venn[ lv_last ]-value = lv_value.
+      ENDIF.
+    ENDLOOP.
+
     s_bar-options-plugins-title-text = |Votes per colour (update { mv_run })|.
 
   ENDMETHOD.
