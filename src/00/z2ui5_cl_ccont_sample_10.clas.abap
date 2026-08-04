@@ -23,6 +23,11 @@ CLASS z2ui5_cl_ccont_sample_10 DEFINITION
     DATA sanitize TYPE abap_bool.
     DATA info     TYPE string.
 
+    " Public because ABAP requires it - CLASS_CONSTRUCTOR is always public,
+    " wherever it is declared. It is not part of the app's surface, and being
+    " a method it is not serialized between roundtrips either.
+    CLASS-METHODS class_constructor.
+
   PROTECTED SECTION.
     " A backtick cannot be written inside a backtick-delimited literal without
     " doubling it, and a Markdown code fence is three of them - unreadable
@@ -35,8 +40,6 @@ CLASS z2ui5_cl_ccont_sample_10 DEFINITION
     " control library deliberately does not build on abap2UI5 internals, and
     " one class-constructor is cheaper than that coupling.
     CLASS-DATA mv_nl TYPE c LENGTH 1.
-
-    CLASS-METHODS class_constructor.
 
     DATA client TYPE REF TO z2ui5_if_client.
 

@@ -20,9 +20,9 @@ CLASS z2ui5_cl_ccont_font_awesome DEFINITION
 
   PUBLIC SECTION.
 
-    "! The icon collections the control can register. Use them as the
-    "! collection part of an icon URI: <em>sap-icon://fa-solid/heart</em>.
     CONSTANTS:
+      "! The icon collections the control can register. Use them as the
+      "! collection part of an icon URI: <em>sap-icon://fa-solid/heart</em>.
       BEGIN OF cs_collection,
         regular       TYPE string VALUE `fa-regular`,
         solid         TYPE string VALUE `fa-solid`,
@@ -35,7 +35,7 @@ CLASS z2ui5_cl_ccont_font_awesome DEFINITION
         sharp_light   TYPE string VALUE `fa-sharp-light`,
       END OF cs_collection.
 
-    "! Emit <z2ui5cc:FontAwesome/> into an existing view.
+    "! Emit &lt;z2ui5cc:FontAwesome/&gt; into an existing view.
     "!
     "! @parameter view        | the builder positioned at the parent element
     "! @parameter fonturi     | directory holding the webfonts and their

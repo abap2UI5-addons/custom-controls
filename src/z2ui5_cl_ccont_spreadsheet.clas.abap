@@ -20,11 +20,11 @@ CLASS z2ui5_cl_ccont_spreadsheet DEFINITION
 
   PUBLIC SECTION.
 
-    "! One workbook column. `property` is the name of the field in the bound
-    "! ABAP table, in upper case - that is how abap2UI5 puts it into the model.
-    "! Everything else is optional; leave it initial and the exporter's default
-    "! applies (see z2ui5_cl_ccont_json_filter for why that works).
     TYPES:
+      "! One workbook column. `property` is the name of the field in the bound
+      "! ABAP table, in upper case - that is how abap2UI5 puts it into the model.
+      "! Everything else is optional; leave it initial and the exporter's default
+      "! applies (see z2ui5_cl_ccont_json_filter for why that works).
       BEGIN OF ty_s_column,
         label             TYPE string,
         property          TYPE string,
@@ -50,7 +50,7 @@ CLASS z2ui5_cl_ccont_spreadsheet DEFINITION
       END OF ty_s_column.
     TYPES ty_t_column TYPE STANDARD TABLE OF ty_s_column WITH EMPTY KEY.
 
-    "! Emit <z2ui5cc:ExportSpreadsheet/> into an existing view.
+    "! Emit &lt;z2ui5cc:ExportSpreadsheet/&gt; into an existing view.
     "!
     "! Bind `columns` with the camelCase mapper and this library's JSON filter,
     "! or the exporter sees ABAP field names and a wall of initial values:

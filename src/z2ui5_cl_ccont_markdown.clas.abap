@@ -23,7 +23,7 @@ CLASS z2ui5_cl_ccont_markdown DEFINITION
 
   PUBLIC SECTION.
 
-    "! Emit <z2ui5cc:Markdown/> into an existing view.
+    "! Emit &lt;z2ui5cc:Markdown/&gt; into an existing view.
     "!
     "! @parameter view      | the builder positioned at the parent element
     "! @parameter value     | the Markdown source, usually client->_bind( ... )
