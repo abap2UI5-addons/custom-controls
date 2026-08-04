@@ -6,7 +6,7 @@ in their own BSP.** Nothing in here is part of the framework or of the
 never needs a pull request against abap2UI5 and the framework carries no
 JavaScript that only one customer uses.
 
-Start `?app_start=zcl_z2ui5cc_demo` for an overview of every control with a link
+Start `?app_start=z2ui5_cl_ccont_overview` for an overview of every control with a link
 to its demo.
 
 ## The controls
@@ -20,8 +20,8 @@ string.
 
 | | |
 |---|---|
-| ABAP builder | `zcl_z2ui5cc_signature_pad=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_signature` |
+| ABAP builder | `z2ui5_cl_ccont_signature_pad=>render( )` |
+| Demo | `?app_start=z2ui5_cl_ccont_sample_01` |
 | Properties | `value` (base64 PNG, bind two-way), `width`, `height`, `lineWidth` (float), `lineColor`, `editable` (boolean) |
 | Events | `change` — fired when a stroke ends, carrying the new `value` |
 
@@ -48,8 +48,8 @@ makes a second trip to the backend and nothing has to be built in ABAP.
 
 | | |
 |---|---|
-| ABAP builder | `zcl_z2ui5cc_spreadsheet=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_spreadsheet` |
+| ABAP builder | `z2ui5_cl_ccont_spreadsheet=>render( )` |
+| Demo | `?app_start=z2ui5_cl_ccont_sample_02` |
 | Properties | `tableId`, `columns` (bind a `ty_t_column` table), `fileName`, `sheetName`, `text`, `icon`, `type`, `tooltip`, `enabled`, `status` (bind two-way) |
 | Events | `exported` |
 
@@ -64,8 +64,8 @@ back, so the same roundtrip that started the check brings the result home.
 
 | | |
 |---|---|
-| ABAP builder | `zcl_z2ui5cc_validator=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_validator` |
+| ABAP builder | `z2ui5_cl_ccont_validator=>render( )` |
+| Demo | `?app_start=z2ui5_cl_ccont_sample_03` |
 | Properties | `rules` (bind a `ty_t_rule` table), `trigger`, `valid` and `errors` (bind two-way) |
 | Events | `validated` |
 
@@ -82,14 +82,14 @@ documentation describes can be expressed from ABAP.
 
 | | |
 |---|---|
-| ABAP builder | `zcl_z2ui5cc_chartjs=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_chartjs` |
+| ABAP builder | `z2ui5_cl_ccont_chartjs=>render( )` |
+| Demo | `?app_start=z2ui5_cl_ccont_sample_04` |
 | Properties | `config` (bind a `ty_chart` structure), `width`, `height`, `plugins`, `libUrl` |
 | Events | `elementPress` |
 
 Changing the bound structure and calling `view_model_update( )` updates the
 chart in place; only a changed chart type rebuilds it. `plugins` takes the
-names from `zcl_z2ui5cc_chartjs=>cs_plugin` — `datalabels`, `autocolors`,
+names from `z2ui5_cl_ccont_chartjs=>cs_plugin` — `datalabels`, `autocolors`,
 `deferred`, `annotation`, `venn`, `wordcloud` — loads them in order after
 Chart.js and registers them with it.
 
@@ -101,14 +101,14 @@ transferred.
 
 | | |
 |---|---|
-| ABAP builder | `zcl_z2ui5cc_barcode=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_barcode` |
+| ABAP builder | `z2ui5_cl_ccont_barcode=>render( )` |
+| Demo | `?app_start=z2ui5_cl_ccont_sample_05` |
 | Properties | `bcid`, `text`, `altText`, `scale`, `height`, `barWidth`, `includeText`, `textAlign`, `rotate`, `backgroundColor`, `options`, `renderAs` (`canvas`/`svg`), `libUrl` |
 | Events | `error` |
 
 `options` takes a raw BWIPP option string (`includetext guardwhitespace`,
 `eclevel=M`), so a symbology-specific switch does not need a property here
-first. `zcl_z2ui5cc_barcode=>get_types( )` returns a handful of symbologies
+first. `z2ui5_cl_ccont_barcode=>get_types( )` returns a handful of symbologies
 with values that encode cleanly.
 
 ### `DriverJs` — `z2ui5cc/cc/DriverJs`
@@ -119,8 +119,8 @@ popover — and `element` is the control id from the view, not a CSS selector.
 
 | | |
 |---|---|
-| ABAP builder | `zcl_z2ui5cc_driverjs=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_driverjs` |
+| ABAP builder | `z2ui5_cl_ccont_driverjs=>render( )` |
+| Demo | `?app_start=z2ui5_cl_ccont_sample_06` |
 | Properties | `config` (bind a `ty_s_config` structure), `highlight`, `mode`, `trigger`, `customCss`, `libUrl`, `cssUrl` |
 | Events | `highlighted`, `done` |
 
@@ -137,8 +137,8 @@ the animations).
 
 | | |
 |---|---|
-| ABAP builder | `zcl_z2ui5cc_font_awesome=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_font_awesome` |
+| ABAP builder | `z2ui5_cl_ccont_font_awesome=>render( )` |
+| Demo | `?app_start=z2ui5_cl_ccont_sample_07` |
 | Properties | `fontUri`, `collections`, `cssUrl` |
 
 The UI5 IconPool needs more than the font file: it reads a metadata JSON next
@@ -154,11 +154,11 @@ animates.
 
 | | |
 |---|---|
-| ABAP builder | `zcl_z2ui5cc_animate_css=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_animate_css` |
+| ABAP builder | `z2ui5_cl_ccont_animate_css=>render( )` |
+| Demo | `?app_start=z2ui5_cl_ccont_sample_08` |
 | Properties | `duration`, `delay`, `repeat`, `cssUrl` |
 
-The class names are constants on `zcl_z2ui5cc_animate_css` —
+The class names are constants on `z2ui5_cl_ccont_animate_css` —
 `cs_base`, `cs_attention-*`, `cs_entrance-*`, `cs_exit-*`, `cs_modifier-*`.
 `duration`/`delay`/`repeat` set the CSS variables animate.css reads, so they
 retune every animation on the page at once.
@@ -172,8 +172,8 @@ input control.
 
 | | |
 |---|---|
-| ABAP builder | `zcl_z2ui5cc_imagemapster=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_imagemapster` |
+| ABAP builder | `z2ui5_cl_ccont_imagemapster=>render( )` |
+| Demo | `?app_start=z2ui5_cl_ccont_sample_09` |
 | Properties | `src`, `areas` (bind a `ty_t_area` table), `config`, `selectedKeys` (bind two-way), `width`, `height`, `autoResize`, `libUrl` |
 | Events | `areaPress` |
 
@@ -189,7 +189,7 @@ camelCase mapper wherever the target library expects camelCase names:
 ```abap
 config = client->_bind(
     val           = ms_chart
-    custom_filter = NEW zcl_z2ui5cc_json_filter( )
+    custom_filter = NEW z2ui5_cl_ccont_json_filter( )
     custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                         iv_first_json_upper = abap_false ) )
 ```
@@ -219,7 +219,7 @@ its `libUrl` / `cssUrl` property carries as a default:
 The defaults point at jsDelivr, so the demos run without any setup. **A system
 whose browsers have no internet access must override them**: put the library
 into this BSP (drop it under `app/webapp/lib/`, run `npm run app2bsp`) or into
-your own, and pass its path — `zcl_z2ui5cc_chartjs=>render( liburl = '...' )`.
+your own, and pass its path — `z2ui5_cl_ccont_chartjs=>render( liburl = '...' )`.
 Everything is loaded once per URL and cached, so several charts on one page
 fetch Chart.js a single time.
 
@@ -262,9 +262,9 @@ DATA(root) = view->open( n = `View` ns = `mvc`
     )->a( n = `xmlns`     v = `sap.m`
     )->a( n = `xmlns:mvc` v = `sap.ui.core.mvc` ).
 
-zcl_z2ui5cc=>xmlns( root ).          " declares xmlns:z2ui5cc once
+z2ui5_cl_ccont=>xmlns( root ).          " declares xmlns:z2ui5cc once
 
-zcl_z2ui5cc_signature_pad=>render( view   = box
+z2ui5_cl_ccont_signature_pad=>render( view   = box
                                    value  = client->_bind( signature )
                                    height = `200px`
                                    change = client->_event( `SIGNED` ) ).
@@ -281,12 +281,13 @@ written back into the model, and events arrive in `on_event`.
 | `app/webapp/cc/Util.js` | the loader / id-resolution helpers the controls share |
 | `app/webapp/index.html` | placeholder start page; the BSP has no UI of its own |
 | `tools/app2bsp.mjs` | generates the abapGit BSP artefacts from `app/webapp` |
-| `src/z2ui5cc.wapa.*` | **generated**: BSP pages, page directory, path mapping |
-| `src/z2ui5cc *.sicf.xml` | **generated**: the ICF nodes the BSP is served from |
-| `src/zcl_z2ui5cc.clas.abap` | library identity: XML namespace, `xmlns( )` and `leaf( )` |
-| `src/zcl_z2ui5cc_json_filter.clas.abap` | drops initial values out of a bound config structure |
-| `src/zcl_z2ui5cc_<control>.clas.abap` | one view builder per control |
-| `src/zcl_z2ui5cc_demo*.clas.abap` | the overview app and one demo per control |
+| `src/01/z2ui5cc.wapa.*` | **generated**: BSP pages, page directory, path mapping |
+| `src/01/z2ui5cc *.sicf.xml` | **generated**: the ICF nodes the BSP is served from |
+| `src/z2ui5_cl_ccont.clas.abap` | library identity: XML namespace, `xmlns( )` and `leaf( )` |
+| `src/z2ui5_cl_ccont_json_filter.clas.abap` | drops initial values out of a bound config structure |
+| `src/z2ui5_cl_ccont_<control>.clas.abap` | one view builder per control |
+| `src/00/z2ui5_cl_ccont_overview.clas.abap` | the front door that lists every control |
+| `src/00/z2ui5_cl_ccont_sample_NN.clas.abap` | one sample app per control |
 
 BSP pages are written space-padded to 255-character lines, the same format the
 frontend repo's `app2bsp` uses, so a pull into SAP and a re-serialize produce no
@@ -318,7 +319,7 @@ neither is used.
 3. Check the frontend resolves it: `sap.ui.require.toUrl("z2ui5cc/cc/SignaturePad.js")`
    in the browser console must return the BSP path, not `resources/…`. If it
    returns `resources/…`, the frontend BSP predates the reserved resourceRoot.
-4. Start `?app_start=zcl_z2ui5cc_demo`.
+4. Start `?app_start=z2ui5_cl_ccont_overview`.
 
 Those two checks separate a BSP problem from a frontend-manifest problem, which
 look identical from inside the app.
@@ -328,8 +329,8 @@ look identical from inside the app.
 1. write `app/webapp/cc/<Name>.js`, extending `sap.ui.core.Control` under
    `z2ui5cc.cc.<Name>`, with no dependency on `z2ui5/…` modules
 2. `npm run app2bsp` — regenerates the BSP artefacts under `src/`
-3. add a `render( )` builder class `zcl_z2ui5cc_<name>`
-4. add a demo app and a row in `zcl_z2ui5cc_demo=>model_init( )`
+3. add a `render( )` builder class `z2ui5_cl_ccont_<name>`
+4. add a demo app and a row in `z2ui5_cl_ccont_overview=>model_init( )`
 5. document it under "The controls" above
 
 ## Where these came from

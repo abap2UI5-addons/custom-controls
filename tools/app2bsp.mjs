@@ -11,7 +11,9 @@ import { readdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { join, relative, sep, dirname } from "node:path";
 
 const SOURCE_DIR = "app/webapp";
-const TARGET_DIR = "src";
+// the BSP artefacts live in their own subpackage - src/ root carries the
+// library and the view builders, src/00 the samples
+const TARGET_DIR = "src/01";
 const BSP = "Z2UI5CC";
 const PREFIX = "z2ui5cc.wapa.";
 const MAPPING_PAGE = "UI5RepositoryPathMapping.xml";
