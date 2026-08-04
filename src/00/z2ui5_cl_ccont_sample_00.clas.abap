@@ -247,7 +247,11 @@ CLASS z2ui5_cl_ccont_sample_00 IMPLEMENTATION.
       ( name        = `ImageMapster`
         module      = `z2ui5cc/cc/ImageMapster`
         description = `Image map that highlights, selects and reports the region clicked`
-        app         = `Z2UI5_CL_CCONT_SAMPLE_09` ) ).
+        app         = `Z2UI5_CL_CCONT_SAMPLE_09` )
+      ( name        = `Markdown`
+        module      = `z2ui5cc/cc/Markdown`
+        description = `Renders a bound Markdown string as HTML, sanitized by default`
+        app         = `Z2UI5_CL_CCONT_SAMPLE_10` ) ).
 
   ENDMETHOD.
 
