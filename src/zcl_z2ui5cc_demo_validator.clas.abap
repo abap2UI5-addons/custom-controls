@@ -76,10 +76,7 @@ CLASS zcl_z2ui5cc_demo_validator IMPLEMENTATION.
         )->open( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - Validator`
-            )->a( n = `showNavButton`
-                  v = `true`
-            )->a( n = `navButtonPress`
-                  v = client->_event( `BACK` ) ).
+            ).
 
     " the rules travel to the frontend as data, not as JavaScript
     zcl_z2ui5cc_validator=>render(
@@ -199,9 +196,6 @@ CLASS zcl_z2ui5cc_demo_validator IMPLEMENTATION.
           info = |Check { trigger }: rejected, { lines( t_error ) } field(s) to correct.|.
         ENDIF.
         client->view_model_update( ).
-
-      WHEN `BACK`.
-        client->nav_app_leave( client->get_app( client->get( )-s_draft-id_prev_app_stack ) ).
 
     ENDCASE.
 

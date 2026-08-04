@@ -81,10 +81,7 @@ CLASS zcl_z2ui5cc_demo_imagemapster IMPLEMENTATION.
         )->open( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - ImageMapster`
-            )->a( n = `showNavButton`
-                  v = `true`
-            )->a( n = `navButtonPress`
-                  v = client->_event( `BACK` ) ).
+            ).
 
     page->open( `headerContent`
         )->leaf( `Button`
@@ -188,9 +185,6 @@ CLASS zcl_z2ui5cc_demo_imagemapster IMPLEMENTATION.
         CLEAR selected.
         info = `Cleared from ABAP.`.
         client->view_model_update( ).
-
-      WHEN `BACK`.
-        client->nav_app_leave( client->get_app( client->get( )-s_draft-id_prev_app_stack ) ).
 
     ENDCASE.
 

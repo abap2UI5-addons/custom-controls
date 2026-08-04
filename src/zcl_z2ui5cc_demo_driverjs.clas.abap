@@ -75,10 +75,7 @@ CLASS zcl_z2ui5cc_demo_driverjs IMPLEMENTATION.
         )->open( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - driver.js`
-            )->a( n = `showNavButton`
-                  v = `true`
-            )->a( n = `navButtonPress`
-                  v = client->_event( `BACK` ) ).
+            ).
 
     zcl_z2ui5cc_driverjs=>render(
         view        = page
@@ -194,9 +191,6 @@ CLASS zcl_z2ui5cc_demo_driverjs IMPLEMENTATION.
 
       WHEN `POST`.
         client->message_toast_display( |{ quantity } x { product } posted.| ).
-
-      WHEN `BACK`.
-        client->nav_app_leave( client->get_app( client->get( )-s_draft-id_prev_app_stack ) ).
 
     ENDCASE.
 

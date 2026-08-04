@@ -86,10 +86,7 @@ CLASS zcl_z2ui5cc_demo_font_awesome IMPLEMENTATION.
         )->open( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - Font Awesome`
-            )->a( n = `showNavButton`
-                  v = `true`
-            )->a( n = `navButtonPress`
-                  v = client->_event( `BACK` ) ).
+            ).
 
     " one element, and both ways of using Font Awesome are available
     zcl_z2ui5cc_font_awesome=>render( page ).
@@ -210,9 +207,6 @@ CLASS zcl_z2ui5cc_demo_font_awesome IMPLEMENTATION.
       WHEN `REFRESH`.
         model_refresh( ).
         client->view_model_update( ).
-
-      WHEN `BACK`.
-        client->nav_app_leave( client->get_app( client->get( )-s_draft-id_prev_app_stack ) ).
 
     ENDCASE.
 

@@ -77,10 +77,7 @@ CLASS zcl_z2ui5cc_demo_animate_css IMPLEMENTATION.
         )->open( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - animate.css`
-            )->a( n = `showNavButton`
-                  v = `true`
-            )->a( n = `navButtonPress`
-                  v = client->_event( `BACK` ) ).
+            ).
 
     " loads the stylesheet and sets the CSS variables the animations read
     zcl_z2ui5cc_animate_css=>render( view     = page
@@ -157,9 +154,6 @@ CLASS zcl_z2ui5cc_demo_animate_css IMPLEMENTATION.
         " a full view_display( ), not a model update: the browser plays a CSS
         " animation when the class arrives on a fresh element
         view_display( ).
-
-      WHEN `BACK`.
-        client->nav_app_leave( client->get_app( client->get( )-s_draft-id_prev_app_stack ) ).
 
     ENDCASE.
 

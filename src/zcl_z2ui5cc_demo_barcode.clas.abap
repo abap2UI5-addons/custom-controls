@@ -78,10 +78,7 @@ CLASS zcl_z2ui5cc_demo_barcode IMPLEMENTATION.
         )->open( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - Barcode`
-            )->a( n = `showNavButton`
-                  v = `true`
-            )->a( n = `navButtonPress`
-                  v = client->_event( `BACK` ) ).
+            ).
 
     DATA(box) = page->open( `VBox`
                     )->a( n = `class`
@@ -220,9 +217,6 @@ CLASS zcl_z2ui5cc_demo_barcode IMPLEMENTATION.
       WHEN `ERROR`.
         info = |{ bcid } refused the value - see the message above.|.
         client->view_model_update( ).
-
-      WHEN `BACK`.
-        client->nav_app_leave( client->get_app( client->get( )-s_draft-id_prev_app_stack ) ).
 
     ENDCASE.
 

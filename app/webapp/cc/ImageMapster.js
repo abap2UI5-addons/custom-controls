@@ -196,9 +196,19 @@ sap.ui.define(
         return this;
       },
 
+      // Unbind while the element is still the one mapster knows.
+      //
+      // The renderer uses apiVersion 2, so UI5 PATCHES the existing <img> on a
+      // re-render instead of replacing it - the old mapster binding is still
+      // live on that very element. Binding a second time on top of it leaves
+      // the canvas overlay painted while mapster's own selection resets to
+      // empty, so the picture and the model drift apart (verified against
+      // imagemapster 1.5.4: bind, select `lab`, bind again -> get() == "").
+      onBeforeRendering() {
+        this._unbindMap();
+      },
+
       onAfterRendering() {
-        // a re-render replaced the <img> and the <map>; the old binding
-        // points at detached nodes
         this._bound = false;
 
         // ImageMapster is a jQuery plugin whose UMD wrapper attaches to the

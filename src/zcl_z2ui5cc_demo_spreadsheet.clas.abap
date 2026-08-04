@@ -89,10 +89,7 @@ CLASS zcl_z2ui5cc_demo_spreadsheet IMPLEMENTATION.
         )->open( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - spreadsheet export`
-            )->a( n = `showNavButton`
-                  v = `true`
-            )->a( n = `navButtonPress`
-                  v = client->_event( `BACK` ) ).
+            ).
 
     DATA(table) = page->open( `Table`
                       )->a( n = `id`
@@ -205,9 +202,6 @@ CLASS zcl_z2ui5cc_demo_spreadsheet IMPLEMENTATION.
         INSERT VALUE #( text = |export { lines( t_log ) + 1 }: { status }| )
                INTO TABLE t_log.
         client->view_model_update( ).
-
-      WHEN `BACK`.
-        client->nav_app_leave( client->get_app( client->get( )-s_draft-id_prev_app_stack ) ).
 
     ENDCASE.
 

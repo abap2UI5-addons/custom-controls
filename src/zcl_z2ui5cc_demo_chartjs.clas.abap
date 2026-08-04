@@ -32,11 +32,17 @@ CLASS zcl_z2ui5cc_demo_chartjs DEFINITION
 
   PROTECTED SECTION.
     DATA client TYPE REF TO z2ui5_if_client.
+    "! counts the presses, so each update is visibly a different one
+    DATA mv_run TYPE i.
 
     METHODS view_display.
     METHODS on_event.
     METHODS model_init.
     METHODS model_update.
+    "! move the first value of a dataset to the end
+    METHODS rotate
+      CHANGING
+        val TYPE string_table.
 
     "! one chart, with the bind and the plugin list every page here needs
     METHODS chart
@@ -107,12 +113,8 @@ CLASS zcl_z2ui5cc_demo_chartjs IMPLEMENTATION.
         )->open( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - Chart.js`
-            )->a( n = `showNavButton`
-                  v = `true`
             )->a( n = `enableScrolling`
-                  v = `false`
-            )->a( n = `navButtonPress`
-                  v = client->_event( `BACK` ) ).
+                  v = `false` ).
 
     page->open( `headerContent`
         )->leaf( `Button`
@@ -194,9 +196,6 @@ CLASS zcl_z2ui5cc_demo_chartjs IMPLEMENTATION.
       WHEN `ELEMENT`.
         client->message_toast_display( `Chart element clicked - the press event ` &&
                                        `reached ABAP.` ).
-
-      WHEN `BACK`.
-        client->nav_app_leave( client->get_app( client->get( )-s_draft-id_prev_app_stack ) ).
 
     ENDCASE.
 
@@ -297,23 +296,47 @@ CLASS zcl_z2ui5cc_demo_chartjs IMPLEMENTATION.
 
   METHOD model_update.
 
-    " changing the bound structures is enough - the control updates the live
-    " charts instead of rebuilding them
-    FIELD-SYMBOLS <bar> TYPE zcl_z2ui5cc_chartjs=>ty_dataset.
-    READ TABLE s_bar-data-datasets ASSIGNING <bar> INDEX 1.
-    IF sy-subrc = 0.
-      <bar>-data = VALUE #( ( `11` ) ( `1` ) ( `17` ) ( `13` ) ( `15` ) ( `9` ) ).
+    " Changing the bound structures is enough - the control updates the live
+    " charts instead of rebuilding them.
+    "
+    " Every press has to produce GENUINELY different data, though. Writing the
+    " same alternative values again would leave the model unchanged, the
+    " property binding would correctly not fire, and the charts would sit
+    " still from the second press on - which looks like a broken control but
+    " is the binding doing its job. So the datasets are rotated.
+    mv_run = mv_run + 1.
+
+    FIELD-SYMBOLS <ds> TYPE zcl_z2ui5cc_chartjs=>ty_dataset.
+    LOOP AT s_bar-data-datasets ASSIGNING <ds>.
+      rotate( CHANGING val = <ds>-data ).
+    ENDLOOP.
+
+    LOOP AT s_line-data-datasets ASSIGNING <ds>.
+      rotate( CHANGING val = <ds>-data ).
+    ENDLOOP.
+
+    LOOP AT s_pie-data-datasets ASSIGNING <ds>.
+      rotate( CHANGING val = <ds>-data ).
+    ENDLOOP.
+
+    " the doughnut shares the pie's data on purpose - see model_init( )
+    s_doughnut = s_pie.
+    s_doughnut-type = `doughnut`.
+
+    s_bar-options-plugins-title-text = |Votes per colour (update { mv_run })|.
+
+  ENDMETHOD.
+
+  METHOD rotate.
+
+    " first value to the end - small, visible, and different every time
+    IF lines( val ) < 2.
+      RETURN.
     ENDIF.
 
-    FIELD-SYMBOLS <line> TYPE zcl_z2ui5cc_chartjs=>ty_dataset.
-    READ TABLE s_line-data-datasets ASSIGNING <line> INDEX 1.
-    IF sy-subrc = 0.
-      <line>-data = VALUE #( ( `20` ) ( `35` ) ( `48` ) ( `61` )
-                             ( `76` ) ( `85` ) ( `92` ) ).
-    ENDIF.
-
-    s_bar-options-plugins-title-text = `Votes per colour (updated)`.
-    s_pie-options-plugins-legend-position = `left`.
+    DATA(lv_first) = val[ 1 ].
+    DELETE val INDEX 1.
+    APPEND lv_first TO val.
 
   ENDMETHOD.
 
