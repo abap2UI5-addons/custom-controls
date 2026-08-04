@@ -22,6 +22,9 @@ CLASS zcl_z2ui5cc_barcode DEFINITION
         text    TYPE string,
         example TYPE string,
         options TYPE string,
+        "! bar height in mm - filled for the linear symbologies, empty for the
+        "! matrix ones, where a height would stretch the symbol out of square
+        height  TYPE string,
       END OF ty_s_type.
     TYPES ty_t_type TYPE STANDARD TABLE OF ty_s_type WITH EMPTY KEY.
 
@@ -84,15 +87,20 @@ CLASS zcl_z2ui5cc_barcode IMPLEMENTATION.
       ( bcid = `datamatrix` text = `DataMatrix`
         example = `abap2UI5`                        options = `` )
       ( bcid = `code128`    text = `Code 128`
-        example = `ABAP2UI5-0815`                   options = `includetext` )
+        example = `ABAP2UI5-0815`                   options = `includetext`
+        height = `10` )
       ( bcid = `ean13`      text = `EAN-13`
-        example = `9520123456788`                   options = `includetext guardwhitespace` )
+        example = `9520123456788`                   options = `includetext guardwhitespace`
+        height = `10` )
       ( bcid = `ean8`       text = `EAN-8`
-        example = `96385074`                        options = `includetext guardwhitespace` )
+        example = `96385074`                        options = `includetext guardwhitespace`
+        height = `10` )
       ( bcid = `upca`       text = `UPC-A`
-        example = `012345000058`                    options = `includetext` )
+        example = `012345000058`                    options = `includetext`
+        height = `10` )
       ( bcid = `isbn`       text = `ISBN`
-        example = `978-1-56581-231-4 90000`         options = `includetext guardwhitespace` )
+        example = `978-1-56581-231-4 90000`         options = `includetext guardwhitespace`
+        height = `10` )
       ( bcid = `pdf417`     text = `PDF417`
         example = `abap2UI5 custom controls`        options = `` ) ).
 

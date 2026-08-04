@@ -236,6 +236,8 @@ CLASS zcl_z2ui5cc_demo_barcode IMPLEMENTATION.
         DATA(ls_type) = t_type[ bcid = bcid ].
         text    = ls_type-example.
         options = ls_type-options.
+        " empty for a matrix code - a height would stretch it out of square
+        height  = ls_type-height.
         info    = |{ ls_type-text } selected.|.
       CATCH cx_sy_itab_line_not_found.
         info = |Unknown symbology { bcid }.|.
@@ -248,7 +250,6 @@ CLASS zcl_z2ui5cc_demo_barcode IMPLEMENTATION.
     t_type   = zcl_z2ui5cc_barcode=>get_types( ).
     bcid     = t_type[ 1 ]-bcid.
     scale    = `3`.
-    height   = `10`.
     renderas = `canvas`.
     type_apply( ).
 

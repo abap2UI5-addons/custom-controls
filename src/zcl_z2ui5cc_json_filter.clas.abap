@@ -29,6 +29,16 @@ CLASS zcl_z2ui5cc_json_filter DEFINITION
 
   PUBLIC SECTION.
     INTERFACES z2ui5_if_ajson_filter.
+    "! abap2UI5 keeps the filter as a reference ON THE BOUND ATTRIBUTE and
+    "! serializes the whole app between roundtrips - so a filter that cannot be
+    "! serialized survives the first render and is gone from the second one on.
+    "!
+    "! Nothing warns about it: the framework only checks custom_filter_back and
+    "! custom_mapper_back for serializability, never the forward ones. The
+    "! symptom is a control that renders correctly once and then ignores every
+    "! update, because from the second roundtrip on it receives the unfiltered
+    "! structure - every untouched field back as `0`, `""` or `false`.
+    INTERFACES if_serializable_object.
 
   PROTECTED SECTION.
   PRIVATE SECTION.

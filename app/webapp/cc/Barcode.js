@@ -53,8 +53,12 @@ sap.ui.define(
           // ABAP character field as a JSON string, and UI5 rejects "3" for an
           // int-typed property instead of converting it
           scale: { type: "string", defaultValue: "3" },
-          // bar height and barcode width, in millimetres
-          height: { type: "string", defaultValue: "10" },
+          // Bar height in millimetres - LINEAR symbologies only, and empty by
+          // default on purpose. bwip-js applies it to matrix codes too, where
+          // it stretches the symbol instead of sizing bars: a QR code with
+          // height=10 comes out 150x75 rather than 150x150. Leave it empty and
+          // each symbology uses its own correct proportions.
+          height: { type: "string", defaultValue: "" },
           barWidth: { type: "string", defaultValue: "" },
           includeText: { type: "boolean", defaultValue: true },
           textAlign: { type: "string", defaultValue: "center" },
@@ -89,13 +93,16 @@ sap.ui.define(
           bcid: this.getBcid(),
           text: this.getText(),
           scale: num(this.getScale(), 3),
-          height: num(this.getHeight(), 10),
           includetext: this.getIncludeText(),
           textxalign: this.getTextAlign(),
           rotate: this.getRotate(),
           // last, so an explicit option string can override a property
           ...parseOptions(this.getOptions()),
         };
+        // only when the app asked for one - see the property comment
+        if (String(this.getHeight()).trim()) {
+          opts.height = num(this.getHeight(), undefined);
+        }
         if (this.getBarWidth()) opts.width = num(this.getBarWidth(), undefined);
         if (this.getAltText()) opts.alttext = this.getAltText();
         if (this.getBackgroundColor()) {

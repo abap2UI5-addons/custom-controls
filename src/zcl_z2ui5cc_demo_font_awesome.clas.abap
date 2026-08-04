@@ -24,6 +24,8 @@ CLASS zcl_z2ui5cc_demo_font_awesome DEFINITION
       BEGIN OF ty_s_key,
         key  TYPE string,
         text TYPE string,
+        "! an icon that exists in this collection
+        icon TYPE string,
       END OF ty_s_key.
 
     DATA t_collection TYPE STANDARD TABLE OF ty_s_key WITH EMPTY KEY.
@@ -107,7 +109,7 @@ CLASS zcl_z2ui5cc_demo_font_awesome IMPLEMENTATION.
            )->a( n = `width`
                  v = `20rem`
            )->a( n = `change`
-                 v = client->_event( `REFRESH` )
+                 v = client->_event( `COLLECTION` )
            )->open( `items`
                )->leaf( n  = `Item`
                         ns = `core`
@@ -196,6 +198,15 @@ CLASS zcl_z2ui5cc_demo_font_awesome IMPLEMENTATION.
 
     CASE client->get( )-event.
 
+      WHEN `COLLECTION`.
+        " switching the collection brings an icon that exists in it
+        TRY.
+            icon = t_collection[ key = collection ]-icon.
+          CATCH cx_sy_itab_line_not_found.
+        ENDTRY.
+        model_refresh( ).
+        client->view_model_update( ).
+
       WHEN `REFRESH`.
         model_refresh( ).
         client->view_model_update( ).
@@ -209,10 +220,17 @@ CLASS zcl_z2ui5cc_demo_font_awesome IMPLEMENTATION.
 
   METHOD model_init.
 
+    " Collection AND a matching icon: the two are not interchangeable. `github`
+    " exists in fa-brands only, `heart` in fa-solid/fa-regular only - pairing a
+    " collection with an icon it does not carry renders nothing at all, which
+    " looks like a broken control rather than a wrong combination.
     t_collection = VALUE #(
-      ( key = zcl_z2ui5cc_font_awesome=>cs_collection-solid   text = `fa-solid` )
-      ( key = zcl_z2ui5cc_font_awesome=>cs_collection-regular text = `fa-regular` )
-      ( key = zcl_z2ui5cc_font_awesome=>cs_collection-brands  text = `fa-brands` ) ).
+      ( key  = zcl_z2ui5cc_font_awesome=>cs_collection-solid
+        text = `fa-solid`   icon = `heart` )
+      ( key  = zcl_z2ui5cc_font_awesome=>cs_collection-regular
+        text = `fa-regular` icon = `face-smile` )
+      ( key  = zcl_z2ui5cc_font_awesome=>cs_collection-brands
+        text = `fa-brands`  icon = `github` ) ).
 
     t_animation = VALUE #(
       ( key = ``              text = `none` )
@@ -224,7 +242,7 @@ CLASS zcl_z2ui5cc_demo_font_awesome IMPLEMENTATION.
       ( key = `fa-spin`       text = `fa-spin` ) ).
 
     collection = zcl_z2ui5cc_font_awesome=>cs_collection-brands.
-    icon       = `github`.
+    icon       = t_collection[ key = collection ]-icon.
     animation  = `fa-bounce`.
     model_refresh( ).
 
