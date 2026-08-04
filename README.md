@@ -179,38 +179,6 @@ input control.
 
 Colours are hex **without** a leading `#`, the way ImageMapster wants them.
 
-### `ImageMapEditor` — `z2ui5cc/cc/ImageMapEditor`
-
-The companion of `ImageMapster`: that one renders a map, this one produces the
-coordinates for it. Show a picture, let the user draw rectangles, circles and
-polygons over it, raise `trigger` — and the regions arrive as a
-`zcl_z2ui5cc_imagemapster=>ty_t_area` table, the exact row type `ImageMapster`
-consumes. No pixel coordinates read off a screenshot.
-
-| | |
-|---|---|
-| ABAP builder | `zcl_z2ui5cc_imagemap_editor=>render( )` |
-| Demo | `?app_start=zcl_z2ui5cc_demo_imap_editor` |
-| Properties | `src`, `fileName`, `areas` (bind two-way), `trigger`, `editorUrl`, `width`, `height` |
-| Events | `ready`, `collected` |
-
-The editor is an **iframe**, not a rendered control. Its stylesheet opens with
-a global reset over `html, body, div, span, p, a, ul, li, form, input, …`, so
-it cannot share a document with a UI5 view — the addon this came from injected
-it into the view and stripped the styling off the whole surrounding app, which
-is why its demo page contained nothing else. An iframe gives the editor the
-document it expects and keeps its CSS and its globals to itself.
-
-`editorUrl` defaults to the copy in this BSP and is a plain property, so the
-editor may equally be served from another BSP, a web server or a CDN. The
-contract is the postMessage protocol in `app/webapp/editor/bridge.js`
-— four messages, all plain data. Note that some CDNs serve `.html` as
-`text/plain` on purpose (an anti-hosting measure); an iframe pointed at one
-would then show source text rather than the editor.
-
-Name a region in the editor's **edit** mode: its `alt` text becomes the `KEY`
-in ABAP. A region left unnamed gets a generated key so it stays addressable.
-
 ## Configuration structures
 
 Five of the controls take a whole configuration structure as one property — a
@@ -259,33 +227,6 @@ This is a deliberate change from the addon repositories these controls came
 from, where animate.css, driver.js and jquery.imagemapster were pasted into
 ABAP classes as string literals — 4000 lines of CSS in one ABAP method — and
 injected into every view that used them.
-
-### The one exception: the image-map editor
-
-`ImageMapEditor` is the only control whose library ships **inside** this
-repository, under `app/webapp/editor/`:
-
-| File | What it is |
-|---|---|
-| `editor.js`, `editor.css` | [summerHtmlImageMapCreator](https://github.com/summerstyle/summerHtmlImageMapCreator) by Vladimir Zhukov (summerstyle) — vendored third party |
-| `index.html` | the page that hosts it — ours |
-| `bridge.js` | the postMessage protocol to the control — ours |
-
-It is vendored because it is a *page*, not a library: an iframe needs a URL
-that serves HTML, and the editor's markup, CSS and JS have to agree with each
-other. Serving all three from this BSP is the only arrangement that works
-offline and cannot drift apart.
-
-`editor.js` and `editor.css` carry one modification, marked in place at the end
-of `editor.js`: upstream keeps its `app` object private, so the bridge had no
-way to ask what the user drew. Everything else is as recovered.
-
-**Provenance to be aware of:** these two files were not taken from upstream
-directly — they were recovered from the ABAP string literals in
-`abap2UI5-addons/js-libraries`, which is where this organisation has been
-shipping them for years. That means the copy reflects whatever upstream
-revision that addon vendored, and nobody recorded which. Before a release,
-confirm the upstream licence and refresh from a known revision.
 
 ## How it plugs in
 
@@ -338,7 +279,6 @@ written back into the model, and events arrive in `on_event`.
 |---|---|
 | `app/webapp/cc/*.js` | the controls — plain UI5, the single source of truth |
 | `app/webapp/cc/Util.js` | the loader / id-resolution helpers the controls share |
-| `app/webapp/editor/` | the editor page `ImageMapEditor` shows — the one vendored library here |
 | `app/webapp/index.html` | placeholder start page; the BSP has no UI of its own |
 | `tools/app2bsp.mjs` | generates the abapGit BSP artefacts from `app/webapp` |
 | `src/z2ui5cc.wapa.*` | **generated**: BSP pages, page directory, path mapping |
@@ -383,15 +323,6 @@ neither is used.
 Those two checks separate a BSP problem from a frontend-manifest problem, which
 look identical from inside the app.
 
-**If you use `ImageMapEditor`**, check one more thing:
-`/sap/bc/ui5_ui5/sap/z2ui5cc/editor/index.html` must come back
-with `Content-Type: text/html`. Only the BSP's own start page carries an
-explicit MIME type in the generated artefacts; a page in a subfolder relies on
-the UI5 repository deriving the type from the extension. If your system serves
-it as something else the iframe shows source text instead of the editor —
-serve the four files from somewhere that sets the type and point `editorUrl`
-there.
-
 ## Adding a control
 
 1. write `app/webapp/cc/<Name>.js`, extending `sap.ui.core.Control` under
@@ -428,11 +359,13 @@ where they are:
   facade through `z2ui5/core/Lib` — which keeps it working below UI5 1.118,
   where `sap/ui/core/Messaging` does not exist yet.
 
-The image-map editor came over as `ImageMapEditor`, but not as a control in the
-same sense: it stayed a page and moved into an iframe. In the addon it was
-three ABAP methods holding ~3000 lines of XML-escaped HTML, CSS and JavaScript,
-and what the user drew never reached ABAP at all — it went into the browser's
-`localStorage`, or into a text box to copy out by hand.
+### Not carried over
+
+- **the ImageMapster editor** — a tool for drawing image-map coordinates, held
+  in the addon as three ABAP methods with ~3000 lines of XML-escaped HTML, CSS
+  and JavaScript. It is an authoring tool rather than a control, and what the
+  user drew never reached ABAP anyway: it went into the browser's
+  `localStorage`, or into a text box to copy out by hand.
 
 ## Checks
 

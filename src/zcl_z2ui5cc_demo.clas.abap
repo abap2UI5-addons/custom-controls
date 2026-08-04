@@ -90,23 +90,48 @@ CLASS zcl_z2ui5cc_demo IMPLEMENTATION.
                 )->a( n = `class`
                       v = `sapUiSmallMarginBeginEnd`
 
+                " Widths matter here: without them sap.m.Table hands every
+                " column as much room as its content wants, and three long text
+                " columns push the Demo button clean off the right edge. Only
+                " the description is left flexible, so it absorbs the slack and
+                " the button column always stays on screen.
+                "
+                " demandPopin moves a column under the row instead of squeezing
+                " it once the screen is too narrow - on a phone the list keeps
+                " the control name and the button, and folds the rest away.
                 )->open( `columns`
                     )->open( `Column`
+                        )->a( n = `width`
+                              v = `11rem`
                         )->leaf( `Text`
                             )->a( n = `text`
                                   v = `Control`
                     )->shut(
                     )->open( `Column`
+                        )->a( n = `width`
+                              v = `18rem`
+                        )->a( n = `minScreenWidth`
+                              v = `Tablet`
+                        )->a( n = `demandPopin`
+                              v = `true`
                         )->leaf( `Text`
                             )->a( n = `text`
                                   v = `Module`
                     )->shut(
                     )->open( `Column`
+                        )->a( n = `minScreenWidth`
+                              v = `Desktop`
+                        )->a( n = `demandPopin`
+                              v = `true`
+                        )->a( n = `popinDisplay`
+                              v = `Inline`
                         )->leaf( `Text`
                             )->a( n = `text`
                                   v = `What it does`
                     )->shut(
                     )->open( `Column`
+                        )->a( n = `width`
+                              v = `7rem`
                         )->a( n = `hAlign`
                               v = `End`
                         )->leaf( `Text`
@@ -209,11 +234,7 @@ CLASS zcl_z2ui5cc_demo IMPLEMENTATION.
       ( name        = `ImageMapster`
         module      = `z2ui5cc/cc/ImageMapster`
         description = `Image map that highlights, selects and reports the region clicked`
-        app         = `ZCL_Z2UI5CC_DEMO_IMAGEMAPSTER` )
-      ( name        = `ImageMapEditor`
-        module      = `z2ui5cc/cc/ImageMapEditor`
-        description = `Draw the regions of an image map and hand them to ABAP as a table`
-        app         = `ZCL_Z2UI5CC_DEMO_IMAP_EDITOR` ) ).
+        app         = `ZCL_Z2UI5CC_DEMO_IMAGEMAPSTER` ) ).
 
   ENDMETHOD.
 
