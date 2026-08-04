@@ -25,9 +25,15 @@ const BSP_TEXT = "abap2UI5 custom controls";
 // "ICF Node NOT found!". The parent GUIDs are the SAP standard nodes
 // /sap/bc/ui5_ui5/sap/ and /sap/bc/bsp/sap/ and are system-independent.
 // abapGit names an SICF file <icf_name padded to 15><25-char parent guid>.
+//
+// The GUIDs below are the ones a real system serialized back (commit "fix
+// abapgit"); the first set that shipped here was guessed and abapGit did not
+// match it against the standard nodes. Keep them in sync with the file names
+// under src/01 - the app2bsp CI job compares the generated tree against what
+// is committed and a renamed SICF file fails it.
 const ICF_PARENTS = [
-  { guid: "0ec96042f38e7e75ceadd96a5", url: "/sap/bc/ui5_ui5/sap/" },
-  { guid: "cc3e0011031e2f3f4be478dc5", url: "/sap/bc/bsp/sap/" },
+  { guid: "4e1b211b6bfb61040291eeb86", url: "/sap/bc/ui5_ui5/sap/" },
+  { guid: "8d302f135405e74f3ccd28274", url: "/sap/bc/bsp/sap/" },
 ];
 const ICF_NAME_WIDTH = 15;
 

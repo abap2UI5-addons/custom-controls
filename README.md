@@ -247,9 +247,9 @@ CI runs abaplint against the abap2UI5 framework, syntax-checks every control and
 fails if the generated BSP has drifted from `app/webapp`.
 
 These controls replace the
-[abap2UI5-addons/js-libraries](https://github.com/abap2UI5-addons/js-libraries)
+[abap2UI5-addons/js-libraries-obsolet](https://github.com/abap2UI5-addons/js-libraries-obsolet)
 and
-[abap2UI5-addons/custom-controls](https://github.com/abap2UI5-addons/custom-controls)
+[abap2UI5-addons/custom-controls-obsolet](https://github.com/abap2UI5-addons/custom-controls-obsolet)
 repositories, which shipped the same JavaScript as ABAP string literals injected
 into every view. Each control's JS file names the class it came from and lists
 what changed. Favicon and MessageManager were not ported — abap2UI5 carries them
