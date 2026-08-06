@@ -142,6 +142,16 @@ CLASS z2ui5_cl_ccont_sample_10 IMPLEMENTATION.
                   v = client->_bind( sanitize )
     )->shut( ).
 
+    " Directly under the toolbar, because this is what the buttons speak
+    " through - below a 40rem editor nobody sees the hint change.
+    page->leaf( `MessageStrip`
+        )->a( n = `text`
+              v = client->_bind( info )
+        )->a( n = `showIcon`
+              v = `true`
+        )->a( n = `class`
+              v = `sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiSmallMarginTop` ).
+
     " Editor and preview side by side, and stacked on a phone.
     DATA(grid) = page->open( `FlexBox`
         )->a( n = `wrap`
@@ -195,14 +205,7 @@ CLASS z2ui5_cl_ccont_sample_10 IMPLEMENTATION.
 
     right->shut( )->shut( )->shut( ).
 
-    grid->shut(
-        )->open( `MessageStrip`
-            )->a( n = `text`
-                  v = client->_bind( info )
-            )->a( n = `showIcon`
-                  v = `true`
-            )->a( n = `class`
-                  v = `sapUiSmallMargin` ).
+    grid->shut( ).
 
     client->view_display( view->stringify( ) ).
 
