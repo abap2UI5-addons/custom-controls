@@ -290,6 +290,16 @@ refuses anything else — otherwise you find out on import, as
 CI runs abaplint against the abap2UI5 framework, syntax-checks every control and
 fails if the generated BSP has drifted from `app/webapp`.
 
+## Building something only your company needs?
+
+This repository is for controls worth sharing. For a customer's **own**
+frontend artefacts — an in-house reuse library, a corporate icon font, company
+CSS — use
+[abap2UI5/customer-frontend-extension](https://github.com/abap2UI5/customer-frontend-extension).
+It is the same mechanism under a second reserved resourceRoot (`z2ui5ext`
+instead of `z2ui5cc`), so the two can be installed side by side and neither
+needs a change to abap2UI5.
+
 These controls replace the
 [abap2UI5-addons/js-libraries-obsolet](https://github.com/abap2UI5-addons/js-libraries-obsolet)
 and
