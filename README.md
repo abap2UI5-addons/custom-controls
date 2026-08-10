@@ -1,3 +1,11 @@
+[![abap version](https://img.shields.io/badge/abap%20version-standard%20%28%E2%89%A5%207.50%29-blue)](#install)
+[![namespace](https://img.shields.io/badge/namespace-z2ui5__cl__cci-blue)](abaplint.jsonc)
+[![bsp](https://img.shields.io/badge/bsp-Z2UI5CCC-blue)](#install)
+[![dependency](https://img.shields.io/badge/dependency-abap2UI5-blue)](https://github.com/abap2UI5/abap2UI5)
+<br>
+<br>
+[![check](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml/badge.svg)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
+
 # abap2UI5 custom controls
 
 Eleven ready-to-use custom controls for
