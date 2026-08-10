@@ -281,13 +281,29 @@ with the next run. Install it with abapGit exactly like `main`.
 
 `npm run build:local` copies every library out of `node_modules` into
 `app/webapp/lib/` and regenerates the BSP, which grows to about 3.5 MB. The
-files are the upstream ones byte-for-byte, with one exception: **lines are
-wrapped**. A BSP page is stored as 255-character lines, so a minified bundle
+files are the upstream ones byte-for-byte, with two exceptions. The first is
+that **lines are wrapped**. A BSP page is stored as 255-character lines, so a minified bundle
 would be chopped at character 256 — in the middle of an identifier as often as
 not — and the file the system serves back would no longer be the file that went
 in. `tools/wrap-lines.mjs` inserts newlines only where the JavaScript and CSS
 grammars treat them as whitespace, and `npm test` proves it by re-parsing every
 vendored library and comparing its syntax tree against the original's.
+
+The second is that the trailing `//# sourceMappingURL=` comment is removed. The
+`.map` files are developer tooling and are not vendored, so the pointer would
+only make a browser with devtools open request a page the BSP does not have —
+and a 404 next to a custom control is exactly the symptom someone loses an
+afternoon to. Nothing else in the branch reaches outside the SAP system: the
+libraries carry no absolute URL they load from (the http links in them are
+banner comments and marked's autolink prefix), the stylesheets have no
+`@import` and no `url()` other than the inlined fonts, and none of them opens
+an XHR, a `fetch` or a script tag of its own.
+
+**UI5 itself is a separate question and lives outside this repository.**
+abap2UI5 bootstraps from `https://sdk.openui5.org/...` unless told otherwise,
+so an offline system also has to point `cs_config-src` at a local
+distribution — see `z2ui5_cl_exit` in the framework. That is what serves
+`sap.ui.export` and `sap.ui.codeeditor` too.
 
 Two consequences worth knowing before installing it:
 

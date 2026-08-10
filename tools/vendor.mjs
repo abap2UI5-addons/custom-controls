@@ -14,11 +14,13 @@
 // URL, so the two builds cannot drift apart, and bumping a version is a change
 // to package.json plus a re-run of this script.
 //
-// The vendored files are copied byte-for-byte except for line breaks: a BSP
-// page is stored as 255-character lines, so anything longer is wrapped by
-// tools/wrap-lines.mjs, which only inserts newlines the JavaScript and CSS
-// grammars treat as whitespace. See that file for why that is safe and why
-// reformatting with Prettier is not an option.
+// The vendored files are copied byte-for-byte, with two exceptions: line
+// breaks, and the source-map comment. A BSP page is stored as 255-character
+// lines, so anything longer is wrapped by tools/wrap-lines.mjs, which only
+// inserts newlines the JavaScript and CSS grammars treat as whitespace - see
+// that file for why that is safe and why reformatting with Prettier is not an
+// option. The source-map pointer goes because the .map file is not vendored
+// (stripSourceMap below).
 //
 // Run `npm run app2bsp` afterwards - this script writes app/webapp, the BSP
 // artefacts under src/01 are generated from it.
@@ -48,6 +50,24 @@ const packageVersion = (name) =>
   JSON.parse(readFileSync(join(NODE_MODULES, name, "package.json"), "utf8")).version;
 
 const read = (pkg, file) => readFileSync(join(NODE_MODULES, pkg, file), "utf8");
+
+// Removes the trailing source-map pointer.
+//
+// Most dist builds end in `//# sourceMappingURL=chart.umd.js.map`. The .map
+// file is not vendored - it is developer tooling, it doubles the size of some
+// of these libraries, and it is not what an offline installation is for. Left
+// in, the comment makes any browser with devtools open request a page the BSP
+// does not have, and a 404 next to a custom control is exactly the symptom
+// someone would spend an afternoon on. Dropping the pointer costs nothing:
+// without a map the debugger simply shows the shipped file.
+//
+// Only a line that *starts* with the comment is removed, so a library that
+// merely mentions the string inside a literal is left alone.
+const stripSourceMap = (text) =>
+  text
+    .replace(/^[ \t]*\/\/# sourceMappingURL=.*$/gm, "")
+    .replace(/^[ \t]*\/\*# sourceMappingURL=.*\*\/[ \t]*$/gm, "")
+    .replace(/\n{3,}$/, "\n");
 
 // ---------------------------------------------------------------------------
 // Font Awesome
@@ -107,7 +127,18 @@ function vendor(entry) {
 
   if (entry.generator === "fontawesome") content = inlineFontAwesome(content, entry.package);
 
+  content = stripSourceMap(content);
+
   const wrapped = entry.kind === "css" ? wrapCss(content) : wrapJs(content);
+
+  // A pointer written some other way would still 404 - catch it here rather
+  // than in a customer's network tab.
+  if (wrapped.includes("sourceMappingURL")) {
+    throw new Error(
+      `${entry.target}: still carries a sourceMappingURL comment - ` +
+        `extend stripSourceMap() in tools/vendor.mjs`,
+    );
+  }
 
   // The wrapper aims for DEFAULT_MAX and app2bsp enforces 255; a line that is
   // still over the aim had no break opportunity in it. Report rather than
@@ -135,8 +166,9 @@ function writeLicences(versions) {
   const blocks = [
     "Third-party libraries vendored into this BSP.",
     "",
-    "Each of them is redistributed unchanged apart from line breaks; see",
-    "tools/wrap-lines.mjs in abap2UI5-addons/custom-controls for why.",
+    "Each of them is redistributed unchanged apart from line breaks and a",
+    "removed source-map comment; see tools/wrap-lines.mjs and tools/vendor.mjs",
+    "in abap2UI5-addons/custom-controls for why.",
     "",
   ];
 
