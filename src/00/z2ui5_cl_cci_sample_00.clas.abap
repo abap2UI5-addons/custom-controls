@@ -2,10 +2,14 @@
 "!
 "! Start with: <em>?app_start=z2ui5_cl_cci_sample_00</em>
 "!
-"! Front door of this control library: lists every custom control it ships and
-"! launches its demo app. Use it to check an installation - if the list renders
-"! and a demo runs, the Z2UI5_CCI BSP is deployed and the abap2UI5 frontend
-"! resolves the reserved resourceRoot correctly.
+"! Front door of this control library: one row per demo app, with the
+"! third-party library each control needs, and a button that launches it. Use
+"! it to check an installation - if the list renders and a demo runs, the
+"! Z2UI5_CCI BSP is deployed and the abap2UI5 frontend resolves the reserved
+"! resourceRoot correctly.
+"!
+"! One row per DEMO, not per control: CodeEditor has no demo of its own, it is
+"! the editor inside the Markdown one, so it has no row here either.
 CLASS z2ui5_cl_cci_sample_00 DEFINITION
   PUBLIC
   FINAL
@@ -20,6 +24,7 @@ CLASS z2ui5_cl_cci_sample_00 DEFINITION
         name        TYPE string,
         module      TYPE string,
         description TYPE string,
+        library     TYPE string,
         app         TYPE string,
       END OF ty_s_control.
 
@@ -97,10 +102,12 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
                       v = `sapUiResponsiveMargin`
 
                 " Widths matter here: without them sap.m.Table hands every
-                " column as much room as its content wants, and three long text
+                " column as much room as its content wants, and four long text
                 " columns push the Demo button clean off the right edge. Only
                 " the description is left flexible, so it absorbs the slack and
-                " the button column always stays on screen.
+                " the button column always stays on screen. The fixed ones add
+                " up to 49rem, which still leaves the description room on a
+                " laptop - anything narrower folds columns away below.
                 "
                 " demandPopin moves a column under the row instead of squeezing
                 " it once the screen is too narrow - on a phone the list keeps
@@ -135,6 +142,21 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
                             )->a( n = `text`
                                   v = `What it does`
                     )->shut(
+                    " Which third-party library the control pulls in, because
+                    " that is what decides whether it runs on a machine with no
+                    " internet access. Controls that need none say so - that is
+                    " information, not an empty cell.
+                    )->open( `Column`
+                        )->a( n = `width`
+                              v = `13rem`
+                        )->a( n = `minScreenWidth`
+                              v = `Tablet`
+                        )->a( n = `demandPopin`
+                              v = `true`
+                        )->leaf( `Text`
+                            )->a( n = `text`
+                                  v = `Library`
+                    )->shut(
                     )->open( `Column`
                         )->a( n = `width`
                               v = `7rem`
@@ -158,6 +180,9 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
                             )->leaf( `Text`
                                 )->a( n = `text`
                                       v = `{DESCRIPTION}`
+                            )->leaf( `Text`
+                                )->a( n = `text`
+                                      v = `{LIBRARY}`
                             )->leaf( `Button`
                                 )->a( n = `text`
                                       v = `Open`
@@ -211,50 +236,71 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
 
   METHOD model_init.
 
+    " `library` names the third-party code the control loads, because that is
+    " what decides whether it works on a machine with no internet access:
+    "
+    "   none        nothing is fetched - the control is self-contained
+    "   from UI5    shipped with the UI5 distribution, so wherever UI5 comes
+    "               from, this comes with it
+    "   a name      a library loaded on first use, from jsDelivr on `main` and
+    "               from this BSP on the `local` branch
+    "
+    " Deliberately without version numbers: those are pinned in package.json
+    " and would rot here on the next bump, with nothing to catch it.
+    "
+    " CodeEditor has no row of its own - it has no demo of its own either. It
+    " is the editor on the left of the Markdown demo, which is where it is
+    " shown; a second row launching the very same app was noise.
     t_controls = VALUE #(
       ( name        = `SignaturePad`
         module      = `z2ui5_cci/cc/SignaturePad`
         description = `Canvas for mouse, finger or stylus; hands the stroke over as a base64 PNG`
+        library     = `none`
         app         = `Z2UI5_CL_CCI_SAMPLE_01` )
       ( name        = `ExportSpreadsheet`
         module      = `z2ui5_cci/cc/ExportSpreadsheet`
         description = `Exports the rows a table is bound to as .xlsx, in the browser`
+        library     = `sap.ui.export, from UI5`
         app         = `Z2UI5_CL_CCI_SAMPLE_02` )
       ( name        = `Validator`
         module      = `z2ui5_cci/cc/Validator`
         description = `Checks a form against rules declared in ABAP, without a roundtrip`
+        library     = `none`
         app         = `Z2UI5_CL_CCI_SAMPLE_03` )
       ( name        = `ChartJs`
         module      = `z2ui5_cci/cc/ChartJs`
         description = `Chart.js canvas driven by a bound ABAP structure`
+        library     = `Chart.js`
         app         = `Z2UI5_CL_CCI_SAMPLE_04` )
       ( name        = `Barcode`
         module      = `z2ui5_cci/cc/Barcode`
         description = `Barcodes and QR codes with bwip-js, rendered in the browser`
+        library     = `bwip-js`
         app         = `Z2UI5_CL_CCI_SAMPLE_05` )
       ( name        = `DriverJs`
         module      = `z2ui5_cci/cc/DriverJs`
         description = `Product tours and spotlight highlights over your own controls`
+        library     = `driver.js`
         app         = `Z2UI5_CL_CCI_SAMPLE_06` )
       ( name        = `FontAwesome`
         module      = `z2ui5_cci/cc/FontAwesome`
         description = `Font Awesome as UI5 icons and as CSS classes`
+        library     = `Font Awesome`
         app         = `Z2UI5_CL_CCI_SAMPLE_07` )
       ( name        = `AnimateCss`
         module      = `z2ui5_cci/cc/AnimateCss`
         description = `Makes the animate.css class names work on any control`
+        library     = `animate.css`
         app         = `Z2UI5_CL_CCI_SAMPLE_08` )
       ( name        = `ImageMapster`
         module      = `z2ui5_cci/cc/ImageMapster`
         description = `Image map that highlights, selects and reports the region clicked`
+        library     = `ImageMapster, jQuery from UI5`
         app         = `Z2UI5_CL_CCI_SAMPLE_09` )
       ( name        = `Markdown`
         module      = `z2ui5_cci/cc/Markdown`
         description = `Renders a bound Markdown string as HTML, sanitized by default`
-        app         = `Z2UI5_CL_CCI_SAMPLE_10` )
-      ( name        = `CodeEditor`
-        module      = `z2ui5_cci/cc/CodeEditor`
-        description = `Makes UI5's own sap.ui.codeeditor usable from a view, without eval`
+        library     = `marked, DOMPurify`
         app         = `Z2UI5_CL_CCI_SAMPLE_10` ) ).
 
   ENDMETHOD.
