@@ -86,5 +86,12 @@ jobs:
       - run: npm ci
       - name: syntax check the custom controls
         run: for f in app/webapp/cc/*.js; do node --check "$f"; done
-      - name: line wrapper unit tests
+      - name: unit tests
         run: npm test
+      # The ImageMapster overlay is geometry, and geometry needs a layout
+      # engine: this drives the control in headless Chromium and checks that a
+      # click at a point in the picture lands on the region drawn there, before
+      # and after a resize. ubuntu-latest ships a Chromium; the runner skips
+      # itself when there is none rather than failing.
+      - name: overlay browser check
+        run: npm run check:browser

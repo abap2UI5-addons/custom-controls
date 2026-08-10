@@ -295,7 +295,7 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
       ( name        = `ImageMapster`
         module      = `z2ui5_cci/cc/ImageMapster`
         description = `Image map that highlights, selects and reports the region clicked`
-        library     = `ImageMapster, jQuery from UI5`
+        library     = `none`
         app         = `Z2UI5_CL_CCI_SAMPLE_09` )
       ( name        = `Markdown`
         module      = `z2ui5_cci/cc/Markdown`
