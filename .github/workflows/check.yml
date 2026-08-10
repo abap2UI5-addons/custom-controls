@@ -32,21 +32,6 @@ jobs:
       - name: abaplint (expect 0 issues)
         run: npm run lint
 
-  # The same downport publish-702 runs, so a change that cannot be expressed in
-  # 7.02 syntax fails on the pull request rather than on the branch push.
-  abaplint-702:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run downport
-      - run: npm run lint:702
-
   app2bsp:
     runs-on: ubuntu-latest
     timeout-minutes: 10

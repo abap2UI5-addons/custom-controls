@@ -1,4 +1,4 @@
-[![abap version](https://img.shields.io/badge/abap%20version-standard%20%28%E2%89%A5%207.50%29%20%7C%20702-blue)](#branches)
+[![abap version](https://img.shields.io/badge/abap%20version-standard%20%28%E2%89%A5%207.50%29-blue)](#install)
 [![namespace](https://img.shields.io/badge/namespace-z2ui5__cl__cci-blue)](abaplint.jsonc)
 [![bsp](https://img.shields.io/badge/bsp-Z2UI5_CCI-blue)](#install)
 [![dependency](https://img.shields.io/badge/dependency-abap2UI5-blue)](https://github.com/abap2UI5/abap2UI5)
@@ -27,8 +27,8 @@ has to change, and no pull request against the framework is needed to add one.
 Requires abap2UI5 with the reserved resourceRoot `z2ui5_cci` in the frontend
 manifest (see [Troubleshooting](#troubleshooting) if a control stays blank).
 
-On NW 7.02–7.40 install the `702` branch, and on a system whose browsers have no
-internet access the `local` branch — see [Branches](#branches).
+On a system whose browsers have no internet access, install the `local` branch
+instead — see [Branches](#branches).
 
 ## Using a control
 
@@ -270,23 +270,14 @@ z2ui5_cl_cci_chartjs=>render( view = page config = … liburl = `/sap/bc/ui5_ui5
 
 ## Branches
 
-`main` is where development happens; the other two are **generated from it on
-every push** and force-pushed by CI. Never develop on one — a commit made there
-is gone with the next run. Pick the one that matches the system and install it
-with abapGit exactly like `main`.
+`main` is where development happens; `local` is **generated from it on every
+push** and force-pushed by CI. Never develop on it — a commit made there is gone
+with the next run. Install it with abapGit exactly like `main`.
 
 | Branch | What it is | Install it when |
 |---|---|---|
 | `main` | the sources, ABAP ≥ 7.50, libraries from jsDelivr | the default |
-| `702` | the same, downported to 7.02 syntax | NW 7.02–7.40 |
 | `local` | the same, with every library vendored into the BSP | the browsers have no internet access |
-
-The two transformations are independent and compose — a branch carrying both is
-one line in `.github/workflows/publish-branch.yml` (`prepare: npm run downport
-&& npm run build:local`) and nothing else. It is not published today because
-nobody has asked for it.
-
-### The `local` branch
 
 `npm run build:local` copies every library out of `node_modules` into
 `app/webapp/lib/` and regenerates the BSP, which grows to about 3.5 MB. The
