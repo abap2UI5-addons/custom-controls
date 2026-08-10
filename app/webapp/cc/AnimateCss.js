@@ -16,12 +16,11 @@
 // Set `cssUrl` to serve it from your own system - a BSP, the MIME repository -
 // if the frontend has no internet access.
 sap.ui.define(
-  ["sap/ui/core/Control", "z2ui5_cci/cc/Util"],
-  (Control, Util) => {
+  ["sap/ui/core/Control", "z2ui5_cci/cc/Util", "z2ui5_cci/cc/LibUrls"],
+  (Control, Util, LibUrls) => {
     "use strict";
 
-    const CSS_URL =
-      "https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css";
+    const CSS_URL = LibUrls.animateCss;
 
     // animate.css reads these off :root; setting them retunes every animation
     // on the page at once.

@@ -22,14 +22,12 @@
 //      `new Function` on the client. The tour finishing and each step being
 //      highlighted are UI5 events instead.
 sap.ui.define(
-  ["sap/ui/core/Control", "z2ui5_cci/cc/Util"],
-  (Control, Util) => {
+  ["sap/ui/core/Control", "z2ui5_cci/cc/Util", "z2ui5_cci/cc/LibUrls"],
+  (Control, Util, LibUrls) => {
     "use strict";
 
-    const LIB_URL =
-      "https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js";
-    const CSS_URL =
-      "https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css";
+    const LIB_URL = LibUrls.driverJs;
+    const CSS_URL = LibUrls.driverJsCss;
 
     const STYLE_ID = "z2ui5_cci-driverjs-custom";
 

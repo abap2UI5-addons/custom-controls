@@ -1,0 +1,29 @@
+name: publish-local
+
+# Rebuilds the `local` branch via publish-branch.yml: vendors every third-party
+# library into the BSP, regenerates the BSP artefacts and force-pushes.
+#
+# Install that branch instead of `main` on a system whose browsers have no
+# internet access - it is the same controls with the libraries inside.
+
+on:
+  push:
+    branches: [main]
+  # Manual rebuild, e.g. after a direct push to main that started no run.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-local
+  cancel-in-progress: false
+
+jobs:
+  publish-local:
+    uses: ./.github/workflows/publish-branch.yml
+    permissions:
+      contents: write
+    with:
+      branch: local
+      prepare: npm run build:local

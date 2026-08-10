@@ -1,4 +1,5 @@
-# abaplint against the abap2UI5 framework dependency.
+# abaplint against the abap2UI5 framework dependency, plus the gates that keep
+# the generated artefacts honest.
 #
 # The abap2UI5-linter's headless view render is deliberately not run here: it
 # validates views against the UI5 metadata snapshot, which does not know
@@ -7,7 +8,7 @@ name: check
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
 
 concurrency:
@@ -26,8 +27,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
+      - run: npm ci
       - name: abaplint (expect 0 issues)
-        run: npx --yes @abaplint/cli@latest abaplint.jsonc
+        run: npm run lint
+
+  # The same downport publish-702 runs, so a change that cannot be expressed in
+  # 7.02 syntax fails on the pull request rather than on the branch push.
+  abaplint-702:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run downport
+      - run: npm run lint:702
 
   app2bsp:
     runs-on: ubuntu-latest
@@ -37,12 +55,39 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
+      - run: npm ci
       # the generated BSP artefacts must match app/webapp - a stale page would
       # deploy old JavaScript without anyone noticing
       - name: app2bsp is up to date
         run: |
           npm run app2bsp
           git diff --exit-code -- src
+
+  # app/webapp/cc/LibUrls.js is generated from tools/libs.json and the installed
+  # package versions. Regenerating it here means a hand-edited URL, or a version
+  # bumped in package.json without re-running the generator, fails the build
+  # instead of shipping a CDN URL nothing was tested against.
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: LibUrls.js is up to date
+        run: |
+          npm run vendor
+          git diff --exit-code -- app/webapp
+
+      # The local build is what the `local` branch ships; building it here
+      # proves every library still vendors and wraps within the BSP line limit
+      # before publish-local tries it.
+      - name: local build succeeds
+        run: npm run build:local
 
   js:
     runs-on: ubuntu-latest
@@ -52,5 +97,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
+      - run: npm ci
       - name: syntax check the custom controls
         run: for f in app/webapp/cc/*.js; do node --check "$f"; done
+      - name: line wrapper unit tests
+        run: npm test
