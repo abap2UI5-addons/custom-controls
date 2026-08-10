@@ -1,4 +1,4 @@
-[![abap version](https://img.shields.io/badge/abap%20version-standard%20%28%E2%89%A5%207.50%29-blue)](#install)
+[![abap version](https://img.shields.io/badge/abap%20version-standard%20%28%E2%89%A5%207.50%29%20%7C%20702-blue)](#branches)
 [![namespace](https://img.shields.io/badge/namespace-z2ui5__cl__cci-blue)](abaplint.jsonc)
 [![bsp](https://img.shields.io/badge/bsp-Z2UI5_CCI-blue)](#install)
 [![dependency](https://img.shields.io/badge/dependency-abap2UI5-blue)](https://github.com/abap2UI5/abap2UI5)
@@ -26,6 +26,9 @@ has to change, and no pull request against the framework is needed to add one.
 
 Requires abap2UI5 with the reserved resourceRoot `z2ui5_cci` in the frontend
 manifest (see [Troubleshooting](#troubleshooting) if a control stays blank).
+
+On NW 7.02–7.40 install the `702` branch, and on a system whose browsers have no
+internet access the `local` branch — see [Branches](#branches).
 
 ## Using a control
 
@@ -243,22 +246,69 @@ a value that *is* meaningfully zero, empty or false cannot be sent this way.
 
 
 
-### Third-party libraries and systems without internet
+### Third-party libraries
 
 Seven controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
 driver.js 1, Font Awesome 6, animate.css 4, jquery.imagemapster 1.5, and
-marked 12 together with DOMPurify 3. Nothing is
-vendored here; each control loads its library on first use from the URL in its
-`liburl` / `cssurl` property, which defaults to jsDelivr. Loading is cached per
-URL, so ten charts on a page fetch Chart.js once.
+marked 12 together with DOMPurify 3. Each control loads its library on first
+use, cached per URL, so ten charts on a page fetch Chart.js once.
 
-**If the browsers in your system have no internet access, override those URLs.**
-Put the library into a BSP of your own (or into this one: drop it under
-`app/webapp/`, run `npm run app2bsp`) and pass the path:
+Where it loads it from is what separates the two branches: on `main` from
+jsDelivr, on `local` from this BSP. Nothing in the repository spells a URL out
+— `tools/libs.json` names the npm package and `tools/vendor.mjs` generates
+`app/webapp/cc/LibUrls.js` from it and from the version in `package.json`, in
+one shape or the other. So the version a browser downloads is the version this
+repository was tested against, and a version bump is an edit to `package.json`
+plus `npm run vendor`, never a hand-written URL.
+
+A single library can still be redirected per control, on either branch, with the
+`liburl` / `cssurl` property:
 
 ```abap
-z2ui5_cl_cci_chartjs=>render( view = page config = … liburl = `/sap/bc/ui5_ui5/sap/z2ui5_cci/chart.umd.js` ).
+z2ui5_cl_cci_chartjs=>render( view = page config = … liburl = `/sap/bc/ui5_ui5/sap/z2ui5_cci/lib/chart.umd.js` ).
 ```
+
+## Branches
+
+`main` is where development happens; the other two are **generated from it on
+every push** and force-pushed by CI. Never develop on one — a commit made there
+is gone with the next run. Pick the one that matches the system and install it
+with abapGit exactly like `main`.
+
+| Branch | What it is | Install it when |
+|---|---|---|
+| `main` | the sources, ABAP ≥ 7.50, libraries from jsDelivr | the default |
+| `702` | the same, downported to 7.02 syntax | NW 7.02–7.40 |
+| `local` | the same, with every library vendored into the BSP | the browsers have no internet access |
+
+The two transformations are independent and compose — a branch carrying both is
+one line in `.github/workflows/publish-branch.yml` (`prepare: npm run downport
+&& npm run build:local`) and nothing else. It is not published today because
+nobody has asked for it.
+
+### The `local` branch
+
+`npm run build:local` copies every library out of `node_modules` into
+`app/webapp/lib/` and regenerates the BSP, which grows to about 3.5 MB. The
+files are the upstream ones byte-for-byte, with one exception: **lines are
+wrapped**. A BSP page is stored as 255-character lines, so a minified bundle
+would be chopped at character 256 — in the middle of an identifier as often as
+not — and the file the system serves back would no longer be the file that went
+in. `tools/wrap-lines.mjs` inserts newlines only where the JavaScript and CSS
+grammars treat them as whitespace, and `npm test` proves it by re-parsing every
+vendored library and comparing its syntax tree against the original's.
+
+Two consequences worth knowing before installing it:
+
+- **Font Awesome's CSS classes work, its UI5 IconPool collections do not.** The
+  stylesheet carries the webfonts inline as base64, so `class="fa-solid
+  fa-heart"` renders offline. `sap-icon://fa-solid/heart` needs the fonts as
+  real files in a directory, plus the metadata JSON that maps icon names to code
+  points — and a BSP page is a text object, so neither can ship here. Put that
+  bundle in a MIME repository or a BSP of your own and pass the directory as
+  `fonturi` to switch the IconPool half back on.
+- **ExportSpreadsheet and CodeEditor were never affected**, and still are not:
+  both use libraries out of the UI5 distribution rather than a CDN.
 
 ## Troubleshooting
 
@@ -276,9 +326,13 @@ which look identical from inside the app.
 
 1. write `app/webapp/cc/<Name>.js`, extending `sap.ui.core.Control` under
    `z2ui5_cci.cc.<Name>`, with no dependency on `z2ui5/…` modules
-2. run `npm run app2bsp` — regenerates the BSP artefacts under `src/01`
-3. add a builder class `z2ui5_cl_cci_<name>` next to the others
-4. add a sample and a row in `z2ui5_cl_cci_sample_00=>model_init( )`
+2. wraps a third-party library? add it to `package.json` with an exact version
+   and to `tools/libs.json`, then `npm run vendor` — the control reads its URL
+   from `z2ui5_cci/cc/LibUrls`, never from a literal, so it works on `main` and
+   on `local` without a second code path
+3. run `npm run app2bsp` — regenerates the BSP artefacts under `src/01`
+4. add a builder class `z2ui5_cl_cci_<name>` next to the others
+5. add a sample and a row in `z2ui5_cl_cci_sample_00=>model_init( )`
 
 File names under `app/webapp` become BSP page names and SAP validates them: at
 most one directory level, and letters, digits, `_` and `.` only. `app2bsp`
@@ -290,6 +344,11 @@ refuses anything else — otherwise you find out on import, as
 | Path | What it is |
 |---|---|
 | `app/webapp/cc/*.js` | the controls — plain UI5, the single source of truth |
+| `app/webapp/cc/LibUrls.js` | **generated**: where each control loads its library from |
+| `app/webapp/lib/` | **generated, `local` branch only**: the vendored libraries |
+| `tools/libs.json` | the third-party libraries — npm package, file, CDN URL |
+| `tools/vendor.mjs` | writes `LibUrls.js`, and `app/webapp/lib/` with `--local` |
+| `tools/wrap-lines.mjs` | breaks a library into lines a BSP page can carry |
 | `tools/app2bsp.mjs` | generates the abapGit BSP artefacts from `app/webapp` |
 | `src/z2ui5_cl_cci*.clas.abap` | the library and one view builder per control |
 | `src/00/` | the overview app and the samples |
@@ -304,8 +363,10 @@ UI5 module namespace `z2ui5_cci.cc`. It needs an abap2UI5 that reserves that
 root; frontends predating the rename reserve `z2ui5ccc` (and older ones
 `z2ui5cc`) and cannot resolve the controls.
 
-CI runs abaplint against the abap2UI5 framework, syntax-checks every control and
-fails if the generated BSP has drifted from `app/webapp`.
+CI runs abaplint against the abap2UI5 framework in both syntax versions,
+syntax-checks every control, runs the line-wrapper tests, builds the `local`
+variant, and fails if any generated artefact — the BSP under `src/01` or
+`LibUrls.js` — has drifted from its source.
 
 ## Building something only your company needs?
 

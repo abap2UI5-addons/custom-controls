@@ -6,3 +6,8 @@
 *.yml text eol=lf
 *.js text eol=lf
 *.mjs text eol=lf
+# the vendored libraries and their licence texts (local branch); a CRLF
+# checkout would change bytes the BSP page format counts
+*.css text eol=lf
+*.txt text eol=lf
+*.html text eol=lf

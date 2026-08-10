@@ -1,0 +1,166 @@
+{
+  "_comment": [
+    "The third-party libraries the controls load, in one place.",
+    "",
+    "This file is the single source of truth for BOTH builds (see tools/vendor.mjs):",
+    "the default build turns it into CDN URLs, the --local build vendors the files",
+    "into app/webapp/lib/ and turns it into BSP paths. Neither set of URLs is",
+    "written by hand, so the version a system downloads and the version this",
+    "repository was tested against can never drift apart.",
+    "",
+    "'package' and 'file' point into node_modules, so the version comes from",
+    "package.json / package-lock.json and {version} in 'cdn' is substituted from",
+    "the installed package. Pinning a new version is a change to package.json plus",
+    "'npm run vendor' - never an edited URL.",
+    "",
+    "'target' is the file name inside app/webapp/lib/. BSP page names allow only",
+    "letters, digits, '_' and '.' (tools/app2bsp.mjs), so a package's hyphens are",
+    "replaced here and names like 'index.umd.js' are made unique."
+  ],
+
+  "libDir": "lib",
+  "resourceRoot": "z2ui5_cci",
+
+  "entries": [
+    {
+      "key": "chartJs",
+      "package": "chart.js",
+      "file": "dist/chart.umd.js",
+      "target": "chart.umd.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/chart.js@{version}/dist/chart.umd.js"
+    },
+    {
+      "key": "chartJsDatalabels",
+      "package": "chartjs-plugin-datalabels",
+      "file": "dist/chartjs-plugin-datalabels.js",
+      "target": "chartjs_plugin_datalabels.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@{version}/dist/chartjs-plugin-datalabels.js"
+    },
+    {
+      "key": "chartJsAutocolors",
+      "package": "chartjs-plugin-autocolors",
+      "file": "dist/chartjs-plugin-autocolors.min.js",
+      "target": "chartjs_plugin_autocolors.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/chartjs-plugin-autocolors@{version}/dist/chartjs-plugin-autocolors.min.js"
+    },
+    {
+      "key": "chartJsDeferred",
+      "package": "chartjs-plugin-deferred",
+      "file": "dist/chartjs-plugin-deferred.min.js",
+      "target": "chartjs_plugin_deferred.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/chartjs-plugin-deferred@{version}/dist/chartjs-plugin-deferred.min.js"
+    },
+    {
+      "key": "chartJsAnnotation",
+      "package": "chartjs-plugin-annotation",
+      "file": "dist/chartjs-plugin-annotation.min.js",
+      "target": "chartjs_plugin_annotation.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@{version}/dist/chartjs-plugin-annotation.min.js"
+    },
+    {
+      "key": "chartJsVenn",
+      "package": "chartjs-chart-venn",
+      "file": "build/index.umd.min.js",
+      "target": "chartjs_chart_venn.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/chartjs-chart-venn@{version}/build/index.umd.min.js"
+    },
+    {
+      "key": "chartJsWordcloud",
+      "package": "chartjs-chart-wordcloud",
+      "file": "build/index.umd.min.js",
+      "target": "chartjs_chart_wordcloud.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud@{version}/build/index.umd.min.js"
+    },
+    {
+      "key": "bwipJs",
+      "package": "bwip-js",
+      "file": "dist/bwip-js-min.js",
+      "target": "bwip_js.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/bwip-js@{version}/dist/bwip-js-min.js"
+    },
+    {
+      "key": "driverJs",
+      "package": "driver.js",
+      "file": "dist/driver.js.iife.js",
+      "target": "driver.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/driver.js@{version}/dist/driver.js.iife.js"
+    },
+    {
+      "key": "driverJsCss",
+      "package": "driver.js",
+      "file": "dist/driver.css",
+      "target": "driver.css",
+      "kind": "css",
+      "cdn": "https://cdn.jsdelivr.net/npm/driver.js@{version}/dist/driver.css"
+    },
+    {
+      "key": "animateCss",
+      "package": "animate.css",
+      "file": "animate.min.css",
+      "target": "animate.css",
+      "kind": "css",
+      "cdn": "https://cdn.jsdelivr.net/npm/animate.css@{version}/animate.min.css"
+    },
+    {
+      "key": "imageMapster",
+      "package": "imagemapster",
+      "file": "dist/jquery.imagemapster.min.js",
+      "target": "jquery.imagemapster.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/imagemapster@{version}/dist/jquery.imagemapster.min.js"
+    },
+    {
+      "key": "marked",
+      "package": "marked",
+      "file": "marked.min.js",
+      "target": "marked.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/marked@{version}/marked.min.js"
+    },
+    {
+      "key": "domPurify",
+      "package": "dompurify",
+      "file": "dist/purify.min.js",
+      "target": "purify.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/dompurify@{version}/dist/purify.min.js"
+    },
+    {
+      "key": "fontAwesomeCss",
+      "package": "@fortawesome/fontawesome-free",
+      "file": "css/all.min.css",
+      "target": "fontawesome.css",
+      "kind": "css",
+      "generator": "fontawesome",
+      "cdn": "https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@{version}/css/all.min.css"
+    }
+  ],
+
+  "fontAwesome": {
+    "_comment": [
+      "The IconPool half of the FontAwesome control needs a DIRECTORY holding",
+      "<family>.woff2 and the metadata JSON that maps icon names to code points -",
+      "the npm package ships the fonts but not that JSON, hence the prepared",
+      "bundle below. A BSP page is a text object, so neither the fonts nor that",
+      "directory can be vendored here: in the local build 'fontUri' is empty and",
+      "the IconPool registration is off. The CSS class names work either way -",
+      "the local stylesheet carries the webfonts inline as data URIs.",
+      "",
+      "'families' lists the @font-face families kept in the local stylesheet. The",
+      "package also declares 'Font Awesome 5 *' and 'FontAwesome' aliases for v4/v5",
+      "class names; each one would repeat its whole base64 font, so they are",
+      "dropped and only the v6 families survive."
+    ],
+    "cdnFontUri": "https://cdn.jsdelivr.net/gh/choper725/resources/dist/",
+    "families": ["Font Awesome 6 Free", "Font Awesome 6 Brands"]
+  }
+}

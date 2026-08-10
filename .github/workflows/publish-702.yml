@@ -1,0 +1,27 @@
+name: publish-702
+
+# Rebuilds the `702` branch via publish-branch.yml: downports the sources to
+# 7.02 syntax, lints them with the 702 config and force-pushes.
+
+on:
+  push:
+    branches: [main]
+  # Manual rebuild, e.g. after a direct push to main that started no run.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-702
+  cancel-in-progress: false
+
+jobs:
+  publish-702:
+    uses: ./.github/workflows/publish-branch.yml
+    permissions:
+      contents: write
+    with:
+      branch: "702"
+      prepare: npm run downport
+      lint_config: .github/abaplint/abap_702.jsonc

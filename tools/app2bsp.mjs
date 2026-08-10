@@ -26,22 +26,29 @@ const BSP_TEXT = "abap2UI5 custom controls";
 // /sap/bc/ui5_ui5/sap/ and /sap/bc/bsp/sap/ and are system-independent.
 // abapGit names an SICF file <icf_name padded to 15><25-char parent guid>.
 //
-// The GUIDs below are the ones a real system serialized back (commit "fix
-// abapgit"); the first set that shipped here was guessed and abapGit did not
-// match it against the standard nodes. Keep them in sync with the file names
-// under src/01 - the app2bsp CI job compares the generated tree against what
-// is committed and a renamed SICF file fails it.
+// The GUIDs below are the ones a real system serialized back (commit "icf
+// diffs"); two earlier sets were wrong and abapGit did not match them against
+// the standard nodes. Keep them in sync with the file names under src/01 - the
+// app2bsp CI job compares the generated tree against what is committed, so a
+// SICF file renamed by hand without changing this list fails the build.
 const ICF_PARENTS = [
-  { guid: "4e1b211b6bfb61040291eeb86", url: "/sap/bc/ui5_ui5/sap/" },
-  { guid: "8d302f135405e74f3ccd28274", url: "/sap/bc/bsp/sap/" },
+  { guid: "001108d002800838e37bde4c3", url: "/sap/bc/ui5_ui5/sap/" },
+  { guid: "e9d59e6d81becbc8dfd57aeb7", url: "/sap/bc/bsp/sap/" },
 ];
 const ICF_NAME_WIDTH = 15;
 
 // BSP pages are stored on the SAP system as fixed-width 255-character lines.
 // abapGit serializes them back exactly like that: every line space-padded to
-// 255 characters, longer lines wrapped into 255-character chunks, LF endings
-// and no newline after the last line. Emitting the same format means pulling
-// into SAP and re-serializing produces no diff.
+// 255 characters, LF endings and no newline after the last line. Emitting the
+// same format means pulling into SAP and re-serializing produces no diff.
+//
+// A source line longer than 255 characters has no faithful representation in
+// that format - it has to be chopped at character 256, wherever in the syntax
+// that lands, and the file the system serves back is then not the file that
+// went in. So it is refused here rather than discovered as a broken control on
+// a customer's system. tools/wrap-lines.mjs breaks the vendored libraries at
+// points the JavaScript and CSS grammars treat as whitespace; anything written
+// by hand under app/webapp is well below the limit anyway.
 const LINE_WIDTH = 255;
 
 // SAP validates a BSP page name on import, and a rejected one fails the whole
@@ -84,20 +91,22 @@ function collect(dir, base = dir) {
   return files;
 }
 
-function toBspPageFormat(content) {
+function toBspPageFormat(content, rel) {
   const lines = content.split(/\r\n|\r|\n/);
   if (lines.length > 1 && lines[lines.length - 1] === "") lines.pop();
-  const padded = [];
-  for (const line of lines) {
-    if (line.length <= LINE_WIDTH) {
-      padded.push(line.padEnd(LINE_WIDTH));
-    } else {
-      for (let o = 0; o < line.length; o += LINE_WIDTH) {
-        padded.push(line.slice(o, o + LINE_WIDTH).padEnd(LINE_WIDTH));
-      }
-    }
+
+  const over = lines
+    .map((line, index) => (line.length > LINE_WIDTH ? `${index + 1}:${line.length}` : null))
+    .filter(Boolean);
+  if (over.length) {
+    throw new Error(
+      `${rel}: ${over.length} line(s) longer than ${LINE_WIDTH} characters ` +
+        `(${over.slice(0, 5).join(", ")}${over.length > 5 ? ", ..." : ""}) - ` +
+        `a BSP page cannot carry them`,
+    );
   }
-  return padded.join("\n");
+
+  return lines.map((line) => line.padEnd(LINE_WIDTH)).join("\n");
 }
 
 const escapeXml = (v) =>
@@ -253,13 +262,13 @@ try {
 
 for (const rel of files) {
   const content = readFileSync(join(SOURCE_DIR, rel), "utf8");
-  writeFileSync(join(TARGET_DIR, targetFileName(rel)), toBspPageFormat(content), "utf8");
+  writeFileSync(join(TARGET_DIR, targetFileName(rel)), toBspPageFormat(content, rel), "utf8");
   console.log(`${rel} -> ${TARGET_DIR}/${targetFileName(rel)}`);
 }
 
 writeFileSync(
   join(TARGET_DIR, targetFileName(MAPPING_PAGE)),
-  toBspPageFormat(buildMapping(files)),
+  toBspPageFormat(buildMapping(files), MAPPING_PAGE),
   "utf8",
 );
 console.log(`generated ${targetFileName(MAPPING_PAGE)}`);

@@ -25,12 +25,16 @@
 // inline HTML/JS tool for drawing the coordinates) is not part of this port -
 // it is an authoring tool, not a control.
 sap.ui.define(
-  ["sap/ui/core/Control", "sap/ui/thirdparty/jquery", "z2ui5_cci/cc/Util"],
-  (Control, jQuery, Util) => {
+  [
+    "sap/ui/core/Control",
+    "sap/ui/thirdparty/jquery",
+    "z2ui5_cci/cc/Util",
+    "z2ui5_cci/cc/LibUrls",
+  ],
+  (Control, jQuery, Util, LibUrls) => {
     "use strict";
 
-    const LIB_URL =
-      "https://cdn.jsdelivr.net/npm/imagemapster@1.5.4/dist/jquery.imagemapster.min.js";
+    const LIB_URL = LibUrls.imageMapster;
 
     // Per-area render settings, as opposed to the geometry that goes on the
     // <area> element itself.

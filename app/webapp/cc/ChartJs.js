@@ -20,37 +20,37 @@
 //   3. plugins are named, not pasted as URLs: `plugins="datalabels,venn"`
 //      loads them in order and registers them with Chart.js.
 sap.ui.define(
-  ["sap/ui/core/Control", "z2ui5_cci/cc/Util"],
-  (Control, Util) => {
+  ["sap/ui/core/Control", "z2ui5_cci/cc/Util", "z2ui5_cci/cc/LibUrls"],
+  (Control, Util, LibUrls) => {
     "use strict";
 
-    const CHART_URL = "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js";
+    const CHART_URL = LibUrls.chartJs;
 
     // The plugins and chart types the original repo shipped, by name. `global`
     // is where the UMD build parks itself; entries without one register
     // themselves with Chart.js on load.
     const PLUGINS = {
       datalabels: {
-        url: "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2",
+        url: LibUrls.chartJsDatalabels,
         global: "ChartDataLabels",
       },
       autocolors: {
-        url: "https://cdn.jsdelivr.net/npm/chartjs-plugin-autocolors@0.3.1/dist/chartjs-plugin-autocolors.min.js",
+        url: LibUrls.chartJsAutocolors,
         global: "chartjs-plugin-autocolors",
       },
       deferred: {
-        url: "https://cdn.jsdelivr.net/npm/chartjs-plugin-deferred@2.0.0/dist/chartjs-plugin-deferred.min.js",
+        url: LibUrls.chartJsDeferred,
         global: "chartjs-plugin-deferred",
       },
       annotation: {
-        url: "https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js",
+        url: LibUrls.chartJsAnnotation,
         global: "chartjs-plugin-annotation",
       },
       venn: {
-        url: "https://cdn.jsdelivr.net/npm/chartjs-chart-venn@4.2.7/build/index.umd.min.js",
+        url: LibUrls.chartJsVenn,
       },
       wordcloud: {
-        url: "https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud@4.3.2/build/index.umd.min.js",
+        url: LibUrls.chartJsWordcloud,
       },
     };
 
