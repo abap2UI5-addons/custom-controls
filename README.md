@@ -215,25 +215,8 @@ runs with the user's session. A link whose href starts with `#` does not
 navigate — it raises `linkpress` with the href, which is how a help text links
 into the app it documents. Every other link opens in a new tab.
 
-### CodeEditor
+<img width="1245" height="508" alt="Screenshot 2026-08-10 at 23 31 13" src="https://github.com/user-attachments/assets/3dd6fed0-2014-4eed-af9f-45d91bfc8e37" />
 
-`value` (bind two-way), `type`, `width`, `height`, `editable`, `linenumbers`,
-`colortheme` · event `livechange`.
-
-This one wraps no library at all. UI5 already ships an editor — `sap.ui.codeeditor`,
-an ACE editor with syntax highlighting for some eighty languages, served from the
-UI5 distribution rather than a CDN, so it also highlights in a system without
-internet. Types are on `z2ui5_cl_cci_code_editor=>cs_type`.
-
-What the control adds is a way to **reach** it. `sap.ui.codeeditor` is not among
-the abap2UI5 manifest dependencies, and on 1.71 the XML is still processed with
-the synchronous strategy: a CodeEditor written straight into a view is fetched
-by synchronous XHR and executed with `eval`, which a Content-Security-Policy
-without `unsafe-eval` blocks. So the view names this control instead, and the
-editor is required asynchronously and created here.
-
-Give it a resolvable `height` — ACE cannot lay out against a percentage unless
-the parent has a height of its own.
 
 ## Two things to know
 
