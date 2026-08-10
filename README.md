@@ -74,10 +74,13 @@ and events arrive in `on_event` like for any built-in control.
 | AnimateCss | [animate.css](https://animate.style) class names on any control | `z2ui5_cl_cci_animate_css` | `..._sample_08` |
 | ImageMapster | clickable, highlighting regions on an image | `z2ui5_cl_cci_imagemapster` | `..._sample_09` |
 | Markdown | Markdown from ABAP as HTML, with [marked](https://marked.js.org) | `z2ui5_cl_cci_markdown` | `..._sample_10` |
-| CodeEditor | UI5's own `sap.ui.codeeditor`, reachable from a view | `z2ui5_cl_cci_code_editor` | `..._sample_10` |
+| CodeEditor | UI5's own `sap.ui.codeeditor`, reachable from a view | `z2ui5_cl_cci_code_editor` | inside `..._sample_10` |
 
 Sample classes are `z2ui5_cl_cci_sample_NN` — start any of them directly with
-`?app_start=…`, or browse them from `z2ui5_cl_cci_sample_00`.
+`?app_start=…`, or browse them from `z2ui5_cl_cci_sample_00`, which lists one
+row per demo along with the third-party library each control needs. CodeEditor
+has no row there because it has no demo of its own: it is the editor on the
+left of the Markdown demo.
 
 ### SignaturePad
 
