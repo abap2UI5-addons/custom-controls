@@ -215,7 +215,7 @@ runs with the user's session. A link whose href starts with `#` does not
 navigate — it raises `linkpress` with the href, which is how a help text links
 into the app it documents. Every other link opens in a new tab.
 
-<img width="1000" height="508" alt="Screenshot 2026-08-10 at 23 31 13" src="https://github.com/user-attachments/assets/3dd6fed0-2014-4eed-af9f-45d91bfc8e37" />
+<img width="900" height="508" alt="Screenshot 2026-08-10 at 23 31 13" src="https://github.com/user-attachments/assets/3dd6fed0-2014-4eed-af9f-45d91bfc8e37" />
 
 
 ## Two things to know
