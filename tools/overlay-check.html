@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+<!--
+  Browser check for the ImageMapster SVG overlay.
+
+  tools/map-shapes.test.mjs covers the arithmetic and the selection logic, which
+  is most of the thinking - but not the part that only a layout engine can
+  answer: does the overlay actually sit on the image, does a click at a point in
+  the picture land on the region that is drawn there, and does it all still hold
+  when the image is resized. That needs a real browser, so this page builds the
+  DOM the renderer produces, drives the control against it, and writes one
+  PASS/FAIL line per check into #out.
+
+  Run it with `npm run check:browser`, which is what CI does. It writes no files
+  and needs no npm package - just a Chromium.
+-->
+<body>
+<div id="host"></div>
+<pre id="out"></pre>
+<script>
+// Minimal AMD shim: capture the factory of each control module.
+const modules = {};
+window.sap = { ui: { define(deps, factory) { window.__factory = { deps, factory }; } } };
+
+const Util = {
+  toList: (v) => String(v || "").split(",").map((s) => s.trim()).filter(Boolean),
+  logError: (...a) => log("logError: " + a.join(" ")),
+  isDestroyed: () => false,
+  toCssSize: (v) => (v === undefined || v === null || v === "" ? "" : /^-?\d+(\.\d+)?$/.test(String(v)) ? v + "px" : String(v)),
+};
+
+const lines = [];
+function log(msg) { lines.push(msg); }
+
+async function load(path, name, deps) {
+  const src = await (await fetch(path)).text();
+  new Function(src)();
+  modules[name] = window.__factory.factory(...window.__factory.deps.map((d) => deps[d]));
+}
+
+function assert(ok, what) { log((ok ? "PASS  " : "FAIL  ") + what); }
+
+(async () => {
+  await load("../app/webapp/cc/MapShapes.js", "MapShapes", {});
+  await load("../app/webapp/cc/ImageMapster.js", "ImageMapster", {
+    "sap/ui/core/Control": { extend: (n, def) => def },
+    "z2ui5_cci/cc/Util": Util,
+    "z2ui5_cci/cc/MapShapes": modules.MapShapes,
+  });
+
+  const def = modules.ImageMapster;
+
+  // The DOM the renderer would have produced, built by hand.
+  const id = "ctl";
+  const image =
+    "data:image/svg+xml," +
+    "<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'>" +
+    "<rect width='600' height='400' fill='%23eef1f5'/></svg>";
+  host.innerHTML =
+    "<div id='" + id + "' style='width:300px'>" +
+    "<div id='" + id + "-frame' style='position:relative;line-height:0'>" +
+    "<img id='" + id + "-image' src=\"" + image + "\" style='width:100%;display:block'></div></div>";
+
+  const areas = [
+    { KEY: "office", SHAPE: "rect", COORDS: "20,20,280,190", ALT: "Office" },
+    { KEY: "lab", SHAPE: "rect", COORDS: "300,20,580,190", ALT: "Laboratory" },
+    { KEY: "tank", SHAPE: "circle", COORDS: "300,300,60", ALT: "Tank" },
+    { KEY: "roof", SHAPE: "poly", COORDS: "20,210,580,210,300,380", ALT: "Roof" },
+  ];
+  const config = {
+    fill: true, fillColor: "0a6ed1", fillOpacity: 0.4,
+    stroke: true, strokeColor: "0a6ed1", strokeWidth: 3,
+    renderSelect: { fill: true, fillColor: "107e3e", fillOpacity: 0.5 },
+  };
+
+  const events = [];
+  const control = Object.create(def);
+  control._keys = "";
+  Object.assign(control, {
+    getId: () => id,
+    getSrc: () => image,
+    getAreas: () => areas,
+    getConfig: () => config,
+    getSelectedKeys: () => control._keys,
+    setProperty: (n, v) => { if (n === "selectedKeys") control._keys = v; },
+    fireAreaPress: (p) => events.push(p),
+  });
+
+  const img = document.getElementById(id + "-image");
+  await new Promise((r) => (img.complete && img.naturalWidth ? r() : img.addEventListener("load", r, { once: true })));
+
+  def.onAfterRendering.call(control);
+  await new Promise((r) => setTimeout(r, 50));
+
+  const svg = document.querySelector("#" + id + " svg");
+  assert(!!svg, "an SVG overlay was created");
+  assert(svg && svg.getAttribute("viewBox") === "0 0 600 400", "viewBox is the image's natural size (" + (svg && svg.getAttribute("viewBox")) + ")");
+
+  const shapes = svg ? [...svg.children] : [];
+  assert(shapes.length === 4, "one shape per area (" + shapes.length + ")");
+  assert(shapes[0] && shapes[0].tagName === "rect", "rect area -> <rect>");
+  assert(shapes[2] && shapes[2].tagName === "circle", "circle area -> <circle>");
+  assert(shapes[3] && shapes[3].tagName === "polygon", "poly area -> <polygon>");
+  assert(shapes[0] && shapes[0].getAttribute("width") === "260", "rect width from the two corners");
+  assert(shapes[3] && shapes[3].getAttribute("points") === "20,210 580,210 300,380", "polygon points paired");
+
+  // geometry actually lands where the picture is: the overlay box must equal
+  // the image box, and a point inside the office must hit the office shape
+  const ib = img.getBoundingClientRect(), sb = svg.getBoundingClientRect();
+  assert(Math.abs(ib.width - sb.width) < 0.5 && Math.abs(ib.height - sb.height) < 0.5,
+    "overlay box == image box (" + Math.round(sb.width) + "x" + Math.round(sb.height) + " vs " + Math.round(ib.width) + "x" + Math.round(ib.height) + ")");
+  // 150,105 in natural space -> scaled by 300/600
+  const hit = document.elementFromPoint(ib.left + 150 * (ib.width / 600), ib.top + 105 * (ib.height / 400));
+  assert(hit === shapes[0], "a click at the office lands on the office shape (" + (hit && hit.tagName) + ")");
+
+  assert(shapes[0].getAttribute("fill-opacity") === "0", "areas start transparent");
+  assert(shapes[0].getAttribute("tabindex") === "0", "shapes are focusable");
+  assert(shapes[0].getAttribute("aria-label") === "Office", "alt becomes the accessible name");
+
+  // click it
+  shapes[0].dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  assert(control._keys === "office", "click selects (" + control._keys + ")");
+  assert(events.length === 1 && events[0].selected === true && events[0].keys === "office",
+    "event carries the state AFTER the click (" + JSON.stringify(events[0]) + ")");
+  assert(shapes[0].getAttribute("fill") === "#107e3e", "selected uses renderSelect colour (" + shapes[0].getAttribute("fill") + ")");
+  assert(shapes[0].getAttribute("fill-opacity") === "0.5", "selected uses renderSelect opacity");
+
+  // hover another one
+  shapes[1].dispatchEvent(new PointerEvent("pointerenter", { bubbles: false }));
+  assert(shapes[1].getAttribute("fill") === "#0a6ed1", "hover uses the map-wide colour (" + shapes[1].getAttribute("fill") + ")");
+  shapes[1].dispatchEvent(new PointerEvent("pointerleave", { bubbles: false }));
+  assert(shapes[1].getAttribute("fill-opacity") === "0", "hover clears again");
+
+  // keyboard
+  shapes[2].dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  assert(control._keys === "office,tank", "Enter selects too (" + control._keys + ")");
+
+  // deselect
+  shapes[0].dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  assert(control._keys === "tank", "second click deselects (" + control._keys + ")");
+
+  // backend-driven selection
+  def.setSelectedKeys.call(control, "roof");
+  assert(shapes[3].getAttribute("fill") === "#107e3e", "setSelectedKeys repaints");
+
+  // scaling: shrink the image, the overlay must follow with no code running
+  document.getElementById(id).style.width = "150px";
+  await new Promise((r) => setTimeout(r, 20));
+  const ib2 = img.getBoundingClientRect(), sb2 = svg.getBoundingClientRect();
+  assert(Math.abs(ib2.width - sb2.width) < 0.5 && Math.abs(ib2.height - sb2.height) < 0.5,
+    "overlay follows the image on resize with no observer (" + Math.round(sb2.width) + " vs " + Math.round(ib2.width) + ")");
+  const hit2 = document.elementFromPoint(ib2.left + 150 * (ib2.width / 600), ib2.top + 105 * (ib2.height / 400));
+  assert(hit2 === shapes[0], "hit testing still correct after resize");
+
+  // altImage clips to the active regions
+  const control2 = Object.create(def);
+  control2._keys = "";
+  Object.assign(control2, {
+    getId: () => id,
+    getSrc: () => image,
+    getAreas: () => areas,
+    getConfig: () => ({ ...config, altImage: image }),
+    getSelectedKeys: () => control2._keys,
+    setProperty: (n, v) => { if (n === "selectedKeys") control2._keys = v; },
+    fireAreaPress: () => {},
+  });
+  // the first control's overlay is still in the DOM - take it out by hand,
+  // the way a re-render would
+  def.exit.call(control);
+  def.onAfterRendering.call(control2);
+  await new Promise((r) => setTimeout(r, 30));
+  const svg2 = document.querySelector("#" + id + " svg");
+  const clip = svg2.querySelector("clipPath");
+  const alt = svg2.querySelector("image");
+  assert(!!clip && !!alt, "altImage produces a clipPath and an <image>");
+  assert(alt.style.display === "none", "with nothing active the alt image is hidden");
+  [...svg2.children].filter((n) => /rect|circle|polygon/.test(n.tagName))[0]
+    .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  assert(clip.children.length === 1 && alt.style.display === "", "selecting one region clips the alt image to it");
+
+  out.textContent = lines.join("\n");
+})().catch((e) => { out.textContent = lines.join("\n") + "\nTHREW: " + e.message + "\n" + e.stack; });
+</script>
+</body>
+</html>

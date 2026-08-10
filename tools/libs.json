@@ -111,14 +111,6 @@
       "cdn": "https://cdn.jsdelivr.net/npm/animate.css@{version}/animate.min.css"
     },
     {
-      "key": "imageMapster",
-      "package": "imagemapster",
-      "file": "dist/jquery.imagemapster.min.js",
-      "target": "jquery.imagemapster.js",
-      "kind": "js",
-      "cdn": "https://cdn.jsdelivr.net/npm/imagemapster@{version}/dist/jquery.imagemapster.min.js"
-    },
-    {
       "key": "marked",
       "package": "marked",
       "file": "marked.min.js",

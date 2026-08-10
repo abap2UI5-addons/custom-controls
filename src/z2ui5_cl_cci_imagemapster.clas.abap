@@ -13,6 +13,12 @@
 "! Bind config with the camelCase mapper and this library's JSON filter - see
 "! z2ui5_cl_cci_chartjs for the same pattern and why both are needed.
 "!
+"! The regions are drawn as an SVG overlay whose viewBox is the image's
+"! natural pixel space - the same space the HTML image map <em>coords</em> are
+"! written in. The browser scales it with the image, so there is nothing to
+"! resize and no library to load. It used to be the jquery.imagemapster plugin
+"! on a canvas, which was the only reason anything here needed jQuery.
+"!
 "! Ported from abap2UI5-addons/js-libraries (z2ui5_cl_cc_imagemapster). The
 "! image-map editor that repository shipped next to it is not part of the port:
 "! it is an authoring tool for coordinates, not a control.
@@ -81,6 +87,7 @@ CLASS z2ui5_cl_cci_imagemapster DEFINITION
         is_deselectable  TYPE abap_bool,
         static_state     TYPE abap_bool,
         mouseout_delay   TYPE i,
+        "! IGNORED - the SVG overlay always scales with the image
         scale_map        TYPE abap_bool,
         wrap_class       TYPE string,
         alt_image        TYPE string,
@@ -97,8 +104,13 @@ CLASS z2ui5_cl_cci_imagemapster DEFINITION
     "! @parameter selectedkeys | bind two-way; comma separated area keys
     "! @parameter width        | CSS width of the image
     "! @parameter height       | CSS height; empty keeps the aspect ratio
-    "! @parameter autoresize   | `false` to leave the map at its natural size
-    "! @parameter liburl       | overrides where ImageMapster is loaded from
+    "! @parameter autoresize   | IGNORED since the control was rebuilt on an
+    "!                           SVG overlay - the overlay is scaled by the
+    "!                           browser, so there is no resize to switch off.
+    "!                           Kept so existing callers still compile
+    "! @parameter liburl       | IGNORED since the control was rebuilt on an
+    "!                           SVG overlay - it loads no library at all now.
+    "!                           Kept so existing callers still compile
     "! @parameter areapress    | client->_event( ... ) fired on a click into
     "!                           a region
     "! @parameter result       | the unchanged view builder, for chaining
@@ -111,8 +123,12 @@ CLASS z2ui5_cl_cci_imagemapster DEFINITION
         selectedkeys  TYPE string OPTIONAL
         width         TYPE string OPTIONAL
         height        TYPE string OPTIONAL
-        autoresize    TYPE string OPTIONAL
-        liburl        TYPE string OPTIONAL
+        " Not emitted any more: the SVG overlay scales itself and loads
+        " nothing, so the control has no such properties. They stay in the
+        " signature because removing an optional parameter breaks the compile
+        " of every caller that passes it - a no-op beats a syntax error.
+        autoresize    TYPE string OPTIONAL ##NEEDED
+        liburl        TYPE string OPTIONAL ##NEEDED
         areapress     TYPE string OPTIONAL
       RETURNING
         VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
@@ -135,9 +151,8 @@ CLASS z2ui5_cl_cci_imagemapster IMPLEMENTATION.
                         ( |selectedKeys={ selectedkeys }| )
                         ( |width={ width }| )
                         ( |height={ height }| )
-                        ( |autoResize={ autoresize }| )
-                        ( |libUrl={ liburl }| )
                         ( |areaPress={ areapress }| ) ) ).
+
 
   ENDMETHOD.
 

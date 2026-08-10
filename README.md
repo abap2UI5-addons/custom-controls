@@ -176,11 +176,21 @@ animates. The class names are constants on `z2ui5_cl_cci_animate_css`
 ### ImageMapster
 
 `src`, `areas` (a `ty_t_area` table), `config`, `selectedkeys` (bind two-way),
-`width`, `height`, `autoresize`, `liburl` · event `areapress`.
+`width`, `height` · event `areapress`.
 
 Turns a floor plan or a machine drawing into an input control: regions highlight,
 the selection is written back into the model and a click raises a backend event
 carrying the region key. Colours are hex **without** a leading `#`.
+
+The regions are an **SVG overlay** whose `viewBox` is the image's natural pixel
+space — the same space the HTML image map `coords` are written in — so the
+browser scales them with the image. No library, nothing to resize, and every
+region is a real focusable element, so the map is keyboard reachable.
+
+It used to be the jquery.imagemapster plugin drawing on a canvas, which was the
+only reason anything in this repository needed jQuery. Three parameters survive
+that change as **no-ops**, kept so callers that pass them still compile:
+`liburl` and `autoresize` on `render( )`, and `scale_map` in `ty_s_config`.
 
 <img width="1245" height="508" alt="image" src="https://github.com/user-attachments/assets/b42ba83a-ed4a-43eb-9d06-25f46a493804" />
 
@@ -251,10 +261,14 @@ a value that *is* meaningfully zero, empty or false cannot be sent this way.
 
 ### Third-party libraries
 
-Seven controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
-driver.js 1, Font Awesome 6, animate.css 4, jquery.imagemapster 1.5, and
-marked 12 together with DOMPurify 3. Each control loads its library on first
-use, cached per URL, so ten charts on a page fetch Chart.js once.
+Six controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
+driver.js 1, Font Awesome 6, animate.css 4, and marked 12 together with
+DOMPurify 3. Each control loads its library on first use, cached per URL, so ten
+charts on a page fetch Chart.js once.
+
+The other five need nothing: SignaturePad and Validator are self-contained,
+ExportSpreadsheet and CodeEditor use libraries the UI5 distribution already
+carries, and ImageMapster draws its own SVG overlay.
 
 Where it loads it from is what separates the two branches: on `main` from
 jsDelivr, on `local` from this BSP. Nothing in the repository spells a URL out
@@ -354,11 +368,13 @@ refuses anything else — otherwise you find out on import, as
 | Path | What it is |
 |---|---|
 | `app/webapp/cc/*.js` | the controls — plain UI5, the single source of truth |
+| `app/webapp/cc/MapShapes.js` | the image-map geometry, split out so it can be unit-tested |
 | `app/webapp/cc/LibUrls.js` | **generated**: where each control loads its library from |
 | `app/webapp/lib/` | **generated, `local` branch only**: the vendored libraries |
 | `tools/libs.json` | the third-party libraries — npm package, file, CDN URL |
 | `tools/vendor.mjs` | writes `LibUrls.js`, and `app/webapp/lib/` with `--local` |
 | `tools/wrap-lines.mjs` | breaks a library into lines a BSP page can carry |
+| `tools/*.test.mjs` | unit tests — here, not under `app/`, where they would become BSP pages |
 | `tools/app2bsp.mjs` | generates the abapGit BSP artefacts from `app/webapp` |
 | `src/z2ui5_cl_cci*.clas.abap` | the library and one view builder per control |
 | `src/00/` | the overview app and the samples |
