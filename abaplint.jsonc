@@ -50,7 +50,7 @@
     },
     "object_naming": {
       "patternKind": "required",
-      // Z2UI5_CL_CCONT_* - same shape as the framework and the samples
+      // Z2UI5_CL_CCI_* - same shape as the framework and the samples
       // repository use, not the generic ZCL_ prefix
       "clas": "^Z2UI5_CL_|^Z2UI5_CX_",
       "intf": "^Z2UI5_IF_"
