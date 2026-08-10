@@ -1,4 +1,4 @@
-// z2ui5cc.cc.Util - the few helpers every control in this library needs.
+// z2ui5ccc.cc.Util - the few helpers every control in this library needs.
 //
 // It exists because most controls here wrap a third-party library that lives
 // on a CDN, and because several of them have to find another control by the id

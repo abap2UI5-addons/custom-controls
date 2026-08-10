@@ -1,6 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - Validator</p>
 "!
-"! The ABAP half of the z2ui5cc.cc.Validator custom control: the view builder
+"! The ABAP half of the z2ui5ccc.cc.Validator custom control: the view builder
 "! that emits its XML element, plus the rule type the form is checked against.
 "!
 "! The app declares what each field has to satisfy, binds the rule table, and
@@ -53,7 +53,7 @@ CLASS z2ui5_cl_cci_validator DEFINITION
       END OF ty_s_error.
     TYPES ty_t_error TYPE STANDARD TABLE OF ty_s_error WITH EMPTY KEY.
 
-    "! Emit &lt;z2ui5cc:Validator/&gt; into an existing view.
+    "! Emit &lt;z2ui5ccc:Validator/&gt; into an existing view.
     "!
     "! Bind `rules` with this library's JSON filter, or every constraint the
     "! app left alone arrives as 0 and rejects everything:

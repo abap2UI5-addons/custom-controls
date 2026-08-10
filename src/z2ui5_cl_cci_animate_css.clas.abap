@@ -1,6 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - animate.css</p>
 "!
-"! The ABAP half of the z2ui5cc.cc.AnimateCss custom control: the view builder
+"! The ABAP half of the z2ui5ccc.cc.AnimateCss custom control: the view builder
 "! that emits its XML element, plus the animation names as constants.
 "!
 "! animate.css is pure CSS. Put this element once into a view and every control
@@ -85,7 +85,7 @@ CLASS z2ui5_cl_cci_animate_css DEFINITION
         roll_out         TYPE string VALUE `animate__rollOut`,
       END OF cs_exit.
 
-    "! Emit &lt;z2ui5cc:AnimateCss/&gt; into an existing view.
+    "! Emit &lt;z2ui5ccc:AnimateCss/&gt; into an existing view.
     "!
     "! @parameter view     | the builder positioned at the parent element
     "! @parameter duration | how long one animation runs, e.g. `1s`, `500ms`

@@ -1,6 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - driver.js</p>
 "!
-"! The ABAP half of the z2ui5cc.cc.DriverJs custom control: the view builder
+"! The ABAP half of the z2ui5ccc.cc.DriverJs custom control: the view builder
 "! that emits its XML element, plus the type tree of a driver.js configuration.
 "!
 "! Describe the tour as data - one step per control, each with the text of its
@@ -121,7 +121,7 @@ CLASS z2ui5_cl_cci_driverjs DEFINITION
         done_btn_text              TYPE string,
       END OF ty_s_config.
 
-    "! Emit &lt;z2ui5cc:DriverJs/&gt; into an existing view.
+    "! Emit &lt;z2ui5ccc:DriverJs/&gt; into an existing view.
     "!
     "! @parameter view        | the builder positioned at the parent element
     "! @parameter config      | bind of a ty_s_config structure

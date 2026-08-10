@@ -1,6 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - Barcode</p>
 "!
-"! The ABAP half of the z2ui5cc.cc.Barcode custom control: the view builder
+"! The ABAP half of the z2ui5ccc.cc.Barcode custom control: the view builder
 "! that emits its XML element, plus a list of symbologies to try it with.
 "!
 "! Rendering happens in the browser with bwip-js, which speaks every symbology
@@ -35,7 +35,7 @@ CLASS z2ui5_cl_cci_barcode DEFINITION
       RETURNING
         VALUE(result) TYPE ty_t_type.
 
-    "! Emit &lt;z2ui5cc:Barcode/&gt; into an existing view.
+    "! Emit &lt;z2ui5ccc:Barcode/&gt; into an existing view.
     "!
     "! @parameter view            | the builder positioned at the parent element
     "! @parameter bcid            | symbology, e.g. `qrcode`, `ean13`

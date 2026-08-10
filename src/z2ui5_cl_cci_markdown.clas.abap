@@ -1,6 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - Markdown</p>
 "!
-"! The ABAP half of the z2ui5cc.cc.Markdown custom control: the view builder
+"! The ABAP half of the z2ui5ccc.cc.Markdown custom control: the view builder
 "! that emits its XML element.
 "!
 "! UI5 ships no Markdown control. sap.m.FormattedText is the usual stand-in,
@@ -23,7 +23,7 @@ CLASS z2ui5_cl_cci_markdown DEFINITION
 
   PUBLIC SECTION.
 
-    "! Emit &lt;z2ui5cc:Markdown/&gt; into an existing view.
+    "! Emit &lt;z2ui5ccc:Markdown/&gt; into an existing view.
     "!
     "! @parameter view      | the builder positioned at the parent element
     "! @parameter value     | the Markdown source, usually client->_bind( ... )

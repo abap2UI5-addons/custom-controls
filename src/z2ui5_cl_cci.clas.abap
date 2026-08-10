@@ -3,14 +3,14 @@
 "! Shared identity of this control library: the XML namespace its elements are
 "! emitted under, and the helper that declares it on a view root.
 "!
-"! The prefix resolves to the UI5 module namespace <em>z2ui5cc.cc</em>. Its
+"! The prefix resolves to the UI5 module namespace <em>z2ui5ccc.cc</em>. Its
 "! first segment is the resourceRoot the abap2UI5 frontend reserves in its
 "! manifest.json, which is what makes this repository's BSP findable:
 "!
-"!   "sap.ui5": \{ "resourceRoots": \{ "z2ui5cc": "../z2ui5cc/" \} \}
+"!   "sap.ui5": \{ "resourceRoots": \{ "z2ui5ccc": "../z2ui5ccc/" \} \}
 "!
-"! so <em>z2ui5cc/cc/SignaturePad</em> is served from
-"! <em>/sap/bc/ui5_ui5/sap/z2ui5cc/cc/SignaturePad.js</em>.
+"! so <em>z2ui5ccc/cc/SignaturePad</em> is served from
+"! <em>/sap/bc/ui5_ui5/sap/z2ui5ccc/cc/SignaturePad.js</em>.
 CLASS z2ui5_cl_cci DEFINITION
   PUBLIC
   FINAL
@@ -19,9 +19,9 @@ CLASS z2ui5_cl_cci DEFINITION
   PUBLIC SECTION.
 
     "! XML namespace prefix used for this library's elements
-    CONSTANTS c_ns TYPE string VALUE `z2ui5cc`.
+    CONSTANTS c_ns TYPE string VALUE `z2ui5ccc`.
     "! UI5 module namespace the prefix resolves to
-    CONSTANTS c_ns_uri TYPE string VALUE `z2ui5cc.cc`.
+    CONSTANTS c_ns_uri TYPE string VALUE `z2ui5ccc.cc`.
 
     "! Declare the library's XML namespace on a view or fragment root.
     "!

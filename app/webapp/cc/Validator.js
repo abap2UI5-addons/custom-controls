@@ -1,4 +1,4 @@
-// z2ui5cc.cc.Validator - checks a form against rules the backend declared,
+// z2ui5ccc.cc.Validator - checks a form against rules the backend declared,
 // without a roundtrip.
 //
 // The app describes what a field has to satisfy (`quantity` is a number
@@ -24,7 +24,7 @@
 //      this control was rendered in, and validation is triggered through a
 //      bound property like any other abap2UI5 state change.
 sap.ui.define(
-  ["sap/ui/core/Control", "sap/ui/core/library", "z2ui5cc/cc/Util"],
+  ["sap/ui/core/Control", "sap/ui/core/library", "z2ui5ccc/cc/Util"],
   (Control, coreLibrary, Util) => {
     "use strict";
 
@@ -107,7 +107,7 @@ sap.ui.define(
       return "";
     }
 
-    return Control.extend("z2ui5cc.cc.Validator", {
+    return Control.extend("z2ui5ccc.cc.Validator", {
       metadata: {
         properties: {
           // [{ FIELD, TYPE, FORMAT, PATTERN, REQUIRED, MINLENGTH, MAXLENGTH,

@@ -1,9 +1,9 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - SignaturePad</p>
 "!
-"! The ABAP half of the z2ui5cc.cc.SignaturePad custom control: the view
+"! The ABAP half of the z2ui5ccc.cc.SignaturePad custom control: the view
 "! builder that emits its XML element.
 "!
-"! The JavaScript ships in this repository's own BSP (Z2UI5CC, generated from
+"! The JavaScript ships in this repository's own BSP (Z2UI5CCC, generated from
 "! app/webapp by 'npm run app2bsp'); the abap2UI5 frontend resolves it through
 "! the reserved resourceRoot in its manifest. Nothing of this control is known
 "! to abap2UI5.
@@ -19,7 +19,7 @@ CLASS z2ui5_cl_cci_signature_pad DEFINITION
 
   PUBLIC SECTION.
 
-    "! Emit &lt;z2ui5cc:SignaturePad/&gt; into an existing view.
+    "! Emit &lt;z2ui5ccc:SignaturePad/&gt; into an existing view.
     "!
     "! Mirrors z2ui5_cl_ai_xml=>leaf: the element is added as a child and the
     "! cursor stays on the current node, so the caller can keep chaining.

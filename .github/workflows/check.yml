@@ -2,7 +2,7 @@
 #
 # The abap2UI5-linter's headless view render is deliberately not run here: it
 # validates views against the UI5 metadata snapshot, which does not know
-# z2ui5cc.cc.SignaturePad - a custom control is invisible to it by definition.
+# z2ui5ccc.cc.SignaturePad - a custom control is invisible to it by definition.
 name: check
 
 on:
