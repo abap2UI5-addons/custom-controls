@@ -1,6 +1,6 @@
 [![abap version](https://img.shields.io/badge/abap%20version-standard%20%28%E2%89%A5%207.50%29-blue)](#install)
 [![namespace](https://img.shields.io/badge/namespace-z2ui5__cl__cci-blue)](abaplint.jsonc)
-[![bsp](https://img.shields.io/badge/bsp-Z2UI5CCC-blue)](#install)
+[![bsp](https://img.shields.io/badge/bsp-Z2UI5_CCI-blue)](#install)
 [![dependency](https://img.shields.io/badge/dependency-abap2UI5-blue)](https://github.com/abap2UI5/abap2UI5)
 <br>
 <br>
@@ -13,18 +13,18 @@ Eleven ready-to-use custom controls for
 barcodes, Excel export, form validation, product tours, Font Awesome, animations,
 clickable image maps, Markdown and a code editor.
 
-They ship in their **own BSP** (`Z2UI5CCC`), not inside the framework. Install this
+They ship in their **own BSP** (`Z2UI5_CCI`), not inside the framework. Install this
 repository and the controls are there; nothing in abap2UI5 or in the frontend BSP
 has to change, and no pull request against the framework is needed to add one.
 
 ## Install
 
 1. Install this repository with abapGit. It brings the ABAP classes, the BSP
-   application `Z2UI5CCC` and the two ICF nodes it is served from.
+   application `Z2UI5_CCI` and the two ICF nodes it is served from.
 2. Start **`?app_start=z2ui5_cl_cci_sample_00`** — the overview app lists every
    control and opens its sample.
 
-Requires abap2UI5 with the reserved resourceRoot `z2ui5ccc` in the frontend
+Requires abap2UI5 with the reserved resourceRoot `z2ui5_cci` in the frontend
 manifest (see [Troubleshooting](#troubleshooting) if a control stays blank).
 
 ## Using a control
@@ -40,7 +40,7 @@ DATA(root) = view->open( n  = `View`
     )->a( n = `xmlns`     v = `sap.m`
     )->a( n = `xmlns:mvc` v = `sap.ui.core.mvc` ).
 
-z2ui5_cl_cci=>xmlns( root ).             " declares xmlns:z2ui5ccc - once per view
+z2ui5_cl_cci=>xmlns( root ).             " declares xmlns:z2ui5_cci - once per view
 
 DATA(page) = root->open( `Page`
     )->a( n = `title` v = `Signature` ).
@@ -257,25 +257,25 @@ Put the library into a BSP of your own (or into this one: drop it under
 `app/webapp/`, run `npm run app2bsp`) and pass the path:
 
 ```abap
-z2ui5_cl_cci_chartjs=>render( view = page config = … liburl = `/sap/bc/ui5_ui5/sap/z2ui5ccc/chart.umd.js` ).
+z2ui5_cl_cci_chartjs=>render( view = page config = … liburl = `/sap/bc/ui5_ui5/sap/z2ui5_cci/chart.umd.js` ).
 ```
 
 ## Troubleshooting
 
 | Symptom | Cause |
 |---|---|
-| `ICF Node NOT found!` | the SICF nodes were not activated — activate `z2ui5ccc` in transaction `SICF` |
-| control stays blank, 404 on `cc/<Name>.js` | check `/sap/bc/ui5_ui5/sap/z2ui5ccc/cc/SignaturePad.js` returns JavaScript |
-| control stays blank, request goes to `resources/…` | your abap2UI5 frontend predates the reserved resourceRoot `z2ui5ccc`; update it |
+| `ICF Node NOT found!` | the SICF nodes were not activated — activate `z2ui5_cci` in transaction `SICF` |
+| control stays blank, 404 on `cc/<Name>.js` | check `/sap/bc/ui5_ui5/sap/z2ui5_cci/cc/SignaturePad.js` returns JavaScript |
+| control stays blank, request goes to `resources/…` | your abap2UI5 frontend predates the reserved resourceRoot `z2ui5_cci`; update it |
 
-In the browser console, `sap.ui.require.toUrl("z2ui5ccc/cc/SignaturePad.js")`
+In the browser console, `sap.ui.require.toUrl("z2ui5_cci/cc/SignaturePad.js")`
 must return the BSP path. That separates a BSP problem from a frontend problem,
 which look identical from inside the app.
 
 ## Adding your own control
 
 1. write `app/webapp/cc/<Name>.js`, extending `sap.ui.core.Control` under
-   `z2ui5ccc.cc.<Name>`, with no dependency on `z2ui5/…` modules
+   `z2ui5_cci.cc.<Name>`, with no dependency on `z2ui5/…` modules
 2. run `npm run app2bsp` — regenerates the BSP artefacts under `src/01`
 3. add a builder class `z2ui5_cl_cci_<name>` next to the others
 4. add a sample and a row in `z2ui5_cl_cci_sample_00=>model_init( )`
@@ -293,15 +293,16 @@ refuses anything else — otherwise you find out on import, as
 | `tools/app2bsp.mjs` | generates the abapGit BSP artefacts from `app/webapp` |
 | `src/z2ui5_cl_cci*.clas.abap` | the library and one view builder per control |
 | `src/00/` | the overview app and the samples |
-| `src/01/` | **generated**: the `Z2UI5CCC` BSP and its ICF nodes |
+| `src/01/` | **generated**: the `Z2UI5_CCI` BSP and its ICF nodes |
 
 Every ABAP object of this repository lives in the `z2ui5_xx_cci` namespace
 (`z2ui5_cl_cci`, `z2ui5_cl_cci_<control>`, `z2ui5_cl_cci_sample_NN`) — the same
 one-token repository prefix the samples repository uses with `z2ui5_xx_smp`.
-The frontend namespace is a separate name: `z2ui5ccc` — the resourceRoot the
-abap2UI5 frontend reserves in its `manifest.json`, the BSP `Z2UI5CCC` and the
-UI5 module namespace `z2ui5ccc.cc`. It needs an abap2UI5 that reserves that
-root; older frontends still reserve `z2ui5cc` and cannot resolve the controls.
+The frontend carries the same token: `z2ui5_cci` is the resourceRoot the
+abap2UI5 frontend reserves in its `manifest.json`, the BSP `Z2UI5_CCI` and the
+UI5 module namespace `z2ui5_cci.cc`. It needs an abap2UI5 that reserves that
+root; frontends predating the rename reserve `z2ui5ccc` (and older ones
+`z2ui5cc`) and cannot resolve the controls.
 
 CI runs abaplint against the abap2UI5 framework, syntax-checks every control and
 fails if the generated BSP has drifted from `app/webapp`.
@@ -313,7 +314,7 @@ frontend artefacts — an in-house reuse library, a corporate icon font, company
 CSS — use
 [abap2UI5/customer-frontend-extension](https://github.com/abap2UI5/customer-frontend-extension).
 It is the same mechanism under a second reserved resourceRoot (`z2ui5ext`
-instead of `z2ui5ccc`), so the two can be installed side by side and neither
+instead of `z2ui5_cci`), so the two can be installed side by side and neither
 needs a change to abap2UI5.
 
 These controls replace the

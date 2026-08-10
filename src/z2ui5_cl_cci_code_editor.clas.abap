@@ -1,6 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - CodeEditor</p>
 "!
-"! The ABAP half of the z2ui5ccc.cc.CodeEditor custom control: the view builder
+"! The ABAP half of the z2ui5_cci.cc.CodeEditor custom control: the view builder
 "! that emits its XML element.
 "!
 "! This control adds no editor of its own - UI5 already ships one. What it adds
@@ -40,7 +40,7 @@ CLASS z2ui5_cl_cci_code_editor DEFINITION
         plain_text TYPE string VALUE `plain_text`,
       END OF cs_type.
 
-    "! Emit &lt;z2ui5ccc:CodeEditor/&gt; into an existing view.
+    "! Emit &lt;z2ui5_cci:CodeEditor/&gt; into an existing view.
     "!
     "! @parameter view        | the builder positioned at the parent element
     "! @parameter value       | the text, usually client->_bind( ... )

@@ -1,6 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - Chart.js</p>
 "!
-"! The ABAP half of the z2ui5ccc.cc.ChartJs custom control: the view builder
+"! The ABAP half of the z2ui5_cci.cc.ChartJs custom control: the view builder
 "! that emits its XML element, plus the type tree of a Chart.js configuration.
 "!
 "! Fill a ty_chart structure, bind it to <em>config</em>, and the frontend
@@ -607,7 +607,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         wordcloud  TYPE string VALUE `wordcloud`,
       END OF cs_plugin.
 
-    "! Emit &lt;z2ui5ccc:ChartJs/&gt; into an existing view.
+    "! Emit &lt;z2ui5_cci:ChartJs/&gt; into an existing view.
     "!
     "! @parameter view         | the builder positioned at the parent element
     "! @parameter config       | bind of a ty_chart structure, see above

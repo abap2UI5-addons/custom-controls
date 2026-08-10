@@ -1,6 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - Font Awesome</p>
 "!
-"! The ABAP half of the z2ui5ccc.cc.FontAwesome custom control: the view builder
+"! The ABAP half of the z2ui5_cci.cc.FontAwesome custom control: the view builder
 "! that emits its XML element.
 "!
 "! Put it once into a view and Font Awesome is available two ways:
@@ -35,7 +35,7 @@ CLASS z2ui5_cl_cci_font_awesome DEFINITION
         sharp_light   TYPE string VALUE `fa-sharp-light`,
       END OF cs_collection.
 
-    "! Emit &lt;z2ui5ccc:FontAwesome/&gt; into an existing view.
+    "! Emit &lt;z2ui5_cci:FontAwesome/&gt; into an existing view.
     "!
     "! @parameter view        | the builder positioned at the parent element
     "! @parameter fonturi     | directory holding the webfonts and their

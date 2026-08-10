@@ -1,4 +1,4 @@
-// z2ui5ccc.cc.ChartJs - a Chart.js canvas driven by a bound ABAP structure.
+// z2ui5_cci.cc.ChartJs - a Chart.js canvas driven by a bound ABAP structure.
 //
 // `config` is the Chart.js configuration verbatim - {type, data, options} -
 // so anything the Chart.js documentation describes can be expressed from
@@ -20,7 +20,7 @@
 //   3. plugins are named, not pasted as URLs: `plugins="datalabels,venn"`
 //      loads them in order and registers them with Chart.js.
 sap.ui.define(
-  ["sap/ui/core/Control", "z2ui5ccc/cc/Util"],
+  ["sap/ui/core/Control", "z2ui5_cci/cc/Util"],
   (Control, Util) => {
     "use strict";
 
@@ -83,7 +83,7 @@ sap.ui.define(
       return out;
     }
 
-    return Control.extend("z2ui5ccc.cc.ChartJs", {
+    return Control.extend("z2ui5_cci.cc.ChartJs", {
       metadata: {
         properties: {
           // Chart.js configuration: { type, data, options }
