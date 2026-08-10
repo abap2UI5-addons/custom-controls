@@ -1,4 +1,4 @@
-// z2ui5ccc.cc.ImageMapster - an HTML image map that highlights and selects.
+// z2ui5_cci.cc.ImageMapster - an HTML image map that highlights and selects.
 //
 // A plain <map>/<area> gives a clickable region and nothing else: no hover
 // feedback, no selection, no way to tell which region is active. ImageMapster
@@ -25,7 +25,7 @@
 // inline HTML/JS tool for drawing the coordinates) is not part of this port -
 // it is an authoring tool, not a control.
 sap.ui.define(
-  ["sap/ui/core/Control", "sap/ui/thirdparty/jquery", "z2ui5ccc/cc/Util"],
+  ["sap/ui/core/Control", "sap/ui/thirdparty/jquery", "z2ui5_cci/cc/Util"],
   (Control, jQuery, Util) => {
     "use strict";
 
@@ -43,7 +43,7 @@ sap.ui.define(
       ISSELECTABLE: "isSelectable",
     };
 
-    return Control.extend("z2ui5ccc.cc.ImageMapster", {
+    return Control.extend("z2ui5_cci.cc.ImageMapster", {
       metadata: {
         properties: {
           // the image the map sits on - URL or data: URI

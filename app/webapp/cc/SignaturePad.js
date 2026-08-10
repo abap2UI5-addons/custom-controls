@@ -1,4 +1,4 @@
-// z2ui5ccc.cc.SignaturePad - a canvas the user signs on with mouse, finger or
+// z2ui5_cci.cc.SignaturePad - a canvas the user signs on with mouse, finger or
 // stylus. The stroke is handed to the backend as a base64 PNG in `value`, so
 // an app binds `value` with client->_bind( ) and receives the signature in an
 // ABAP variable.
@@ -28,7 +28,7 @@ sap.ui.define(["sap/ui/core/Control"], (Control) => {
   const logError = (message, error) =>
     console.error(error === undefined ? message : `${message}:`, error ?? "");
 
-  return Control.extend("z2ui5ccc.cc.SignaturePad", {
+  return Control.extend("z2ui5_cci.cc.SignaturePad", {
     metadata: {
       properties: {
         // Base64 PNG data URL of the signature; empty when nothing is drawn.
@@ -134,8 +134,8 @@ sap.ui.define(["sap/ui/core/Control"], (Control) => {
     _attach(canvas) {
       // UI5 can patch the same element in place across renders; attaching
       // again would draw every stroke twice.
-      if (canvas._z2ui5cccAttached) return;
-      canvas._z2ui5cccAttached = true;
+      if (canvas._z2ui5_cciAttached) return;
+      canvas._z2ui5_cciAttached = true;
       canvas.addEventListener("pointerdown", (e) => this._onDown(e, canvas));
       canvas.addEventListener("pointermove", (e) => this._onMove(e, canvas));
       canvas.addEventListener("pointerup", (e) => this._onUp(e, canvas));

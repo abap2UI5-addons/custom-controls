@@ -1,10 +1,10 @@
-// Generates the abapGit BSP artefacts for the Z2UI5CCC control BSP from
+// Generates the abapGit BSP artefacts for the Z2UI5_CCI control BSP from
 // app/webapp/.
 //
 // Same approach as the abap2UI5-frontend repo's .github/app2bsp/run.js, cut
 // down to what a control container needs: every file under app/webapp becomes
 // a BSP page, plus the UI5 repository path mapping and the page directory
-// (z2ui5ccc.wapa.xml) the abapGit WAPA deserializer reads.
+// (z2ui5_cci.wapa.xml) the abapGit WAPA deserializer reads.
 //
 // Run: npm run app2bsp
 import { readdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
@@ -14,8 +14,8 @@ const SOURCE_DIR = "app/webapp";
 // the BSP artefacts live in their own subpackage - src/ root carries the
 // library and the view builders, src/00 the samples
 const TARGET_DIR = "src/01";
-const BSP = "Z2UI5CCC";
-const PREFIX = "z2ui5ccc.wapa.";
+const BSP = "Z2UI5_CCI";
+const PREFIX = "z2ui5_cci.wapa.";
 const MAPPING_PAGE = "UI5RepositoryPathMapping.xml";
 const START_PAGE = "index.html";
 const BSP_TEXT = "abap2UI5 custom controls";

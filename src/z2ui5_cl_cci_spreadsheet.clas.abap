@@ -1,6 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - spreadsheet export</p>
 "!
-"! The ABAP half of the z2ui5ccc.cc.ExportSpreadsheet custom control: the view
+"! The ABAP half of the z2ui5_cci.cc.ExportSpreadsheet custom control: the view
 "! builder that emits its XML element, plus the column configuration type the
 "! workbook is described with.
 "!
@@ -50,7 +50,7 @@ CLASS z2ui5_cl_cci_spreadsheet DEFINITION
       END OF ty_s_column.
     TYPES ty_t_column TYPE STANDARD TABLE OF ty_s_column WITH EMPTY KEY.
 
-    "! Emit &lt;z2ui5ccc:ExportSpreadsheet/&gt; into an existing view.
+    "! Emit &lt;z2ui5_cci:ExportSpreadsheet/&gt; into an existing view.
     "!
     "! Bind `columns` with the camelCase mapper and this library's JSON filter,
     "! or the exporter sees ABAP field names and a wall of initial values:

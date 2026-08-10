@@ -4,7 +4,7 @@
 "!
 "! Front door of this control library: lists every custom control it ships and
 "! launches its demo app. Use it to check an installation - if the list renders
-"! and a demo runs, the Z2UI5CCC BSP is deployed and the abap2UI5 frontend
+"! and a demo runs, the Z2UI5_CCI BSP is deployed and the abap2UI5 frontend
 "! resolves the reserved resourceRoot correctly.
 CLASS z2ui5_cl_cci_sample_00 DEFINITION
   PUBLIC
@@ -74,7 +74,7 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
 
             )->open( `MessageStrip`
                 )->a( n = `text`
-                      v = `These controls are delivered by the Z2UI5CCC BSP, ` &&
+                      v = `These controls are delivered by the Z2UI5_CCI BSP, ` &&
                           `not by abap2UI5 or its frontend.`
                 )->a( n = `type`
                       v = `Information`
@@ -213,47 +213,47 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
 
     t_controls = VALUE #(
       ( name        = `SignaturePad`
-        module      = `z2ui5ccc/cc/SignaturePad`
+        module      = `z2ui5_cci/cc/SignaturePad`
         description = `Canvas for mouse, finger or stylus; hands the stroke over as a base64 PNG`
         app         = `Z2UI5_CL_CCI_SAMPLE_01` )
       ( name        = `ExportSpreadsheet`
-        module      = `z2ui5ccc/cc/ExportSpreadsheet`
+        module      = `z2ui5_cci/cc/ExportSpreadsheet`
         description = `Exports the rows a table is bound to as .xlsx, in the browser`
         app         = `Z2UI5_CL_CCI_SAMPLE_02` )
       ( name        = `Validator`
-        module      = `z2ui5ccc/cc/Validator`
+        module      = `z2ui5_cci/cc/Validator`
         description = `Checks a form against rules declared in ABAP, without a roundtrip`
         app         = `Z2UI5_CL_CCI_SAMPLE_03` )
       ( name        = `ChartJs`
-        module      = `z2ui5ccc/cc/ChartJs`
+        module      = `z2ui5_cci/cc/ChartJs`
         description = `Chart.js canvas driven by a bound ABAP structure`
         app         = `Z2UI5_CL_CCI_SAMPLE_04` )
       ( name        = `Barcode`
-        module      = `z2ui5ccc/cc/Barcode`
+        module      = `z2ui5_cci/cc/Barcode`
         description = `Barcodes and QR codes with bwip-js, rendered in the browser`
         app         = `Z2UI5_CL_CCI_SAMPLE_05` )
       ( name        = `DriverJs`
-        module      = `z2ui5ccc/cc/DriverJs`
+        module      = `z2ui5_cci/cc/DriverJs`
         description = `Product tours and spotlight highlights over your own controls`
         app         = `Z2UI5_CL_CCI_SAMPLE_06` )
       ( name        = `FontAwesome`
-        module      = `z2ui5ccc/cc/FontAwesome`
+        module      = `z2ui5_cci/cc/FontAwesome`
         description = `Font Awesome as UI5 icons and as CSS classes`
         app         = `Z2UI5_CL_CCI_SAMPLE_07` )
       ( name        = `AnimateCss`
-        module      = `z2ui5ccc/cc/AnimateCss`
+        module      = `z2ui5_cci/cc/AnimateCss`
         description = `Makes the animate.css class names work on any control`
         app         = `Z2UI5_CL_CCI_SAMPLE_08` )
       ( name        = `ImageMapster`
-        module      = `z2ui5ccc/cc/ImageMapster`
+        module      = `z2ui5_cci/cc/ImageMapster`
         description = `Image map that highlights, selects and reports the region clicked`
         app         = `Z2UI5_CL_CCI_SAMPLE_09` )
       ( name        = `Markdown`
-        module      = `z2ui5ccc/cc/Markdown`
+        module      = `z2ui5_cci/cc/Markdown`
         description = `Renders a bound Markdown string as HTML, sanitized by default`
         app         = `Z2UI5_CL_CCI_SAMPLE_10` )
       ( name        = `CodeEditor`
-        module      = `z2ui5ccc/cc/CodeEditor`
+        module      = `z2ui5_cci/cc/CodeEditor`
         description = `Makes UI5's own sap.ui.codeeditor usable from a view, without eval`
         app         = `Z2UI5_CL_CCI_SAMPLE_10` ) ).
 

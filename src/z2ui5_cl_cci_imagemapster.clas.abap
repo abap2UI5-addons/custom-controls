@@ -1,6 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - ImageMapster</p>
 "!
-"! The ABAP half of the z2ui5ccc.cc.ImageMapster custom control: the view
+"! The ABAP half of the z2ui5_cci.cc.ImageMapster custom control: the view
 "! builder that emits its XML element, plus the types for the regions and the
 "! render options.
 "!
@@ -88,7 +88,7 @@ CLASS z2ui5_cl_cci_imagemapster DEFINITION
         render_select    TYPE ty_s_render,
       END OF ty_s_config.
 
-    "! Emit &lt;z2ui5ccc:ImageMapster/&gt; into an existing view.
+    "! Emit &lt;z2ui5_cci:ImageMapster/&gt; into an existing view.
     "!
     "! @parameter view         | the builder positioned at the parent element
     "! @parameter src          | the image, as a URL or a data: URI
