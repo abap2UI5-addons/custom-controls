@@ -10,9 +10,6 @@
     "vendor:local": "node tools/vendor.mjs --local",
     "build:local": "npm run vendor:local && npm run app2bsp",
     "lint": "abaplint abaplint.jsonc",
-    "lint:702": "abaplint .github/abaplint/abap_702.jsonc",
-    "syfixes": "find src -type f -name '*.abap' -exec sed -i -e 's/ RAISE EXCEPTION TYPE cx_sy_itab_line_not_found/ ASSERT 1 = 0/g' {} +",
-    "downport": "abaplint --fix .github/abaplint/abap_702.jsonc && npm run syfixes",
     "test": "node --test 'tools/**/*.test.mjs'"
   },
   "repository": {

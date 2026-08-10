@@ -1,10 +1,14 @@
 name: publish-local
 
-# Rebuilds the `local` branch via publish-branch.yml: vendors every third-party
-# library into the BSP, regenerates the BSP artefacts and force-pushes.
+# Rebuilds the `local` branch from `main` on every push: vendors every
+# third-party library into the BSP, regenerates the BSP artefacts, validates
+# the result with abaplint and force-pushes it.
 #
 # Install that branch instead of `main` on a system whose browsers have no
 # internet access - it is the same controls with the libraries inside.
+#
+# `local` is generated, never developed on: every push to `main` rebuilds it
+# from scratch, so a commit made on it is lost on the next run.
 
 on:
   push:
@@ -21,9 +25,45 @@ concurrency:
 
 jobs:
   publish-local:
-    uses: ./.github/workflows/publish-branch.yml
+    if: github.repository == 'abap2UI5-addons/custom-controls'
     permissions:
       contents: write
-    with:
-      branch: local
-      prepare: npm run build:local
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Vendor the libraries and regenerate the BSP
+        run: npm run build:local
+
+      - name: Lint
+        run: npm run lint
+
+      # The generated BSP has to match app/webapp here too - a `local` branch
+      # whose pages still carried the CDN URLs would install cleanly and then
+      # fail to render on a system without internet.
+      #
+      # Compared against a snapshot rather than against HEAD: the build step
+      # has already rewritten the working tree, so `git diff` would report its
+      # own output as drift.
+      - name: BSP artefacts are in sync
+        run: |
+          rm -rf "${RUNNER_TEMP}/bsp-before"
+          cp -r src/01 "${RUNNER_TEMP}/bsp-before"
+          npm run app2bsp
+          diff -r "${RUNNER_TEMP}/bsp-before" src/01
+
+      - name: Commit and push to local
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m "generate local from ${GITHUB_SHA}"
+          git push --force origin HEAD:local
