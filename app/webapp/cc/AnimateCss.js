@@ -1,4 +1,4 @@
-// z2ui5cc.cc.AnimateCss - makes the animate.css class names usable on any UI5
+// z2ui5ccc.cc.AnimateCss - makes the animate.css class names usable on any UI5
 // control.
 //
 // animate.css is pure CSS: once its stylesheet is on the page, putting
@@ -16,7 +16,7 @@
 // Set `cssUrl` to serve it from your own system - a BSP, the MIME repository -
 // if the frontend has no internet access.
 sap.ui.define(
-  ["sap/ui/core/Control", "z2ui5cc/cc/Util"],
+  ["sap/ui/core/Control", "z2ui5ccc/cc/Util"],
   (Control, Util) => {
     "use strict";
 
@@ -31,7 +31,7 @@ sap.ui.define(
       repeat: "--animate-repeat",
     };
 
-    return Control.extend("z2ui5cc.cc.AnimateCss", {
+    return Control.extend("z2ui5ccc.cc.AnimateCss", {
       metadata: {
         properties: {
           cssUrl: { type: "string", defaultValue: CSS_URL },

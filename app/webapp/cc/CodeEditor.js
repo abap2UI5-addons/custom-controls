@@ -1,4 +1,4 @@
-// z2ui5cc.cc.CodeEditor - makes sap.ui.codeeditor.CodeEditor usable from an
+// z2ui5ccc.cc.CodeEditor - makes sap.ui.codeeditor.CodeEditor usable from an
 // abap2UI5 view.
 //
 // This control adds no editor of its own. UI5 already ships one - an ACE
@@ -15,11 +15,11 @@
 // reason the framework's own developer tools preload the modules by hand
 // before opening their fragment.
 //
-// So the app writes <z2ui5cc:CodeEditor/>, never <codeeditor:CodeEditor/>.
+// So the app writes <z2ui5ccc:CodeEditor/>, never <codeeditor:CodeEditor/>.
 // The class name the XML parser has to resolve is this module; the editor
 // itself is required asynchronously here and only then created, which is a
 // normal AMD load - no synchronous XHR, no eval.
-sap.ui.define(["sap/ui/core/Control", "z2ui5cc/cc/Util"], (Control, Util) => {
+sap.ui.define(["sap/ui/core/Control", "z2ui5ccc/cc/Util"], (Control, Util) => {
   "use strict";
 
   // sap/ui/codeeditor/library comes along so the library's theme resources
@@ -45,7 +45,7 @@ sap.ui.define(["sap/ui/core/Control", "z2ui5cc/cc/Util"], (Control, Util) => {
     return pending;
   }
 
-  return Control.extend("z2ui5cc.cc.CodeEditor", {
+  return Control.extend("z2ui5ccc.cc.CodeEditor", {
     metadata: {
       properties: {
         // the text - bind it two-way to the ABAP attribute that carries it

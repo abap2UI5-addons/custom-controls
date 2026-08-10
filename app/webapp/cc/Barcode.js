@@ -1,4 +1,4 @@
-// z2ui5cc.cc.Barcode - renders a barcode with bwip-js, which speaks every
+// z2ui5ccc.cc.Barcode - renders a barcode with bwip-js, which speaks every
 // symbology BWIPP knows: EAN, UPC, ISBN, Code 128, QR, DataMatrix, GS1 and
 // about a hundred more.
 //
@@ -19,7 +19,7 @@
 //      encode is usually bad input, and the user is the one who can fix it.
 //   4. no sap.m.BusyDialog blocking the whole screen while the library loads.
 sap.ui.define(
-  ["sap/ui/core/Control", "z2ui5cc/cc/Util"],
+  ["sap/ui/core/Control", "z2ui5ccc/cc/Util"],
   (Control, Util) => {
     "use strict";
 
@@ -40,7 +40,7 @@ sap.ui.define(
       return out;
     }
 
-    return Control.extend("z2ui5cc.cc.Barcode", {
+    return Control.extend("z2ui5ccc.cc.Barcode", {
       metadata: {
         properties: {
           // symbology, e.g. `qrcode`, `ean13`, `code128`

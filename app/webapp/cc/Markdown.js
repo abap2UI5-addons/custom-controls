@@ -1,4 +1,4 @@
-// z2ui5cc.cc.Markdown - renders Markdown from a bound ABAP string as HTML.
+// z2ui5ccc.cc.Markdown - renders Markdown from a bound ABAP string as HTML.
 //
 // UI5 has no Markdown control. sap.m.FormattedText is the usual stand-in, but
 // it takes HTML and only a small whitelist of tags, so an app that wants a
@@ -12,7 +12,7 @@
 // `sanitize` is on by default and should stay on for any text that did not
 // come from your own developers - see the property comment.
 sap.ui.define(
-  ["sap/ui/core/Control", "z2ui5cc/cc/Util"],
+  ["sap/ui/core/Control", "z2ui5ccc/cc/Util"],
   (Control, Util) => {
     "use strict";
 
@@ -25,47 +25,47 @@ sap.ui.define(
     // makes it read like a document again - deliberately expressed in UI5
     // theme parameters, so it follows a theme switch instead of hardcoding
     // Quartz' colours. Injected once per page, not per control.
-    const STYLE_ID = "z2ui5cc-markdown-style";
+    const STYLE_ID = "z2ui5ccc-markdown-style";
     const STYLE = `
-.z2ui5ccMarkdown { line-height: 1.5; }
-.z2ui5ccMarkdown > *:first-child { margin-top: 0; }
-.z2ui5ccMarkdown > *:last-child { margin-bottom: 0; }
-.z2ui5ccMarkdown h1, .z2ui5ccMarkdown h2, .z2ui5ccMarkdown h3,
-.z2ui5ccMarkdown h4, .z2ui5ccMarkdown h5, .z2ui5ccMarkdown h6 {
+.z2ui5cccMarkdown { line-height: 1.5; }
+.z2ui5cccMarkdown > *:first-child { margin-top: 0; }
+.z2ui5cccMarkdown > *:last-child { margin-bottom: 0; }
+.z2ui5cccMarkdown h1, .z2ui5cccMarkdown h2, .z2ui5cccMarkdown h3,
+.z2ui5cccMarkdown h4, .z2ui5cccMarkdown h5, .z2ui5cccMarkdown h6 {
   margin: 1.2em 0 0.5em; font-weight: bold; line-height: 1.25;
 }
-.z2ui5ccMarkdown h1 { font-size: 1.6em; }
-.z2ui5ccMarkdown h2 { font-size: 1.35em; }
-.z2ui5ccMarkdown h3 { font-size: 1.15em; }
-.z2ui5ccMarkdown p, .z2ui5ccMarkdown ul, .z2ui5ccMarkdown ol,
-.z2ui5ccMarkdown blockquote, .z2ui5ccMarkdown pre, .z2ui5ccMarkdown table {
+.z2ui5cccMarkdown h1 { font-size: 1.6em; }
+.z2ui5cccMarkdown h2 { font-size: 1.35em; }
+.z2ui5cccMarkdown h3 { font-size: 1.15em; }
+.z2ui5cccMarkdown p, .z2ui5cccMarkdown ul, .z2ui5cccMarkdown ol,
+.z2ui5cccMarkdown blockquote, .z2ui5cccMarkdown pre, .z2ui5cccMarkdown table {
   margin: 0 0 1em;
 }
-.z2ui5ccMarkdown ul, .z2ui5ccMarkdown ol { padding-inline-start: 1.6em; }
-.z2ui5ccMarkdown li { margin: 0.25em 0; }
-.z2ui5ccMarkdown code {
+.z2ui5cccMarkdown ul, .z2ui5cccMarkdown ol { padding-inline-start: 1.6em; }
+.z2ui5cccMarkdown li { margin: 0.25em 0; }
+.z2ui5cccMarkdown code {
   font-family: monospace; font-size: 0.9em; padding: 0.1em 0.3em;
   border-radius: 0.25em;
   background: var(--sapList_Background, rgba(127, 127, 127, 0.12));
 }
-.z2ui5ccMarkdown pre {
+.z2ui5cccMarkdown pre {
   padding: 0.75em; overflow: auto; border-radius: 0.25em;
   background: var(--sapList_Background, rgba(127, 127, 127, 0.12));
 }
-.z2ui5ccMarkdown pre code { padding: 0; background: none; }
-.z2ui5ccMarkdown blockquote {
+.z2ui5cccMarkdown pre code { padding: 0; background: none; }
+.z2ui5cccMarkdown blockquote {
   padding: 0.25em 1em; opacity: 0.85;
   border-inline-start: 0.25em solid var(--sapNeutralBorderColor, #999);
 }
-.z2ui5ccMarkdown table { border-collapse: collapse; }
-.z2ui5ccMarkdown th, .z2ui5ccMarkdown td {
+.z2ui5cccMarkdown table { border-collapse: collapse; }
+.z2ui5cccMarkdown th, .z2ui5cccMarkdown td {
   padding: 0.35em 0.75em; text-align: start;
   border: 1px solid var(--sapList_BorderColor, rgba(127, 127, 127, 0.4));
 }
-.z2ui5ccMarkdown th { background: var(--sapList_HeaderBackground, transparent); }
-.z2ui5ccMarkdown a { color: var(--sapLinkColor, #0070f2); }
-.z2ui5ccMarkdown img { max-width: 100%; }
-.z2ui5ccMarkdown hr {
+.z2ui5cccMarkdown th { background: var(--sapList_HeaderBackground, transparent); }
+.z2ui5cccMarkdown a { color: var(--sapLinkColor, #0070f2); }
+.z2ui5cccMarkdown img { max-width: 100%; }
+.z2ui5cccMarkdown hr {
   border: none; margin: 1.5em 0;
   border-top: 1px solid var(--sapList_BorderColor, rgba(127, 127, 127, 0.4));
 }
@@ -79,7 +79,7 @@ sap.ui.define(
       document.head.appendChild(tag);
     }
 
-    return Control.extend("z2ui5cc.cc.Markdown", {
+    return Control.extend("z2ui5ccc.cc.Markdown", {
       metadata: {
         properties: {
           // the Markdown source - bind it to the ABAP string that carries it
@@ -226,7 +226,7 @@ sap.ui.define(
         apiVersion: 2,
         render(rm, control) {
           rm.openStart("div", control);
-          rm.class("z2ui5ccMarkdown");
+          rm.class("z2ui5cccMarkdown");
           const width = Util.toCssSize(control.getWidth());
           const height = Util.toCssSize(control.getHeight());
           if (width) rm.style("width", width);

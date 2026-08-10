@@ -5,18 +5,18 @@ Eleven ready-to-use custom controls for
 barcodes, Excel export, form validation, product tours, Font Awesome, animations,
 clickable image maps, Markdown and a code editor.
 
-They ship in their **own BSP** (`Z2UI5CC`), not inside the framework. Install this
+They ship in their **own BSP** (`Z2UI5CCC`), not inside the framework. Install this
 repository and the controls are there; nothing in abap2UI5 or in the frontend BSP
 has to change, and no pull request against the framework is needed to add one.
 
 ## Install
 
 1. Install this repository with abapGit. It brings the ABAP classes, the BSP
-   application `Z2UI5CC` and the two ICF nodes it is served from.
-2. Start **`?app_start=z2ui5_cl_ccont_sample_00`** — the overview app lists every
+   application `Z2UI5CCC` and the two ICF nodes it is served from.
+2. Start **`?app_start=z2ui5_cl_cci_sample_00`** — the overview app lists every
    control and opens its sample.
 
-Requires abap2UI5 with the reserved resourceRoot `z2ui5cc` in the frontend
+Requires abap2UI5 with the reserved resourceRoot `z2ui5ccc` in the frontend
 manifest (see [Troubleshooting](#troubleshooting) if a control stays blank).
 
 ## Using a control
@@ -32,12 +32,12 @@ DATA(root) = view->open( n  = `View`
     )->a( n = `xmlns`     v = `sap.m`
     )->a( n = `xmlns:mvc` v = `sap.ui.core.mvc` ).
 
-z2ui5_cl_ccont=>xmlns( root ).           " declares xmlns:z2ui5cc - once per view
+z2ui5_cl_cci=>xmlns( root ).             " declares xmlns:z2ui5ccc - once per view
 
 DATA(page) = root->open( `Page`
     )->a( n = `title` v = `Signature` ).
 
-z2ui5_cl_ccont_signature_pad=>render(
+z2ui5_cl_cci_signature_pad=>render(
     view   = page
     value  = client->_bind( signature )   " the base64 PNG arrives here
     height = `200px`
@@ -53,20 +53,20 @@ and events arrive in `on_event` like for any built-in control.
 
 | Control | What it does | Builder | Sample |
 |---|---|---|---|
-| SignaturePad | sign with mouse, finger or stylus → base64 PNG | `z2ui5_cl_ccont_signature_pad` | `..._sample_01` |
-| ExportSpreadsheet | export a table's rows as `.xlsx`, in the browser | `z2ui5_cl_ccont_spreadsheet` | `..._sample_02` |
-| Validator | check a form against ABAP rules without a roundtrip | `z2ui5_cl_ccont_validator` | `..._sample_03` |
-| ChartJs | [Chart.js](https://www.chartjs.org) charts from a bound structure | `z2ui5_cl_ccont_chartjs` | `..._sample_04` |
-| Barcode | barcodes and QR codes with [bwip-js](https://bwip-js.metafloor.com) | `z2ui5_cl_ccont_barcode` | `..._sample_05` |
-| DriverJs | product tours and spotlights with [driver.js](https://driverjs.com) | `z2ui5_cl_ccont_driverjs` | `..._sample_06` |
-| FontAwesome | [Font Awesome](https://fontawesome.com) as UI5 icons and CSS classes | `z2ui5_cl_ccont_font_awesome` | `..._sample_07` |
-| AnimateCss | [animate.css](https://animate.style) class names on any control | `z2ui5_cl_ccont_animate_css` | `..._sample_08` |
-| ImageMapster | clickable, highlighting regions on an image | `z2ui5_cl_ccont_imagemapster` | `..._sample_09` |
-| Markdown | Markdown from ABAP as HTML, with [marked](https://marked.js.org) | `z2ui5_cl_ccont_markdown` | `..._sample_10` |
-| CodeEditor | UI5's own `sap.ui.codeeditor`, reachable from a view | `z2ui5_cl_ccont_code_editor` | `..._sample_10` |
+| SignaturePad | sign with mouse, finger or stylus → base64 PNG | `z2ui5_cl_cci_signature_pad` | `..._sample_01` |
+| ExportSpreadsheet | export a table's rows as `.xlsx`, in the browser | `z2ui5_cl_cci_spreadsheet` | `..._sample_02` |
+| Validator | check a form against ABAP rules without a roundtrip | `z2ui5_cl_cci_validator` | `..._sample_03` |
+| ChartJs | [Chart.js](https://www.chartjs.org) charts from a bound structure | `z2ui5_cl_cci_chartjs` | `..._sample_04` |
+| Barcode | barcodes and QR codes with [bwip-js](https://bwip-js.metafloor.com) | `z2ui5_cl_cci_barcode` | `..._sample_05` |
+| DriverJs | product tours and spotlights with [driver.js](https://driverjs.com) | `z2ui5_cl_cci_driverjs` | `..._sample_06` |
+| FontAwesome | [Font Awesome](https://fontawesome.com) as UI5 icons and CSS classes | `z2ui5_cl_cci_font_awesome` | `..._sample_07` |
+| AnimateCss | [animate.css](https://animate.style) class names on any control | `z2ui5_cl_cci_animate_css` | `..._sample_08` |
+| ImageMapster | clickable, highlighting regions on an image | `z2ui5_cl_cci_imagemapster` | `..._sample_09` |
+| Markdown | Markdown from ABAP as HTML, with [marked](https://marked.js.org) | `z2ui5_cl_cci_markdown` | `..._sample_10` |
+| CodeEditor | UI5's own `sap.ui.codeeditor`, reachable from a view | `z2ui5_cl_cci_code_editor` | `..._sample_10` |
 
-Sample classes are `z2ui5_cl_ccont_sample_NN` — start any of them directly with
-`?app_start=…`, or browse them from `z2ui5_cl_ccont_sample_00`.
+Sample classes are `z2ui5_cl_cci_sample_NN` — start any of them directly with
+`?app_start=…`, or browse them from `z2ui5_cl_cci_sample_00`.
 
 ### SignaturePad
 
@@ -109,7 +109,7 @@ event `elementpress`.
 `config` is the Chart.js configuration verbatim, so anything the Chart.js docs
 describe works from ABAP. Change the structure and call `view_model_update( )` to
 update in place. `plugins` takes the names from
-`z2ui5_cl_ccont_chartjs=>cs_plugin` (`datalabels`, `autocolors`, `deferred`,
+`z2ui5_cl_cci_chartjs=>cs_plugin` (`datalabels`, `autocolors`, `deferred`,
 `annotation`, `venn`, `wordcloud`).
 
 <img width="1248" height="630" alt="image" src="https://github.com/user-attachments/assets/7b20eb12-1823-4b25-a3ad-0dfcab95077a" />
@@ -120,7 +120,7 @@ update in place. `plugins` takes the names from
 `rotate`, `backgroundcolor`, `options`, `renderas` (`canvas`/`svg`), `liburl` ·
 event `error`.
 
-`z2ui5_cl_ccont_barcode=>get_types( )` returns a handful of symbologies with
+`z2ui5_cl_cci_barcode=>get_types( )` returns a handful of symbologies with
 values that encode cleanly. Leave `height` empty for 2D codes — a fixed height
 squashes a QR code.
 
@@ -153,7 +153,7 @@ One element in the view and Font Awesome is available two ways: as UI5 icons
 `duration`, `delay`, `repeat`, `cssurl`.
 
 Put `animate__animated animate__bounce` into a control's `class` attribute and it
-animates. The class names are constants on `z2ui5_cl_ccont_animate_css`
+animates. The class names are constants on `z2ui5_cl_cci_animate_css`
 (`cs_base`, `cs_attention-*`, `cs_entrance-*`, `cs_exit-*`, `cs_modifier-*`).
 `duration`/`delay`/`repeat` retune every animation on the page at once.
 
@@ -199,7 +199,7 @@ into the app it documents. Every other link opens in a new tab.
 This one wraps no library at all. UI5 already ships an editor — `sap.ui.codeeditor`,
 an ACE editor with syntax highlighting for some eighty languages, served from the
 UI5 distribution rather than a CDN, so it also highlights in a system without
-internet. Types are on `z2ui5_cl_ccont_code_editor=>cs_type`.
+internet. Types are on `z2ui5_cl_cci_code_editor=>cs_type`.
 
 What the control adds is a way to **reach** it. `sap.ui.codeeditor` is not among
 the abap2UI5 manifest dependencies, and on 1.71 the XML is still processed with
@@ -223,7 +223,7 @@ target library expects camelCase names:
 ```abap
 config = client->_bind(
     val           = ms_chart
-    custom_filter = NEW z2ui5_cl_ccont_json_filter( )
+    custom_filter = NEW z2ui5_cl_cci_json_filter( )
     custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                         iv_first_json_upper = abap_false ) )
 ```
@@ -249,28 +249,28 @@ Put the library into a BSP of your own (or into this one: drop it under
 `app/webapp/`, run `npm run app2bsp`) and pass the path:
 
 ```abap
-z2ui5_cl_ccont_chartjs=>render( view = page config = … liburl = `/sap/bc/ui5_ui5/sap/z2ui5cc/chart.umd.js` ).
+z2ui5_cl_cci_chartjs=>render( view = page config = … liburl = `/sap/bc/ui5_ui5/sap/z2ui5ccc/chart.umd.js` ).
 ```
 
 ## Troubleshooting
 
 | Symptom | Cause |
 |---|---|
-| `ICF Node NOT found!` | the SICF nodes were not activated — activate `z2ui5cc` in transaction `SICF` |
-| control stays blank, 404 on `cc/<Name>.js` | check `/sap/bc/ui5_ui5/sap/z2ui5cc/cc/SignaturePad.js` returns JavaScript |
-| control stays blank, request goes to `resources/…` | your abap2UI5 frontend predates the reserved resourceRoot `z2ui5cc`; update it |
+| `ICF Node NOT found!` | the SICF nodes were not activated — activate `z2ui5ccc` in transaction `SICF` |
+| control stays blank, 404 on `cc/<Name>.js` | check `/sap/bc/ui5_ui5/sap/z2ui5ccc/cc/SignaturePad.js` returns JavaScript |
+| control stays blank, request goes to `resources/…` | your abap2UI5 frontend predates the reserved resourceRoot `z2ui5ccc`; update it |
 
-In the browser console, `sap.ui.require.toUrl("z2ui5cc/cc/SignaturePad.js")` must
-return the BSP path. That separates a BSP problem from a frontend problem, which
-look identical from inside the app.
+In the browser console, `sap.ui.require.toUrl("z2ui5ccc/cc/SignaturePad.js")`
+must return the BSP path. That separates a BSP problem from a frontend problem,
+which look identical from inside the app.
 
 ## Adding your own control
 
 1. write `app/webapp/cc/<Name>.js`, extending `sap.ui.core.Control` under
-   `z2ui5cc.cc.<Name>`, with no dependency on `z2ui5/…` modules
+   `z2ui5ccc.cc.<Name>`, with no dependency on `z2ui5/…` modules
 2. run `npm run app2bsp` — regenerates the BSP artefacts under `src/01`
-3. add a builder class `z2ui5_cl_ccont_<name>` next to the others
-4. add a sample and a row in `z2ui5_cl_ccont_sample_00=>model_init( )`
+3. add a builder class `z2ui5_cl_cci_<name>` next to the others
+4. add a sample and a row in `z2ui5_cl_cci_sample_00=>model_init( )`
 
 File names under `app/webapp` become BSP page names and SAP validates them: at
 most one directory level, and letters, digits, `_` and `.` only. `app2bsp`
@@ -283,9 +283,17 @@ refuses anything else — otherwise you find out on import, as
 |---|---|
 | `app/webapp/cc/*.js` | the controls — plain UI5, the single source of truth |
 | `tools/app2bsp.mjs` | generates the abapGit BSP artefacts from `app/webapp` |
-| `src/z2ui5_cl_ccont*.clas.abap` | the library and one view builder per control |
+| `src/z2ui5_cl_cci*.clas.abap` | the library and one view builder per control |
 | `src/00/` | the overview app and the samples |
-| `src/01/` | **generated**: the `Z2UI5CC` BSP and its ICF nodes |
+| `src/01/` | **generated**: the `Z2UI5CCC` BSP and its ICF nodes |
+
+Every ABAP object of this repository lives in the `z2ui5_xx_cci` namespace
+(`z2ui5_cl_cci`, `z2ui5_cl_cci_<control>`, `z2ui5_cl_cci_sample_NN`) — the same
+one-token repository prefix the samples repository uses with `z2ui5_xx_smp`.
+The frontend namespace is a separate name: `z2ui5ccc` — the resourceRoot the
+abap2UI5 frontend reserves in its `manifest.json`, the BSP `Z2UI5CCC` and the
+UI5 module namespace `z2ui5ccc.cc`. It needs an abap2UI5 that reserves that
+root; older frontends still reserve `z2ui5cc` and cannot resolve the controls.
 
 CI runs abaplint against the abap2UI5 framework, syntax-checks every control and
 fails if the generated BSP has drifted from `app/webapp`.
@@ -297,7 +305,7 @@ frontend artefacts — an in-house reuse library, a corporate icon font, company
 CSS — use
 [abap2UI5/customer-frontend-extension](https://github.com/abap2UI5/customer-frontend-extension).
 It is the same mechanism under a second reserved resourceRoot (`z2ui5ext`
-instead of `z2ui5cc`), so the two can be installed side by side and neither
+instead of `z2ui5ccc`), so the two can be installed side by side and neither
 needs a change to abap2UI5.
 
 These controls replace the
