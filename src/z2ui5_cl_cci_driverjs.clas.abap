@@ -136,7 +136,7 @@ CLASS z2ui5_cl_cci_driverjs DEFINITION
     "! @parameter result      | the unchanged view builder, for chaining
     CLASS-METHODS render
       IMPORTING
-        view          TYPE REF TO z2ui5_cl_ai_xml
+        view          TYPE REF TO z2ui5_cl_ui5_view_builder
         config        TYPE string OPTIONAL
         trigger       TYPE string OPTIONAL
         highlight     TYPE string OPTIONAL
@@ -147,7 +147,7 @@ CLASS z2ui5_cl_cci_driverjs DEFINITION
         highlighted   TYPE string OPTIONAL
         done          TYPE string OPTIONAL
       RETURNING
-        VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
+        VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -158,7 +158,7 @@ CLASS z2ui5_cl_cci_driverjs IMPLEMENTATION.
 
   METHOD render.
 
-    result = z2ui5_cl_cci=>leaf(
+    result = z2ui5_cl_cci=>tag(
         view = view
         name = `DriverJs`
         a    = VALUE #( ( |config={ config }| )

@@ -59,10 +59,10 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->open( n  = `View`
-                             ns = `mvc`
+    DATA(page) = view->ele( n  = `View`
+                            ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
@@ -74,7 +74,7 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
         )->a( n = `height`
               v = `100%`
 
-        )->open( `Page`
+        )->ele( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - animate.css`
             ).
@@ -84,24 +84,24 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
                                       duration = duration
                                       repeat   = repeat ).
 
-    page->open( `headerContent`
-        )->leaf( `Label`
+    page->ele( `headerContent`
+        )->tag( `Label`
             )->a( n = `text`
                   v = `duration`
-        )->leaf( `Input`
+        )->tag( `Input`
             )->a( n = `value`
                   v = client->_bind( duration )
             )->a( n = `width`
                   v = `6rem`
-        )->leaf( `Label`
+        )->tag( `Label`
             )->a( n = `text`
                   v = `repeat`
-        )->leaf( `Input`
+        )->tag( `Input`
             )->a( n = `value`
                   v = client->_bind( repeat )
             )->a( n = `width`
                   v = `4rem`
-        )->leaf( `Button`
+        )->tag( `Button`
             )->a( n = `text`
                   v = `Replay`
             )->a( n = `type`
@@ -109,17 +109,17 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
             )->a( n = `press`
                   v = client->_event( `REPLAY` ) ).
 
-    DATA(table) = page->open( `Table`
+    DATA(table) = page->ele( `Table`
                       )->a( n = `class`
                             v = `sapUiSmallMargin`
                       )->a( n = `mode`
                             v = `None` ).
 
-    table->open( `columns`
-        )->open( `Column` )->leaf( `Text` )->a( n = `text` v = `Animated`
-        )->shut(
-        )->open( `Column` )->leaf( `Text` )->a( n = `text` v = `Class`
-        )->shut( ).
+    table->ele( `columns`
+        )->ele( `Column` )->tag( `Text` )->a( n = `text` v = `Animated`
+        )->end(
+        )->ele( `Column` )->tag( `Text` )->a( n = `text` v = `Class`
+        )->end( ).
 
     " The rows are built here, in ABAP, instead of binding the table to
     " t_row - because `class` in a UI5 XML view is NOT a bindable property.
@@ -128,16 +128,16 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
     " every row would end up carrying that expression as its literal class
     " name. The class has to reach the XML as a literal, which means emitting
     " one row per animation - the way the addon's sample did it.
-    DATA(items) = table->open( `items` ).
+    DATA(items) = table->ele( `items` ).
     LOOP AT t_row INTO DATA(ls_row).
-      items->open( `ColumnListItem`
-          )->open( `cells`
-              )->leaf( `Title`
+      items->ele( `ColumnListItem`
+          )->ele( `cells`
+              )->tag( `Title`
                   )->a( n = `text`
                         v = ls_row-name
                   )->a( n = `class`
                         v = |{ z2ui5_cl_cci_animate_css=>cs_base } { ls_row-class }|
-              )->leaf( `Text`
+              )->tag( `Text`
                   )->a( n = `text`
                         v = ls_row-class ).
     ENDLOOP.

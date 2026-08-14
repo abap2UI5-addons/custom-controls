@@ -66,10 +66,10 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->open( n  = `View`
-                             ns = `mvc`
+    DATA(page) = view->ele( n  = `View`
+                            ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
@@ -83,7 +83,7 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
         )->a( n = `height`
               v = `100%`
 
-        )->open( `Page`
+        )->ele( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - Font Awesome`
             ).
@@ -91,14 +91,14 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
     " one element, and both ways of using Font Awesome are available
     z2ui5_cl_cci_font_awesome=>render( page ).
 
-    DATA(box) = page->open( `VBox`
+    DATA(box) = page->ele( `VBox`
                     )->a( n = `class`
                           v = `sapUiMediumMargin` ).
 
-    box->leaf( `Label`
+    box->tag( `Label`
            )->a( n = `text`
                  v = `collection`
-       )->open( `ComboBox`
+       )->ele( `ComboBox`
            )->a( n = `selectedKey`
                  v = client->_bind( collection )
            )->a( n = `items`
@@ -107,20 +107,20 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
                  v = `20rem`
            )->a( n = `change`
                  v = client->_event( `COLLECTION` )
-           )->open( `items`
-               )->leaf( n  = `Item`
-                        ns = `core`
+           )->ele( `items`
+               )->tag( n  = `Item`
+                       ns = `core`
                    )->a( n = `key`
                          v = `{KEY}`
                    )->a( n = `text`
                          v = `{TEXT}` ).
 
-    box->leaf( `Label`
+    box->tag( `Label`
            )->a( n = `text`
                  v = `icon name`
            )->a( n = `class`
                  v = `sapUiSmallMarginTop`
-       )->leaf( `Input`
+       )->tag( `Input`
            )->a( n = `value`
                  v = client->_bind( icon )
            )->a( n = `width`
@@ -128,13 +128,13 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
            )->a( n = `change`
                  v = client->_event( `REFRESH` )
 
-       )->leaf( `Label`
+       )->tag( `Label`
            )->a( n = `text`
                  v = `animation class`
            )->a( n = `class`
                  v = `sapUiSmallMarginTop` ).
 
-    box->open( `ComboBox`
+    box->ele( `ComboBox`
         )->a( n = `selectedKey`
               v = client->_bind( animation )
         )->a( n = `items`
@@ -143,29 +143,29 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
               v = `20rem`
         )->a( n = `change`
               v = client->_event( `REFRESH` )
-        )->open( `items`
-            )->leaf( n  = `Item`
-                     ns = `core`
+        )->ele( `items`
+            )->tag( n  = `Item`
+                    ns = `core`
                 )->a( n = `key`
                       v = `{KEY}`
                 )->a( n = `text`
                       v = `{TEXT}` ).
 
-    DATA(result) = box->open( `Panel`
+    DATA(result) = box->ele( `Panel`
                        )->a( n = `headerText`
                              v = `Result`
                        )->a( n = `class`
                              v = `sapUiSmallMarginTop`
-                       )->open( `content`
-                           )->open( `HBox`
+                       )->ele( `content`
+                           )->ele( `HBox`
                                )->a( n = `alignItems`
                                      v = `Center`
                                )->a( n = `class`
                                      v = `sapUiSmallMargin` ).
 
     " as a UI5 icon, through the IconPool the control filled
-    result->leaf( n  = `Icon`
-                  ns = `core`
+    result->tag( n  = `Icon`
+                 ns = `core`
               )->a( n = `src`
                     v = client->_bind( icon_uri )
               )->a( n = `size`
@@ -175,7 +175,7 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
               )->a( n = `class`
                     v = client->_bind( css_class )
 
-          )->leaf( `Button`
+          )->tag( `Button`
               )->a( n = `text`
                     v = `a button with the same icon`
               )->a( n = `icon`
@@ -183,7 +183,7 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
               )->a( n = `class`
                     v = `sapUiMediumMarginBegin` ).
 
-    result->leaf( `Text`
+    result->tag( `Text`
               )->a( n = `text`
                     v = client->_bind( icon_uri ) ).
 
@@ -202,11 +202,9 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
           CATCH cx_sy_itab_line_not_found.
         ENDTRY.
         model_refresh( ).
-        client->view_model_update( ).
 
       WHEN `REFRESH`.
         model_refresh( ).
-        client->view_model_update( ).
 
     ENDCASE.
 

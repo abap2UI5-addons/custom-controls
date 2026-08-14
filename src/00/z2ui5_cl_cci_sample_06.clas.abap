@@ -57,10 +57,10 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->open( n  = `View`
-                             ns = `mvc`
+    DATA(page) = view->ele( n  = `View`
+                            ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
@@ -72,7 +72,7 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
         )->a( n = `height`
               v = `100%`
 
-        )->open( `Page`
+        )->ele( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - driver.js`
             ).
@@ -93,36 +93,36 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
                                      custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                                          iv_first_json_upper = abap_false ) ) ).
 
-    page->open( `headerContent`
-        )->leaf( `Button`
+    page->ele( `headerContent`
+        )->tag( `Button`
             )->a( n = `text`
                   v = `Start tour`
             )->a( n = `type`
                   v = `Emphasized`
             )->a( n = `press`
                   v = client->_event( `TOUR` )
-        )->leaf( `Button`
+        )->tag( `Button`
             )->a( n = `text`
                   v = `Highlight`
             )->a( n = `press`
                   v = client->_event( `HIGHLIGHT` ) ).
 
-    DATA(panel) = page->open( `Panel`
+    DATA(panel) = page->ele( `Panel`
                       )->a( n = `id`
                             v = `orderPanel`
                       )->a( n = `headerText`
                             v = `New order`
                       )->a( n = `class`
                             v = `sapUiMediumMargin`
-                      )->open( `content`
-                          )->open( `VBox`
+                      )->ele( `content`
+                          )->ele( `VBox`
                               )->a( n = `class`
                                     v = `sapUiSmallMargin` ).
 
-    panel->leaf( `Label`
+    panel->tag( `Label`
              )->a( n = `text`
                    v = `product`
-         )->leaf( `Input`
+         )->tag( `Input`
              )->a( n = `id`
                    v = `product`
              )->a( n = `value`
@@ -130,12 +130,12 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
              )->a( n = `width`
                    v = `20rem`
 
-         )->leaf( `Label`
+         )->tag( `Label`
              )->a( n = `text`
                    v = `quantity`
              )->a( n = `class`
                    v = `sapUiSmallMarginTop`
-         )->leaf( `Input`
+         )->tag( `Input`
              )->a( n = `id`
                    v = `quantity`
              )->a( n = `value`
@@ -143,7 +143,7 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
              )->a( n = `width`
                    v = `20rem`
 
-         )->leaf( `Button`
+         )->tag( `Button`
              )->a( n = `id`
                    v = `post`
              )->a( n = `text`
@@ -155,7 +155,7 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
              )->a( n = `class`
                    v = `sapUiSmallMarginTop`
 
-         )->leaf( `Text`
+         )->tag( `Text`
              )->a( n = `text`
                    v = client->_bind( info )
              )->a( n = `class`
@@ -173,21 +173,17 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
         mode    = z2ui5_cl_cci_driverjs=>cs_mode-tour.
         trigger = trigger + 1.
         info    = `Tour running...`.
-        client->view_model_update( ).
 
       WHEN `HIGHLIGHT`.
         mode    = z2ui5_cl_cci_driverjs=>cs_mode-highlight.
         trigger = trigger + 1.
         info    = `Highlight shown.`.
-        client->view_model_update( ).
 
       WHEN `STEP`.
         info = `A step was highlighted - the event reached ABAP.`.
-        client->view_model_update( ).
 
       WHEN `DONE`.
         info = `Tour finished.`.
-        client->view_model_update( ).
 
       WHEN `POST`.
         client->message_toast_display( |{ quantity } x { product } posted.| ).

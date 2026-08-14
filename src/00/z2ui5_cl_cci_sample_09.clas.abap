@@ -63,10 +63,10 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->open( n  = `View`
-                             ns = `mvc`
+    DATA(page) = view->ele( n  = `View`
+                            ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
@@ -78,30 +78,30 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
         )->a( n = `height`
               v = `100%`
 
-        )->open( `Page`
+        )->ele( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - ImageMapster`
             ).
 
-    page->open( `headerContent`
-        )->leaf( `Button`
+    page->ele( `headerContent`
+        )->tag( `Button`
             )->a( n = `text`
                   v = `Select all`
             )->a( n = `press`
                   v = client->_event( `ALL` )
-        )->leaf( `Button`
+        )->tag( `Button`
             )->a( n = `text`
                   v = `Clear`
             )->a( n = `press`
                   v = client->_event( `CLEAR` ) ).
 
-    DATA(row) = page->open( `HBox`
+    DATA(row) = page->ele( `HBox`
                     )->a( n = `class`
                           v = `sapUiMediumMargin`
                     )->a( n = `wrap`
                           v = `Wrap` ).
 
-    DATA(map) = row->open( `VBox`
+    DATA(map) = row->ele( `VBox`
                     )->a( n = `width`
                           v = `620px` ).
 
@@ -118,30 +118,30 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
                                       custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                                           iv_first_json_upper = abap_false ) ) ).
 
-    map->leaf( `Text`
+    map->tag( `Text`
            )->a( n = `text`
                  v = client->_bind( info )
            )->a( n = `class`
                  v = `sapUiSmallMarginTop` ).
 
-    row->open( `VBox`
+    row->ele( `VBox`
         )->a( n = `class`
               v = `sapUiMediumMarginBegin`
-        )->open( `List`
+        )->ele( `List`
             )->a( n = `headerText`
                   v = `Rooms`
             )->a( n = `items`
                   v = client->_bind( t_area )
             )->a( n = `width`
                   v = `18rem`
-            )->open( `items`
-                )->leaf( `StandardListItem`
+            )->ele( `items`
+                )->tag( `StandardListItem`
                     )->a( n = `title`
                           v = `{ALT}`
                     )->a( n = `description`
                           v = `{KEY}`
-        )->shut( )->shut(
-        )->open( `List`
+        )->end( )->end(
+        )->ele( `List`
             )->a( n = `headerText`
                   v = `Click log`
             )->a( n = `items`
@@ -152,8 +152,8 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
                   v = `click a room`
             )->a( n = `class`
                   v = `sapUiSmallMarginTop`
-            )->open( `items`
-                )->leaf( `StandardListItem`
+            )->ele( `items`
+                )->tag( `StandardListItem`
                     )->a( n = `title`
                           v = `{TEXT}` ).
 
@@ -172,19 +172,16 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
         info = COND #( WHEN selected IS INITIAL
                        THEN `Nothing selected.`
                        ELSE |Selected: { selected }| ).
-        client->view_model_update( ).
 
       WHEN `ALL`.
         selected = concat_lines_of( table = VALUE string_table(
                                         FOR ls_area IN t_area ( ls_area-key ) )
                                     sep   = `,` ).
         info     = |Selected from ABAP: { selected }|.
-        client->view_model_update( ).
 
       WHEN `CLEAR`.
         CLEAR selected.
         info = `Cleared from ABAP.`.
-        client->view_model_update( ).
 
     ENDCASE.
 

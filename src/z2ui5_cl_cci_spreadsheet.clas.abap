@@ -70,13 +70,13 @@ CLASS z2ui5_cl_cci_spreadsheet DEFINITION
     "! @parameter icon      | button icon
     "! @parameter type      | button type, e.g. Emphasized
     "! @parameter tooltip   | button tooltip
-    "! @parameter enabled   | pass z2ui5_cl_ai_xml=>as_bool( ) for a variable
+    "! @parameter enabled   | `true` / `false` - never abap_true, it serializes as X
     "! @parameter status    | bind two-way to receive `success` / `error: ...`
     "! @parameter exported  | client->_event( ... ) fired after every export
     "! @parameter result    | the unchanged view builder, for chaining
     CLASS-METHODS render
       IMPORTING
-        view          TYPE REF TO z2ui5_cl_ai_xml
+        view          TYPE REF TO z2ui5_cl_ui5_view_builder
         tableid       TYPE string
         columns       TYPE string
         filename      TYPE string OPTIONAL
@@ -89,7 +89,7 @@ CLASS z2ui5_cl_cci_spreadsheet DEFINITION
         status        TYPE string OPTIONAL
         exported      TYPE string OPTIONAL
       RETURNING
-        VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
+        VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -100,7 +100,7 @@ CLASS z2ui5_cl_cci_spreadsheet IMPLEMENTATION.
 
   METHOD render.
 
-    result = z2ui5_cl_cci=>leaf(
+    result = z2ui5_cl_cci=>tag(
         view = view
         name = `ExportSpreadsheet`
         a    = VALUE #( ( |tableId={ tableid }| )

@@ -57,10 +57,10 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->open( n  = `View`
-                             ns = `mvc`
+    DATA(page) = view->ele( n  = `View`
+                            ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
@@ -75,19 +75,19 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
         )->a( n = `height`
               v = `100%`
 
-        )->open( `Page`
+        )->ele( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - Barcode`
             ).
 
-    DATA(box) = page->open( `VBox`
+    DATA(box) = page->ele( `VBox`
                     )->a( n = `class`
                           v = `sapUiMediumMargin` ).
 
-    box->leaf( `Label`
+    box->tag( `Label`
            )->a( n = `text`
                  v = `symbology`
-       )->open( `ComboBox`
+       )->ele( `ComboBox`
            )->a( n = `selectedKey`
                  v = client->_bind( bcid )
            )->a( n = `items`
@@ -96,51 +96,51 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
                  v = `20rem`
            )->a( n = `change`
                  v = client->_event( `TYPE` )
-           )->open( `items`
-               )->leaf( n  = `Item`
-                        ns = `core`
+           )->ele( `items`
+               )->tag( n  = `Item`
+                       ns = `core`
                    )->a( n = `key`
                          v = `{BCID}`
                    )->a( n = `text`
                          v = `{TEXT}` ).
 
-    box->leaf( `Label`
+    box->tag( `Label`
            )->a( n = `text`
                  v = `value`
            )->a( n = `class`
                  v = `sapUiSmallMarginTop`
-       )->leaf( `Input`
+       )->tag( `Input`
            )->a( n = `value`
                  v = client->_bind( text )
            )->a( n = `width`
                  v = `20rem`
 
-       )->leaf( `Label`
+       )->tag( `Label`
            )->a( n = `text`
                  v = `BWIPP options`
            )->a( n = `class`
                  v = `sapUiSmallMarginTop`
-       )->leaf( `Input`
+       )->tag( `Input`
            )->a( n = `value`
                  v = client->_bind( options )
            )->a( n = `width`
                  v = `20rem`
 
-       )->leaf( `Label`
+       )->tag( `Label`
            )->a( n = `text`
                  v = `scale / height`
            )->a( n = `class`
                  v = `sapUiSmallMarginTop` ).
 
-    box->open( `HBox`
-        )->leaf( `StepInput`
+    box->ele( `HBox`
+        )->tag( `StepInput`
             )->a( n = `value`
                   v = client->_bind( scale )
             )->a( n = `min`
                   v = `1`
             )->a( n = `max`
                   v = `9`
-        )->leaf( `StepInput`
+        )->tag( `StepInput`
             )->a( n = `value`
                   v = client->_bind( height )
             )->a( n = `min`
@@ -150,24 +150,24 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
             )->a( n = `class`
                   v = `sapUiTinyMarginBegin` ).
 
-    box->open( `SegmentedButton`
+    box->ele( `SegmentedButton`
         )->a( n = `selectedKey`
               v = client->_bind( renderas )
         )->a( n = `class`
               v = `sapUiSmallMarginTop`
-        )->open( `items`
-            )->leaf( `SegmentedButtonItem`
+        )->ele( `items`
+            )->tag( `SegmentedButtonItem`
                 )->a( n = `key`
                       v = `canvas`
                 )->a( n = `text`
                       v = `canvas`
-            )->leaf( `SegmentedButtonItem`
+            )->tag( `SegmentedButtonItem`
                 )->a( n = `key`
                       v = `svg`
                 )->a( n = `text`
                       v = `svg` ).
 
-    box->leaf( `Button`
+    box->tag( `Button`
            )->a( n = `text`
                  v = `Render`
            )->a( n = `type`
@@ -177,12 +177,12 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
            )->a( n = `class`
                  v = `sapUiSmallMarginTop` ).
 
-    DATA(result) = box->open( `Panel`
+    DATA(result) = box->ele( `Panel`
                        )->a( n = `headerText`
                              v = `Result`
                        )->a( n = `class`
                              v = `sapUiSmallMarginTop`
-                       )->open( `content` ).
+                       )->ele( `content` ).
 
     z2ui5_cl_cci_barcode=>render(
         view     = result
@@ -194,7 +194,7 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
         renderas = client->_bind( renderas )
         error    = client->_event( `ERROR` ) ).
 
-    result->leaf( `Text`
+    result->tag( `Text`
               )->a( n = `text`
                     v = client->_bind( info ) ).
 
@@ -208,15 +208,12 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
 
       WHEN `TYPE`.
         type_apply( ).
-        client->view_model_update( ).
 
       WHEN `RENDER`.
         info = |Rendered { bcid } as { renderas }.|.
-        client->view_model_update( ).
 
       WHEN `ERROR`.
         info = |{ bcid } refused the value - see the message above.|.
-        client->view_model_update( ).
 
     ENDCASE.
 

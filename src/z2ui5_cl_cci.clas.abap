@@ -23,13 +23,17 @@ CLASS z2ui5_cl_cci DEFINITION
     "! UI5 module namespace the prefix resolves to
     CONSTANTS c_ns_uri TYPE string VALUE `z2ui5_cci.cc`.
 
+    "! attribute list - one `key=value` string per attribute, e.g.
+    "! a = VALUE #( ( `text=Hello` ) ( `width=100%` ) ). Split on the first `=`.
+    TYPES ty_t_attr TYPE STANDARD TABLE OF string WITH EMPTY KEY.
+
     "! Declare the library's XML namespace on a view or fragment root.
     "!
     "! Call it once, on the root element, before adding any control of this
     "! library:
     "!
-    "!   DATA(view) = z2ui5_cl_ai_xml=>factory( ).
-    "!   DATA(page) = view->open( n = `View` ns = `mvc`
+    "!   DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    "!   DATA(page) = view->ele( n = `View` ns = `mvc`
     "!       )->a( n = `xmlns`     v = `sap.m`
     "!       )->a( n = `xmlns:mvc` v = `sap.ui.core.mvc` ).
     "!   z2ui5_cl_cci=>xmlns( page ).
@@ -38,9 +42,9 @@ CLASS z2ui5_cl_cci DEFINITION
     "! @parameter result | the unchanged view builder, for chaining
     CLASS-METHODS xmlns
       IMPORTING
-        view          TYPE REF TO z2ui5_cl_ai_xml
+        view          TYPE REF TO z2ui5_cl_ui5_view_builder
       RETURNING
-        VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
+        VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
 
     "! Emit one element of this library, skipping the attributes the caller
     "! left empty.
@@ -52,20 +56,20 @@ CLASS z2ui5_cl_cci DEFINITION
     "! parameters as `key=value` strings and let this method drop the ones
     "! whose value is initial.
     "!
-    "! Mirrors z2ui5_cl_ai_xml=>leaf: the element is added as a child and the
+    "! Mirrors z2ui5_cl_ui5_view_builder=>tag: the element is added as a child and the
     "! cursor stays on the current node, so the caller can keep chaining.
     "!
     "! @parameter view   | the builder positioned at the parent element
     "! @parameter name   | element name, without the namespace prefix
     "! @parameter a      | attributes as `key=value`; empty values are dropped
     "! @parameter result | the unchanged view builder, for chaining
-    CLASS-METHODS leaf
+    CLASS-METHODS tag
       IMPORTING
-        view          TYPE REF TO z2ui5_cl_ai_xml
+        view          TYPE REF TO z2ui5_cl_ui5_view_builder
         name          TYPE string
-        a             TYPE z2ui5_cl_ai_xml=>ty_t_attr OPTIONAL
+        a             TYPE ty_t_attr OPTIONAL
       RETURNING
-        VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
+        VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -81,9 +85,10 @@ CLASS z2ui5_cl_cci IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD leaf.
+  METHOD tag.
 
-    DATA lt_attr TYPE z2ui5_cl_ai_xml=>ty_t_attr.
+    result = view->tag( n  = name
+                        ns = c_ns ).
 
     LOOP AT a INTO DATA(lv_attr).
 
@@ -91,17 +96,17 @@ CLASS z2ui5_cl_cci IMPLEMENTATION.
                            sub = `=` ).
       " no `=` at all is a malformed attribute, `key=` an unset one - both
       " would end up as an empty attribute value in the rendered XML
-      IF lv_off < 0 OR strlen( lv_attr ) <= lv_off + 1.
+      IF lv_off < 1 OR strlen( lv_attr ) <= lv_off + 1.
         CONTINUE.
       ENDIF.
 
-      APPEND lv_attr TO lt_attr.
+      " a( ) lands on the element the chain points at - the tag just added
+      result->a( n = substring( val = lv_attr
+                                len = lv_off )
+                 v = substring( val = lv_attr
+                                off = lv_off + 1 ) ).
 
     ENDLOOP.
-
-    result = view->leaf( n  = name
-                         ns = c_ns
-                         a  = lt_attr ).
 
   ENDMETHOD.
 

@@ -47,12 +47,12 @@ CLASS z2ui5_cl_cci_font_awesome DEFINITION
     "! @parameter result      | the unchanged view builder, for chaining
     CLASS-METHODS render
       IMPORTING
-        view          TYPE REF TO z2ui5_cl_ai_xml
+        view          TYPE REF TO z2ui5_cl_ui5_view_builder
         fonturi       TYPE string OPTIONAL
         collections   TYPE string OPTIONAL
         cssurl        TYPE string OPTIONAL
       RETURNING
-        VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
+        VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -63,7 +63,7 @@ CLASS z2ui5_cl_cci_font_awesome IMPLEMENTATION.
 
   METHOD render.
 
-    result = z2ui5_cl_cci=>leaf(
+    result = z2ui5_cl_cci=>tag(
         view = view
         name = `FontAwesome`
         a    = VALUE #( ( |fontUri={ fonturi }| )

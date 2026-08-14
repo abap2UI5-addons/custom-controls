@@ -6,10 +6,10 @@
 "! bubble, venn and word cloud - in a carousel. Nothing here is JavaScript:
 "! every chart is a ty_chart structure bound to the control.
 "!
-"! <em>Update data</em> changes the structures in ABAP and calls
-"! view_model_update( ); the charts animate to the new values instead of being
-"! rebuilt. Clicking into a chart fires an event back to this class, which the
-"! toast at the bottom of the screen reports.
+"! <em>Update data</em> changes the structures in ABAP; the framework pushes
+"! the changed model on its own and the charts animate to the new values
+"! instead of being rebuilt. Clicking into a chart fires an event back to this
+"! class, which the toast at the bottom of the screen reports.
 "!
 "! The venn and word cloud pages need the matching plugins, which the control
 "! loads because they are listed in `plugins`.
@@ -47,7 +47,7 @@ CLASS z2ui5_cl_cci_sample_04 DEFINITION
     "! one chart, with the bind and the plugin list every page here needs
     METHODS chart
       IMPORTING
-        view    TYPE REF TO z2ui5_cl_ai_xml
+        view    TYPE REF TO z2ui5_cl_ui5_view_builder
         config  TYPE string
         title   TYPE string
         plugins TYPE string OPTIONAL.
@@ -74,10 +74,10 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
 
   METHOD chart.
 
-    DATA(box) = view->open( `VBox`
+    DATA(box) = view->ele( `VBox`
                     )->a( n = `class`
                           v = `sapUiSmallMargin`
-                    )->leaf( `Title`
+                    )->tag( `Title`
                         )->a( n = `text`
                               v = title
                         )->a( n = `level`
@@ -95,10 +95,10 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->open( n  = `View`
-                             ns = `mvc`
+    DATA(page) = view->ele( n  = `View`
+                            ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
@@ -110,24 +110,24 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
         )->a( n = `height`
               v = `100%`
 
-        )->open( `Page`
+        )->ele( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - Chart.js`
             )->a( n = `enableScrolling`
                   v = `false` ).
 
-    page->open( `headerContent`
-        )->leaf( `Button`
+    page->ele( `headerContent`
+        )->tag( `Button`
             )->a( n = `text`
                   v = `Update data`
             )->a( n = `press`
                   v = client->_event( `UPDATE` ) ).
 
-    DATA(carousel) = page->open( `Carousel` ).
+    DATA(carousel) = page->ele( `Carousel` ).
 
     " page 1 - the everyday chart types
-    DATA(first) = carousel->open( `VBox` ).
-    DATA(row1) = first->open( `HBox`
+    DATA(first) = carousel->ele( `VBox` ).
+    DATA(row1) = first->ele( `HBox`
                      )->a( n = `wrap`
                            v = `Wrap` ).
     chart( view   = row1
@@ -156,8 +156,8 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
                                                        iv_first_json_upper = abap_false ) ) ).
 
     " page 2 - the types that need a plugin
-    DATA(second) = carousel->open( `VBox` ).
-    DATA(row2) = second->open( `HBox`
+    DATA(second) = carousel->ele( `VBox` ).
+    DATA(row2) = second->ele( `HBox`
                      )->a( n = `wrap`
                            v = `Wrap` ).
     chart( view   = row2
@@ -191,7 +191,6 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
 
       WHEN `UPDATE`.
         model_update( ).
-        client->view_model_update( ).
 
       WHEN `ELEMENT`.
         client->message_toast_display( `Chart element clicked - the press event ` &&

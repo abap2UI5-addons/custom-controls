@@ -60,7 +60,7 @@ CLASS z2ui5_cl_cci_code_editor DEFINITION
     "! @parameter result      | the unchanged view builder, for chaining
     CLASS-METHODS render
       IMPORTING
-        view          TYPE REF TO z2ui5_cl_ai_xml
+        view          TYPE REF TO z2ui5_cl_ui5_view_builder
         value         TYPE string
         type          TYPE string OPTIONAL
         width         TYPE string OPTIONAL
@@ -70,7 +70,7 @@ CLASS z2ui5_cl_cci_code_editor DEFINITION
         colortheme    TYPE string OPTIONAL
         livechange    TYPE string OPTIONAL
       RETURNING
-        VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
+        VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -81,7 +81,7 @@ CLASS z2ui5_cl_cci_code_editor IMPLEMENTATION.
 
   METHOD render.
 
-    result = z2ui5_cl_cci=>leaf(
+    result = z2ui5_cl_cci=>tag(
         view = view
         name = `CodeEditor`
         a    = VALUE #( ( |value={ value }| )

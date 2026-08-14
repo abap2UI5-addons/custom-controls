@@ -71,10 +71,10 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->open( n  = `View`
-                             ns = `mvc`
+    DATA(page) = view->ele( n  = `View`
+                            ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
@@ -86,12 +86,12 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
         )->a( n = `height`
               v = `100%`
 
-        )->open( `Page`
+        )->ele( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - spreadsheet export`
             ).
 
-    DATA(table) = page->open( `Table`
+    DATA(table) = page->ele( `Table`
                       )->a( n = `id`
                             v = `exportTable`
                       )->a( n = `items`
@@ -104,12 +104,12 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
                             v = `sapUiResponsiveMargin` ).
 
     " the export button lives in the table's own toolbar
-    DATA(toolbar) = table->open( `headerToolbar`
-                        )->open( `OverflowToolbar`
-                            )->leaf( `Title`
+    DATA(toolbar) = table->ele( `headerToolbar`
+                        )->ele( `OverflowToolbar`
+                            )->tag( `Title`
                                 )->a( n = `text`
                                       v = `Stock`
-                            )->leaf( `ToolbarSpacer` ).
+                            )->tag( `ToolbarSpacer` ).
 
     z2ui5_cl_cci_spreadsheet=>render(
         view      = toolbar
@@ -130,62 +130,62 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
     " wants, which pushes the toolbar's Export button off the right edge. Fixed
     " widths keep the table inside the page; the ones that are only detail get
     " demandPopin so a narrow screen folds them under the row.
-    DATA(columns) = table->open( `columns` ).
-    columns->open( `Column`
+    DATA(columns) = table->ele( `columns` ).
+    columns->ele( `Column`
         )->a( n = `width` v = `5rem`
-        )->leaf( `Text` )->a( n = `text` v = `Row` )->shut( ).
-    columns->open( `Column`
+        )->tag( `Text` )->a( n = `text` v = `Row` )->end( ).
+    columns->ele( `Column`
         )->a( n = `width` v = `9rem`
-        )->leaf( `Text` )->a( n = `text` v = `Product` )->shut( ).
-    columns->open( `Column`
+        )->tag( `Text` )->a( n = `text` v = `Product` )->end( ).
+    columns->ele( `Column`
         )->a( n = `width` v = `8rem`
         )->a( n = `minScreenWidth` v = `Tablet`
         )->a( n = `demandPopin` v = `true`
-        )->leaf( `Text` )->a( n = `text` v = `Created` )->shut( ).
-    columns->open( `Column`
+        )->tag( `Text` )->a( n = `text` v = `Created` )->end( ).
+    columns->ele( `Column`
         )->a( n = `width` v = `8rem`
         )->a( n = `minScreenWidth` v = `Tablet`
         )->a( n = `demandPopin` v = `true`
-        )->leaf( `Text` )->a( n = `text` v = `Author` )->shut( ).
-    columns->open( `Column`
+        )->tag( `Text` )->a( n = `text` v = `Author` )->end( ).
+    columns->ele( `Column`
         )->a( n = `minScreenWidth` v = `Desktop`
         )->a( n = `demandPopin` v = `true`
-        )->leaf( `Text` )->a( n = `text` v = `Location` )->shut( ).
-    columns->open( `Column`
+        )->tag( `Text` )->a( n = `text` v = `Location` )->end( ).
+    columns->ele( `Column`
         )->a( n = `width` v = `7rem`
         )->a( n = `hAlign` v = `End`
-        )->leaf( `Text` )->a( n = `text` v = `Quantity` )->shut( ).
-    columns->open( `Column`
+        )->tag( `Text` )->a( n = `text` v = `Quantity` )->end( ).
+    columns->ele( `Column`
         )->a( n = `width` v = `5rem`
         )->a( n = `minScreenWidth` v = `Tablet`
         )->a( n = `demandPopin` v = `true`
-        )->leaf( `Text` )->a( n = `text` v = `Unit` )->shut( ).
-    columns->open( `Column`
+        )->tag( `Text` )->a( n = `text` v = `Unit` )->end( ).
+    columns->ele( `Column`
         )->a( n = `width` v = `8rem`
         )->a( n = `hAlign` v = `End`
-        )->leaf( `Text` )->a( n = `text` v = `Price` )->shut( ).
+        )->tag( `Text` )->a( n = `text` v = `Price` )->end( ).
 
-    table->open( `items`
-        )->open( `ColumnListItem`
-            )->open( `cells`
-                )->leaf( `Text` )->a( n = `text` v = `{ROWID}`
-                )->leaf( `Text` )->a( n = `text` v = `{PRODUCT}`
-                )->leaf( `Text` )->a( n = `text` v = `{CREATED}`
-                )->leaf( `Text` )->a( n = `text` v = `{AUTHOR}`
-                )->leaf( `Text` )->a( n = `text` v = `{LOCATION}`
-                )->leaf( `Text` )->a( n = `text` v = `{QUANTITY}`
-                )->leaf( `Text` )->a( n = `text` v = `{UNIT}`
-                )->leaf( `Text` )->a( n = `text` v = `{PRICE}` ).
+    table->ele( `items`
+        )->ele( `ColumnListItem`
+            )->ele( `cells`
+                )->tag( `Text` )->a( n = `text` v = `{ROWID}`
+                )->tag( `Text` )->a( n = `text` v = `{PRODUCT}`
+                )->tag( `Text` )->a( n = `text` v = `{CREATED}`
+                )->tag( `Text` )->a( n = `text` v = `{AUTHOR}`
+                )->tag( `Text` )->a( n = `text` v = `{LOCATION}`
+                )->tag( `Text` )->a( n = `text` v = `{QUANTITY}`
+                )->tag( `Text` )->a( n = `text` v = `{UNIT}`
+                )->tag( `Text` )->a( n = `text` v = `{PRICE}` ).
 
-    page->open( `List`
+    page->ele( `List`
         )->a( n = `headerText`
               v = `Export log`
         )->a( n = `items`
               v = client->_bind( t_log )
         )->a( n = `class`
               v = `sapUiSmallMargin`
-        )->open( `items`
-            )->leaf( `StandardListItem`
+        )->ele( `items`
+            )->tag( `StandardListItem`
                 )->a( n = `title`
                       v = `{TEXT}` ).
 
@@ -201,7 +201,6 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
         " status already carries what the CONTROL wrote into the model
         INSERT VALUE #( text = |export { lines( t_log ) + 1 }: { status }| )
                INTO TABLE t_log.
-        client->view_model_update( ).
 
     ENDCASE.
 

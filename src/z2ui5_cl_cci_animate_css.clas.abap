@@ -6,7 +6,7 @@
 "! animate.css is pure CSS. Put this element once into a view and every control
 "! after it can be animated through its <em>class</em> attribute:
 "!
-"!   )->leaf( `Title` )->a( n = `text`  v = `hello`
+"!   )->tag( `Title` )->a( n = `text`  v = `hello`
 "!                    )->a( n = `class` v = |{ cs_base } { cs_attention-tada }| )
 "!
 "! Ported from abap2UI5-addons/js-libraries (z2ui5_cl_cc_animatecss), where the
@@ -95,13 +95,13 @@ CLASS z2ui5_cl_cci_animate_css DEFINITION
     "! @parameter result   | the unchanged view builder, for chaining
     CLASS-METHODS render
       IMPORTING
-        view          TYPE REF TO z2ui5_cl_ai_xml
+        view          TYPE REF TO z2ui5_cl_ui5_view_builder
         duration      TYPE string OPTIONAL
         delay         TYPE string OPTIONAL
         repeat        TYPE string OPTIONAL
         cssurl        TYPE string OPTIONAL
       RETURNING
-        VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
+        VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -112,7 +112,7 @@ CLASS z2ui5_cl_cci_animate_css IMPLEMENTATION.
 
   METHOD render.
 
-    result = z2ui5_cl_cci=>leaf(
+    result = z2ui5_cl_cci=>tag(
         view = view
         name = `AnimateCss`
         a    = VALUE #( ( |duration={ duration }| )

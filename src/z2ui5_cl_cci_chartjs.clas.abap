@@ -620,7 +620,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
     "! @parameter result       | the unchanged view builder, for chaining
     CLASS-METHODS render
       IMPORTING
-        view          TYPE REF TO z2ui5_cl_ai_xml
+        view          TYPE REF TO z2ui5_cl_ui5_view_builder
         config        TYPE string
         width         TYPE string OPTIONAL
         height        TYPE string OPTIONAL
@@ -628,7 +628,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         liburl        TYPE string OPTIONAL
         elementpress  TYPE string OPTIONAL
       RETURNING
-        VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
+        VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -639,7 +639,7 @@ CLASS z2ui5_cl_cci_chartjs IMPLEMENTATION.
 
   METHOD render.
 
-    result = z2ui5_cl_cci=>leaf(
+    result = z2ui5_cl_cci=>tag(
         view = view
         name = `ChartJs`
         a    = VALUE #( ( |config={ config }| )
