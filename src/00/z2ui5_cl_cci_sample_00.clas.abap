@@ -60,10 +60,10 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    view->open( n  = `View`
-                ns = `mvc`
+    view->ele( n  = `View`
+               ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
@@ -73,11 +73,11 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
         )->a( n = `height`
               v = `100%`
 
-        )->open( `Page`
+        )->ele( `Page`
             )->a( n = `title`
                   v = `abap2UI5 custom controls`
 
-            )->open( `MessageStrip`
+            )->ele( `MessageStrip`
                 )->a( n = `text`
                       v = `These controls are delivered by the Z2UI5_CCI BSP, ` &&
                           `not by abap2UI5 or its frontend.`
@@ -87,9 +87,9 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
                       v = `true`
                 )->a( n = `class`
                       v = `sapUiSmallMargin`
-            )->shut(
+            )->end(
 
-            )->open( `Table`
+            )->ele( `Table`
                 )->a( n = `items`
                       v = client->_bind( t_controls )
                 " width=auto belongs WITH the margin class: a sap.m.Table is
@@ -112,78 +112,78 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
                 " demandPopin moves a column under the row instead of squeezing
                 " it once the screen is too narrow - on a phone the list keeps
                 " the control name and the button, and folds the rest away.
-                )->open( `columns`
-                    )->open( `Column`
+                )->ele( `columns`
+                    )->ele( `Column`
                         )->a( n = `width`
                               v = `11rem`
-                        )->leaf( `Text`
+                        )->tag( `Text`
                             )->a( n = `text`
                                   v = `Control`
-                    )->shut(
-                    )->open( `Column`
+                    )->end(
+                    )->ele( `Column`
                         )->a( n = `width`
                               v = `18rem`
                         )->a( n = `minScreenWidth`
                               v = `Tablet`
                         )->a( n = `demandPopin`
                               v = `true`
-                        )->leaf( `Text`
+                        )->tag( `Text`
                             )->a( n = `text`
                                   v = `Module`
-                    )->shut(
-                    )->open( `Column`
+                    )->end(
+                    )->ele( `Column`
                         )->a( n = `minScreenWidth`
                               v = `Desktop`
                         )->a( n = `demandPopin`
                               v = `true`
                         )->a( n = `popinDisplay`
                               v = `Inline`
-                        )->leaf( `Text`
+                        )->tag( `Text`
                             )->a( n = `text`
                                   v = `What it does`
-                    )->shut(
+                    )->end(
                     " Which third-party library the control pulls in, because
                     " that is what decides whether it runs on a machine with no
                     " internet access. Controls that need none say so - that is
                     " information, not an empty cell.
-                    )->open( `Column`
+                    )->ele( `Column`
                         )->a( n = `width`
                               v = `13rem`
                         )->a( n = `minScreenWidth`
                               v = `Tablet`
                         )->a( n = `demandPopin`
                               v = `true`
-                        )->leaf( `Text`
+                        )->tag( `Text`
                             )->a( n = `text`
                                   v = `Library`
-                    )->shut(
-                    )->open( `Column`
+                    )->end(
+                    )->ele( `Column`
                         )->a( n = `width`
                               v = `7rem`
                         )->a( n = `hAlign`
                               v = `End`
-                        )->leaf( `Text`
+                        )->tag( `Text`
                             )->a( n = `text`
                                   v = `Demo`
-                    )->shut(
-                )->shut(
+                    )->end(
+                )->end(
 
-                )->open( `items`
-                    )->open( `ColumnListItem`
-                        )->open( `cells`
-                            )->leaf( `Text`
+                )->ele( `items`
+                    )->ele( `ColumnListItem`
+                        )->ele( `cells`
+                            )->tag( `Text`
                                 )->a( n = `text`
                                       v = `{NAME}`
-                            )->leaf( `Text`
+                            )->tag( `Text`
                                 )->a( n = `text`
                                       v = `{MODULE}`
-                            )->leaf( `Text`
+                            )->tag( `Text`
                                 )->a( n = `text`
                                       v = `{DESCRIPTION}`
-                            )->leaf( `Text`
+                            )->tag( `Text`
                                 )->a( n = `text`
                                       v = `{LIBRARY}`
-                            )->leaf( `Button`
+                            )->tag( `Button`
                                 )->a( n = `text`
                                       v = `Open`
                                 )->a( n = `icon`

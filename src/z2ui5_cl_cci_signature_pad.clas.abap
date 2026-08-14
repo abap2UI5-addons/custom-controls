@@ -21,7 +21,7 @@ CLASS z2ui5_cl_cci_signature_pad DEFINITION
 
     "! Emit &lt;z2ui5_cci:SignaturePad/&gt; into an existing view.
     "!
-    "! Mirrors z2ui5_cl_ai_xml=>leaf: the element is added as a child and the
+    "! Mirrors z2ui5_cl_ui5_view_builder=>tag: the element is added as a child and the
     "! cursor stays on the current node, so the caller can keep chaining.
     "!
     "! @parameter view      | the builder positioned at the parent element
@@ -30,12 +30,12 @@ CLASS z2ui5_cl_cci_signature_pad DEFINITION
     "! @parameter height    | CSS size; a bare number is treated as px
     "! @parameter linewidth | stroke width in CSS pixels
     "! @parameter linecolor | stroke colour, any CSS colour
-    "! @parameter editable  | pass z2ui5_cl_ai_xml=>as_bool( ) for a variable
+    "! @parameter editable  | `true` / `false` - never abap_true, it serializes as X
     "! @parameter change    | client->_event( ... ) fired when a stroke ends
     "! @parameter result    | the unchanged view builder, for chaining
     CLASS-METHODS render
       IMPORTING
-        view          TYPE REF TO z2ui5_cl_ai_xml
+        view          TYPE REF TO z2ui5_cl_ui5_view_builder
         value         TYPE string OPTIONAL
         width         TYPE string OPTIONAL
         height        TYPE string OPTIONAL
@@ -44,7 +44,7 @@ CLASS z2ui5_cl_cci_signature_pad DEFINITION
         editable      TYPE string OPTIONAL
         change        TYPE string OPTIONAL
       RETURNING
-        VALUE(result) TYPE REF TO z2ui5_cl_ai_xml.
+        VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -55,8 +55,8 @@ CLASS z2ui5_cl_cci_signature_pad IMPLEMENTATION.
 
   METHOD render.
 
-    result = view->leaf( n  = `SignaturePad`
-                         ns = z2ui5_cl_cci=>c_ns ).
+    result = view->tag( n  = `SignaturePad`
+                        ns = z2ui5_cl_cci=>c_ns ).
 
     " only emit the attributes the caller actually set - an empty attribute
     " would override the control's own defaultValue with an empty string

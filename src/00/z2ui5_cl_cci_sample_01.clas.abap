@@ -59,10 +59,10 @@ CLASS z2ui5_cl_cci_sample_01 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(root) = view->open( n  = `View`
-                             ns = `mvc`
+    DATA(root) = view->ele( n  = `View`
+                            ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
@@ -80,44 +80,44 @@ CLASS z2ui5_cl_cci_sample_01 IMPLEMENTATION.
         )->a( n = `height`
               v = `100%`
 
-        )->open( `Page`
+        )->ele( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - Signature Capture`
 
-            )->open( n  = `SimpleForm`
-                     ns = `form`
+            )->ele( n  = `SimpleForm`
+                    ns = `form`
                 )->a( n = `editable`
                       v = `true`
-                )->open( n  = `content`
-                         ns = `form`
+                )->ele( n  = `content`
+                        ns = `form`
 
-                    )->leaf( n  = `Title`
-                             ns = `core`
+                    )->tag( n  = `Title`
+                            ns = `core`
                         )->a( n = `text`
                               v = `Delivery`
 
-                    )->leaf( `Label`
+                    )->tag( `Label`
                         )->a( n = `text`
                               v = `Delivery note`
-                    )->leaf( `Input`
+                    )->tag( `Input`
                         )->a( n = `value`
                               v = client->_bind( delivery_note )
 
-                    )->leaf( `Label`
+                    )->tag( `Label`
                         )->a( n = `text`
                               v = `Received by`
-                    )->leaf( `Input`
+                    )->tag( `Input`
                         )->a( n = `value`
                               v = client->_bind( recipient )
 
-                )->shut(
-            )->shut(
+                )->end(
+            )->end(
 
-            )->open( `VBox`
+            )->ele( `VBox`
                 )->a( n = `class`
                       v = `sapUiSmallMargin`
 
-                )->leaf( `Label`
+                )->tag( `Label`
                     )->a( n = `text`
                           v = `Signature` ).
 
@@ -127,11 +127,11 @@ CLASS z2ui5_cl_cci_sample_01 IMPLEMENTATION.
                                               height = `200px`
                                               change = client->_event( `SIGNED` ) ).
 
-    box->open( `HBox`
+    box->ele( `HBox`
            )->a( n = `class`
                  v = `sapUiSmallMarginTop`
 
-           )->leaf( `Button`
+           )->tag( `Button`
                )->a( n = `text`
                      v = `Clear`
                )->a( n = `icon`
@@ -139,7 +139,7 @@ CLASS z2ui5_cl_cci_sample_01 IMPLEMENTATION.
                )->a( n = `press`
                      v = client->_event( `CLEAR` )
 
-           )->leaf( `Button`
+           )->tag( `Button`
                )->a( n = `text`
                      v = `Save`
                )->a( n = `type`
@@ -148,27 +148,27 @@ CLASS z2ui5_cl_cci_sample_01 IMPLEMENTATION.
                      v = `sapUiTinyMarginBegin`
                )->a( n = `press`
                      v = client->_event( `SAVE` )
-       )->shut(
+       )->end(
 
        " Proof that the drawing really arrived in ABAP: the very same string
        " is bound back into an Image.
-       )->open( `Panel`
+       )->ele( `Panel`
            )->a( n = `headerText`
                  v = `Stored signature`
            )->a( n = `class`
                  v = `sapUiSmallMarginTop`
            )->a( n = `visible`
-                 v = z2ui5_cl_ai_xml=>as_bool( has_signature )
+                 b = has_signature
 
-           )->open( `content`
-               )->leaf( `Image`
+           )->ele( `content`
+               )->tag( `Image`
                    )->a( n = `src`
                          v = client->_bind( signature )
                    )->a( n = `alt`
                          v = `Captured signature`
                    )->a( n = `height`
                          v = `120px`
-               )->leaf( `Text`
+               )->tag( `Text`
                    )->a( n = `text`
                          v = client->_bind( signed_info ) ).
 
@@ -184,14 +184,12 @@ CLASS z2ui5_cl_cci_sample_01 IMPLEMENTATION.
         " `signature` already carries the base64 PNG here - bound data is
         " written back into the attribute before the event handler runs.
         refresh_signature_state( ).
-        client->view_model_update( ).
 
       WHEN `CLEAR`.
         " Clearing is backend-driven: emptying the bound attribute blanks the
         " pad on the next roundtrip, no frontend call needed.
         signature = ``.
         refresh_signature_state( ).
-        client->view_model_update( ).
 
       WHEN `SAVE`.
         on_save( ).

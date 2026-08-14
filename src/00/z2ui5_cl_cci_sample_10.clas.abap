@@ -6,7 +6,7 @@
 "! library side by side. Both are bound to the SAME ABAP attribute, so the
 "! preview follows every keystroke without a roundtrip: the Markdown control
 "! re-renders from the model the CodeEditor writes into. That is the whole
-"! integration - no live-change event, no view_model_update( ).
+"! integration - no live-change event, no backend call.
 "!
 "! The examples cover what Markdown is normally reached for here: a document
 "! with headings and a table, a code block, in-app links, and the raw-HTML case
@@ -90,10 +90,10 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(root) = view->open( n  = `View`
-                             ns = `mvc`
+    DATA(root) = view->ele( n  = `View`
+                            ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
@@ -106,45 +106,45 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
     " the whole integration on the view side - one namespace declaration
     z2ui5_cl_cci=>xmlns( root ).
 
-    DATA(page) = root->open( `Page`
+    DATA(page) = root->ele( `Page`
         )->a( n = `title`
               v = `abap2UI5 - Markdown` ).
 
-    page->open( `Toolbar`
+    page->ele( `Toolbar`
         )->a( n = `class`
               v = `sapUiSmallMarginBegin sapUiSmallMarginEnd`
 
-        )->leaf( `Button`
+        )->tag( `Button`
             )->a( n = `text`
                   v = `Document`
             )->a( n = `press`
                   v = client->_event( `DOC` )
-        )->leaf( `Button`
+        )->tag( `Button`
             )->a( n = `text`
                   v = `Code & links`
             )->a( n = `press`
                   v = client->_event( `CODE` )
-        )->leaf( `Button`
+        )->tag( `Button`
             )->a( n = `text`
                   v = `Raw HTML`
             )->a( n = `press`
                   v = client->_event( `HTML` )
 
-        )->leaf( `ToolbarSpacer`
+        )->tag( `ToolbarSpacer`
 
         " Bound to an abap_bool, which arrives in the model as a real JSON
         " boolean - the control's `sanitize` property is boolean-typed and
         " UI5 rejects anything else.
-        )->leaf( `CheckBox`
+        )->tag( `CheckBox`
             )->a( n = `text`
                   v = `Sanitize`
             )->a( n = `selected`
                   v = client->_bind( sanitize )
-    )->shut( ).
+    )->end( ).
 
     " Directly under the toolbar, because this is what the buttons speak
     " through - below a 40rem editor nobody sees the hint change.
-    page->leaf( `MessageStrip`
+    page->tag( `MessageStrip`
         )->a( n = `text`
               v = client->_bind( info )
         )->a( n = `showIcon`
@@ -153,7 +153,7 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
               v = `sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiSmallMarginTop` ).
 
     " Editor and preview side by side, and stacked on a phone.
-    DATA(grid) = page->open( `FlexBox`
+    DATA(grid) = page->ele( `FlexBox`
         )->a( n = `wrap`
               v = `Wrap`
         )->a( n = `class`
@@ -161,13 +161,13 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
         )->a( n = `alignItems`
               v = `Stretch` ).
 
-    DATA(left) = grid->open( `VBox`
+    DATA(left) = grid->ele( `VBox`
         )->a( n = `class`
               v = `sapUiTinyMarginEnd`
         )->a( n = `width`
               v = `44rem`
 
-        )->leaf( `Label`
+        )->tag( `Label`
             )->a( n = `text`
                   v = `Markdown source` ).
 
@@ -180,20 +180,20 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
                                       type   = z2ui5_cl_cci_code_editor=>cs_type-markdown
                                       height = `40rem` ).
 
-    left->shut( ).
+    left->end( ).
 
-    DATA(right) = grid->open( `VBox`
+    DATA(right) = grid->ele( `VBox`
         )->a( n = `width`
               v = `48rem`
 
-        )->leaf( `Label`
+        )->tag( `Label`
             )->a( n = `text`
                   v = `Rendered` ).
 
-    right = right->open( `Panel`
+    right = right->ele( `Panel`
         )->a( n = `height`
               v = `100%`
-        )->open( `content` ).
+        )->ele( `content` ).
 
     z2ui5_cl_cci_markdown=>render(
         view      = right
@@ -203,9 +203,9 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
         linkpress = client->_event( val   = `LINK`
                                     t_arg = VALUE #( ( `${$parameters>/href}` ) ) ) ).
 
-    right->shut( )->shut( )->shut( ).
+    right->end( )->end( )->end( ).
 
-    grid->shut( ).
+    grid->end( ).
 
     client->view_display( view->stringify( ) ).
 
@@ -218,23 +218,19 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
       WHEN `DOC`.
         source = get_doc( ).
         info   = `Headings, a table, a list and a quote.`.
-        client->view_model_update( ).
 
       WHEN `CODE`.
         source = get_code( ).
         info   = `The two links below are in-app links - click one.`.
-        client->view_model_update( ).
 
       WHEN `HTML`.
         source = get_html( ).
         info   = `Toggle Sanitize and watch the raw HTML appear and vanish.`.
-        client->view_model_update( ).
 
       WHEN `LINK`.
         " A `#...` link does not navigate - the control hands the href over
         " instead, which is how a help text links into the app it documents.
         info = |Link pressed: { client->get_event_arg( 1 ) }|.
-        client->view_model_update( ).
 
     ENDCASE.
 

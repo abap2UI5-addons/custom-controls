@@ -36,16 +36,16 @@ Every control has a builder class with one `render( )` method. Declare the
 namespace once per view, then add controls like any other:
 
 ```abap
-DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-DATA(root) = view->open( n  = `View`
-                         ns = `mvc`
+DATA(root) = view->ele( n  = `View`
+                        ns = `mvc`
     )->a( n = `xmlns`     v = `sap.m`
     )->a( n = `xmlns:mvc` v = `sap.ui.core.mvc` ).
 
 z2ui5_cl_cci=>xmlns( root ).             " declares xmlns:z2ui5_cci - once per view
 
-DATA(page) = root->open( `Page`
+DATA(page) = root->ele( `Page`
     )->a( n = `title` v = `Signature` ).
 
 z2ui5_cl_cci_signature_pad=>render(
@@ -121,8 +121,8 @@ Rule fields: `field`, `type` (`number`/`integer`), `format` (`email`/`date`),
 event `elementpress`.
 
 `config` is the Chart.js configuration verbatim, so anything the Chart.js docs
-describe works from ABAP. Change the structure and call `view_model_update( )` to
-update in place. `plugins` takes the names from
+describe works from ABAP. Change the structure and the chart updates in
+place — the framework pushes the changed model on its own. `plugins` takes the names from
 `z2ui5_cl_cci_chartjs=>cs_plugin` (`datalabels`, `autocolors`, `deferred`,
 `annotation`, `venn`, `wordcloud`).
 

@@ -58,10 +58,10 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ai_xml=>factory( ).
+    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->open( n  = `View`
-                             ns = `mvc`
+    DATA(page) = view->ele( n  = `View`
+                            ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
         )->a( n = `xmlns:mvc`
@@ -73,7 +73,7 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
         )->a( n = `height`
               v = `100%`
 
-        )->open( `Page`
+        )->ele( `Page`
             )->a( n = `title`
                   v = `abap2UI5 - Validator`
             ).
@@ -88,14 +88,14 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
         rules     = client->_bind( val           = t_rule
                                    custom_filter = NEW z2ui5_cl_cci_json_filter( ) ) ).
 
-    DATA(box) = page->open( `VBox`
+    DATA(box) = page->ele( `VBox`
                     )->a( n = `class`
                           v = `sapUiMediumMargin` ).
 
-    box->leaf( `Label`
+    box->tag( `Label`
            )->a( n = `text`
                  v = `e-mail (required, must look like an address)`
-       )->leaf( `Input`
+       )->tag( `Input`
            )->a( n = `id`
                  v = `email`
            )->a( n = `value`
@@ -103,12 +103,12 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
            )->a( n = `width`
                  v = `24rem`
 
-       )->leaf( `Label`
+       )->tag( `Label`
            )->a( n = `text`
                  v = `quantity (whole number, 1 to 999)`
            )->a( n = `class`
                  v = `sapUiSmallMarginTop`
-       )->leaf( `Input`
+       )->tag( `Input`
            )->a( n = `id`
                  v = `quantity`
            )->a( n = `value`
@@ -116,12 +116,12 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
            )->a( n = `width`
                  v = `24rem`
 
-       )->leaf( `Label`
+       )->tag( `Label`
            )->a( n = `text`
                  v = `zip code (5 digits, optional)`
            )->a( n = `class`
                  v = `sapUiSmallMarginTop`
-       )->leaf( `Input`
+       )->tag( `Input`
            )->a( n = `id`
                  v = `zipcode`
            )->a( n = `value`
@@ -129,12 +129,12 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
            )->a( n = `width`
                  v = `24rem`
 
-       )->leaf( `Label`
+       )->tag( `Label`
            )->a( n = `text`
                  v = `comment (at most 40 characters)`
            )->a( n = `class`
                  v = `sapUiSmallMarginTop`
-       )->leaf( `TextArea`
+       )->tag( `TextArea`
            )->a( n = `id`
                  v = `comment`
            )->a( n = `value`
@@ -142,7 +142,7 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
            )->a( n = `width`
                  v = `24rem`
 
-       )->leaf( `Button`
+       )->tag( `Button`
            )->a( n = `text`
                  v = `Submit`
            )->a( n = `type`
@@ -152,22 +152,22 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
            )->a( n = `class`
                  v = `sapUiSmallMarginTop` ).
 
-    box->open( `Panel`
+    box->ele( `Panel`
         )->a( n = `headerText`
               v = `What ABAP got back`
         )->a( n = `class`
               v = `sapUiSmallMarginTop`
-        )->open( `content`
-            )->leaf( `Text`
+        )->ele( `content`
+            )->tag( `Text`
                 )->a( n = `text`
                       v = client->_bind( info )
-            )->open( `List`
+            )->ele( `List`
                 )->a( n = `items`
                       v = client->_bind( t_error )
                 )->a( n = `noDataText`
                       v = `no errors`
-                )->open( `items`
-                    )->leaf( `StandardListItem`
+                )->ele( `items`
+                    )->tag( `StandardListItem`
                         )->a( n = `title`
                               v = `{FIELD}`
                         )->a( n = `description`
@@ -186,7 +186,6 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
         " this response travels back, and reports on the next roundtrip
         trigger = trigger + 1.
         info    = |Check { trigger } running...|.
-        client->view_model_update( ).
 
       WHEN `VALIDATED`.
         " valid and t_error already carry what the CONTROL wrote into the model
@@ -195,7 +194,6 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
         ELSE.
           info = |Check { trigger }: rejected, { lines( t_error ) } field(s) to correct.|.
         ENDIF.
-        client->view_model_update( ).
 
     ENDCASE.
 
