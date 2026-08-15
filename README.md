@@ -302,7 +302,7 @@ an XHR, a `fetch` or a script tag of its own.
 **UI5 itself is a separate question and lives outside this repository.**
 abap2UI5 bootstraps from `https://sdk.openui5.org/...` unless told otherwise,
 so an offline system also has to point `cs_config-src` at a local
-distribution — see `z2ui5_cl_exit` in the framework. That is what serves
+distribution — see `z2ui5_cl_ui5_user_exit` in the framework. That is what serves
 `sap.ui.export` and `sap.ui.codeeditor` too.
 
 Two consequences worth knowing before installing it:
