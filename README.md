@@ -1,10 +1,12 @@
-[![abap version](https://img.shields.io/badge/abap%20version-standard%20%28%E2%89%A5%207.50%29-blue)](#install)
+[![ABAP](https://img.shields.io/badge/ABAP-Standard%20(%E2%89%A5%207.50)-blue)](#install)
 [![namespace](https://img.shields.io/badge/namespace-z2ui5__cl__cci-blue)](abaplint.jsonc)
-[![bsp](https://img.shields.io/badge/bsp-Z2UI5_CCI-blue)](#install)
 [![dependency](https://img.shields.io/badge/dependency-abap2UI5-blue)](https://github.com/abap2UI5/abap2UI5)
-<br>
-<br>
+[![abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fmain%2F.github%2Fbadges%2Fabap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
+<br><br>
+[![check-abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fmain%2F.github%2Fbadges%2Fcheck-abap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
 [![check](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml/badge.svg)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
+<br>
+[![publish-local](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/publish-local.yml/badge.svg)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/publish-local.yml)
 
 # abap2UI5 custom controls
 

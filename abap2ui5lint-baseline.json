@@ -1,0 +1,14 @@
+{
+  "note": "abap2ui5-linter baseline: findings that existed when the linter was adopted. Suppressed on every run; NEW findings still fail, a STALE entry fails too. Regenerate with --update-baseline.",
+  "findings": {
+    "src/00/z2ui5_cl_cci_sample_02.clas.abap|non-released-api||src/00/01|z2ui5_cl_ajson_mapping": 1,
+    "src/00/z2ui5_cl_cci_sample_04.clas.abap|non-released-api||src/00/01|z2ui5_cl_ajson_mapping": 1,
+    "src/00/z2ui5_cl_cci_sample_05.clas.abap|binding-type-mismatch|sap.m.StepInput|value|/HEIGHT": 1,
+    "src/00/z2ui5_cl_cci_sample_05.clas.abap|binding-type-mismatch|sap.m.StepInput|value|/SCALE": 1,
+    "src/00/z2ui5_cl_cci_sample_05.clas.abap|relative-binding-without-context|sap.ui.core.Item|key|BCID": 1,
+    "src/00/z2ui5_cl_cci_sample_05.clas.abap|relative-binding-without-context|sap.ui.core.Item|text|TEXT": 1,
+    "src/00/z2ui5_cl_cci_sample_06.clas.abap|non-released-api||src/00/01|z2ui5_cl_ajson_mapping": 1,
+    "src/00/z2ui5_cl_cci_sample_08.clas.abap|chain-element-per-line|||": 1,
+    "src/00/z2ui5_cl_cci_sample_09.clas.abap|non-released-api||src/00/01|z2ui5_cl_ajson_mapping": 1
+  }
+}

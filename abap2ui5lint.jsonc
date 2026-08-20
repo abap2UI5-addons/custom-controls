@@ -1,0 +1,25 @@
+{
+  // abap2UI5-linter - the ABAP class and the view it builds, checked together.
+  // https://github.com/abap2UI5/linter
+  "$schema": "./node_modules/@abap2ui5/linter/data/abap2ui5lint.schema.json",
+
+  "paths": ["src"],
+  "ui5": "1.71",
+  "distribution": "sapui5",
+
+  // OFF on purpose, and this is the one repository where that is the right
+  // call: the render gate loads every control from the UI5 distribution, and
+  // the controls this repository exists to ship (z2ui5_cci.cc.SignaturePad and
+  // the rest) are not in it - a custom control is invisible to UI5 metadata by
+  // definition. The property gate below still reads every view.
+  "render": false,
+
+  "baseline": "abap2ui5lint-baseline.json",
+
+  "badge": [
+    { "kind": "corpus", "file": ".github/badges/abap2ui5.json" },
+    { "kind": "checks", "file": ".github/badges/check-abap2ui5.json" }
+  ],
+
+  "failOn": "warning"
+}
