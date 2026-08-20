@@ -4,33 +4,35 @@
 // package.json, so the URL a system loads and the version this repository was
 // tested against are the same by construction.
 //
-// CDN build: every library is fetched from jsDelivr on first use, once per
-// URL. To run without internet access, either override the liburl/cssurl
-// property of the control from ABAP, or install the `local` branch of this
-// repository, which ships the libraries inside the BSP.
+// Local build: every library is vendored into this BSP under lib/, so a
+// browser without internet access can still render every control. The paths
+// are resolved through sap.ui.require.toUrl, which knows where the BSP is
+// whether the app runs standalone, from a BSP or inside the Launchpad.
 sap.ui.define([], () => {
   "use strict";
 
+  const lib = (file) => sap.ui.require.toUrl("z2ui5_cci/lib/" + file);
+
   return {
-    build: "cdn",
-    chartJs: "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js",
-    chartJsDatalabels: "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.js",
-    chartJsAutocolors: "https://cdn.jsdelivr.net/npm/chartjs-plugin-autocolors@0.3.1/dist/chartjs-plugin-autocolors.min.js",
-    chartJsDeferred: "https://cdn.jsdelivr.net/npm/chartjs-plugin-deferred@2.0.0/dist/chartjs-plugin-deferred.min.js",
-    chartJsAnnotation: "https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js",
-    chartJsVenn: "https://cdn.jsdelivr.net/npm/chartjs-chart-venn@4.3.7/build/index.umd.min.js",
-    chartJsWordcloud: "https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud@4.3.2/build/index.umd.min.js",
-    bwipJs: "https://cdn.jsdelivr.net/npm/bwip-js@4.1.1/dist/bwip-js-min.js",
-    driverJs: "https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js",
-    driverJsCss: "https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css",
-    animateCss: "https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css",
-    marked: "https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js",
-    domPurify: "https://cdn.jsdelivr.net/npm/dompurify@3.4.13/dist/purify.min.js",
-    fontAwesomeCss: "https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css",
+    build: "local",
+    chartJs: lib("chart.umd.js"),
+    chartJsDatalabels: lib("chartjs_plugin_datalabels.js"),
+    chartJsAutocolors: lib("chartjs_plugin_autocolors.js"),
+    chartJsDeferred: lib("chartjs_plugin_deferred.js"),
+    chartJsAnnotation: lib("chartjs_plugin_annotation.js"),
+    chartJsVenn: lib("chartjs_chart_venn.js"),
+    chartJsWordcloud: lib("chartjs_chart_wordcloud.js"),
+    bwipJs: lib("bwip_js.js"),
+    driverJs: lib("driver.js"),
+    driverJsCss: lib("driver.css"),
+    animateCss: lib("animate.css"),
+    marked: lib("marked.js"),
+    domPurify: lib("purify.js"),
+    fontAwesomeCss: lib("fontawesome.css"),
 
     // Directory holding <family>.woff2 and the metadata JSON the UI5
     // IconPool needs. Empty switches the IconPool registration off - see
     // the fontAwesome comment in tools/libs.json.
-    fontAwesomeFontUri: "https://cdn.jsdelivr.net/gh/choper725/resources/dist/",
+    fontAwesomeFontUri: "",
   };
 });
