@@ -200,8 +200,8 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
         value     = client->_bind( source )
         sanitize  = client->_bind( sanitize )
         height    = `40rem`
-        linkpress = client->_event( val   = `LINK`
-                                    t_arg = VALUE #( ( `${$parameters>/href}` ) ) ) ).
+        linkpress = client->_event( val = `LINK`
+                                    arg = `${$parameters>/href}` ) ).
 
     right->end( )->end( )->end( ).
 
@@ -230,7 +230,7 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
       WHEN `LINK`.
         " A `#...` link does not navigate - the control hands the href over
         " instead, which is how a help text links into the app it documents.
-        info = |Link pressed: { client->get_event_arg( 1 ) }|.
+        info = |Link pressed: { client->get_event_arg( ) }|.
 
     ENDCASE.
 

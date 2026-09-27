@@ -12,7 +12,9 @@
 "! chart type. So the initial values are filtered out and the library's own
 "! defaults survive.
 "!
-"! Use it on the bind of such a property:
+"! Prefer _bind( omit_initial = abap_true ) in new code: custom_filter is
+"! obsolete on _bind( ), and omit_initial does the same while keeping the
+"! entries of an array. This class stays for apps that already use it:
 "!
 "!   client->_bind( val           = ms_config
 "!                  custom_filter = NEW z2ui5_cl_cci_json_filter( )

@@ -122,7 +122,7 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
         exported  = client->_event( `EXPORTED` )
         columns   = client->_bind(
                         val           = t_column
-                        custom_filter = NEW z2ui5_cl_cci_json_filter( )
+                        omit_initial  = abap_true
                         custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                             iv_first_json_upper = abap_false ) ) ).
 

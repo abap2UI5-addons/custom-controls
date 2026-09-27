@@ -133,25 +133,25 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
     chart( view   = row1
            title  = `bar`
            config = client->_bind( val           = s_bar
-                                   custom_filter = NEW z2ui5_cl_cci_json_filter( )
+                                   omit_initial  = abap_true
                                    custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                                        iv_first_json_upper = abap_false ) ) ).
     chart( view   = row1
            title  = `line`
            config = client->_bind( val           = s_line
-                                   custom_filter = NEW z2ui5_cl_cci_json_filter( )
+                                   omit_initial  = abap_true
                                    custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                                        iv_first_json_upper = abap_false ) ) ).
     chart( view   = row1
            title  = `pie`
            config = client->_bind( val           = s_pie
-                                   custom_filter = NEW z2ui5_cl_cci_json_filter( )
+                                   omit_initial  = abap_true
                                    custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                                        iv_first_json_upper = abap_false ) ) ).
     chart( view   = row1
            title  = `doughnut`
            config = client->_bind( val           = s_doughnut
-                                   custom_filter = NEW z2ui5_cl_cci_json_filter( )
+                                   omit_initial  = abap_true
                                    custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                                        iv_first_json_upper = abap_false ) ) ).
 
@@ -163,21 +163,21 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
     chart( view   = row2
            title  = `bubble`
            config = client->_bind( val           = s_bubble
-                                   custom_filter = NEW z2ui5_cl_cci_json_filter( )
+                                   omit_initial  = abap_true
                                    custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                                        iv_first_json_upper = abap_false ) ) ).
     chart( view    = row2
            title   = `venn (plugin)`
            plugins = z2ui5_cl_cci_chartjs=>cs_plugin-venn
            config  = client->_bind( val           = s_venn
-                                    custom_filter = NEW z2ui5_cl_cci_json_filter( )
+                                    omit_initial  = abap_true
                                     custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                                         iv_first_json_upper = abap_false ) ) ).
     chart( view    = row2
            title   = `word cloud (plugin)`
            plugins = z2ui5_cl_cci_chartjs=>cs_plugin-wordcloud
            config  = client->_bind( val           = s_wordcloud
-                                    custom_filter = NEW z2ui5_cl_cci_json_filter( )
+                                    omit_initial  = abap_true
                                     custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                                         iv_first_json_upper = abap_false ) ) ).
 

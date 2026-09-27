@@ -134,12 +134,12 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
           )->ele( `cells`
               )->tag( `Title`
                   )->a( n = `text`
-                        v = ls_row-name
+                        t = ls_row-name
                   )->a( n = `class`
-                        v = |{ z2ui5_cl_cci_animate_css=>cs_base } { ls_row-class }|
+                        t = |{ z2ui5_cl_cci_animate_css=>cs_base } { ls_row-class }|
               )->tag( `Text`
                   )->a( n = `text`
-                        v = ls_row-class ).
+                        t = ls_row-class ).
     ENDLOOP.
 
     client->view_display( view->stringify( ) ).

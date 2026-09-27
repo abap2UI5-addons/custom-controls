@@ -190,8 +190,8 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
                                       v = `sap-icon://play`
                                 )->a( n = `press`
                                       v = client->_event(
-                                              val   = `LAUNCH`
-                                              t_arg = VALUE #( ( `${APP}` ) ) ) ).
+                                              val = `LAUNCH`
+                                              arg = `${APP}` ) ).
 
     client->view_display( view->stringify( ) ).
 
@@ -209,7 +209,7 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
   METHOD on_launch.
 
     " the demo class name is resolved on the client from the pressed row
-    DATA(lv_class) = to_upper( client->get_event_arg( 1 ) ).
+    DATA(lv_class) = to_upper( client->get_event_arg( ) ).
     IF lv_class IS INITIAL.
       RETURN.
     ENDIF.

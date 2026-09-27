@@ -199,7 +199,7 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
         " switching the collection brings an icon that exists in it
         TRY.
             icon = t_collection[ key = collection ]-icon.
-          CATCH cx_sy_itab_line_not_found.
+          CATCH cx_sy_itab_line_not_found ##NO_HANDLER.
         ENDTRY.
         model_refresh( ).
 
