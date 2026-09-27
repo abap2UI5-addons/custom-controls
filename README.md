@@ -226,21 +226,27 @@ into the app it documents. Every other link opens in a new tab.
 
 Five controls take a whole configuration as one property (Chart.js config,
 driver.js steps, ImageMapster options, workbook columns, validation rules). Bind
-those with this library's JSON filter — and with the camelCase mapper where the
+those with `omit_initial = abap_true` — and with the camelCase mapper where the
 target library expects camelCase names:
 
 ```abap
 config = client->_bind(
     val           = ms_chart
-    custom_filter = NEW z2ui5_cl_cci_json_filter( )
+    omit_initial  = abap_true
     custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                         iv_first_json_upper = abap_false ) )
 ```
 
 ABAP has no "unset" for a structure component: fields you never touched still
-serialize as `""`, `0` or `false`, and `borderWidth: 0` draws no border. The
-filter drops initial values so the library's own defaults survive. The flip side:
-a value that *is* meaningfully zero, empty or false cannot be sent this way.
+serialize as `""`, `0` or `false`, and `borderWidth: 0` draws no border.
+`omit_initial` drops initial fields so the library's own defaults survive, while
+the entries of an array - a `0` in a dataset, a row of a table - are kept. The
+flip side: a field that *is* meaningfully zero, empty or false cannot be sent
+this way; `omit_initial_paths` limits the omission to the fields it lists.
+
+`z2ui5_cl_cci_json_filter`, which the samples used before, still works, but
+`custom_filter` is obsolete on `_bind( )` and the abap2UI5-linter reports it
+(`obsolete-bind-argument`).
 
 
 

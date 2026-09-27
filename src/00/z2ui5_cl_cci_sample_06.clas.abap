@@ -85,11 +85,11 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
         highlighted = client->_event( `STEP` )
         done        = client->_event( `DONE` )
         config      = client->_bind( val           = s_tour
-                                     custom_filter = NEW z2ui5_cl_cci_json_filter( )
+                                     omit_initial  = abap_true
                                      custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                                          iv_first_json_upper = abap_false ) )
         highlight   = client->_bind( val           = s_highlight
-                                     custom_filter = NEW z2ui5_cl_cci_json_filter( )
+                                     omit_initial  = abap_true
                                      custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
                                                          iv_first_json_upper = abap_false ) ) ).
 

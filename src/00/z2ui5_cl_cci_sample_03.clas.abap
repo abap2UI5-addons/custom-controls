@@ -86,7 +86,7 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
         errors    = client->_bind( t_error )
         validated = client->_event( `VALIDATED` )
         rules     = client->_bind( val           = t_rule
-                                   custom_filter = NEW z2ui5_cl_cci_json_filter( ) ) ).
+                                   omit_initial  = abap_true ) ).
 
     DATA(box) = page->ele( `VBox`
                     )->a( n = `class`
