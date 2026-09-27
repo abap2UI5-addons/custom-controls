@@ -28,7 +28,7 @@
     "node": ">=22"
   },
   "devDependencies": {
-    "@abap2ui5/linter": "^0.8.1",
+    "@abap2ui5/linter": "^0.8.2",
     "@abaplint/cli": "^2.120.60",
     "@fortawesome/fontawesome-free": "6.7.2",
     "acorn": "^8.18.0",
