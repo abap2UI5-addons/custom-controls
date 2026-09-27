@@ -25,6 +25,9 @@ jobs:
   check-abap2ui5:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # the only job here that writes: its last step publishes the badges
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -33,6 +36,43 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npx abap2ui5lint
+
+      # The gate above rewrote .github/badges/ (abap2ui5lint.jsonc "badge"),
+      # and this step publishes those two files to the `badges` branch - an
+      # orphan branch that holds nothing else and is what the README badges
+      # read. They used to be committed by hand with each change, and a change
+      # that left them out kept the README on a stale count. Only on main and
+      # only after a green gate: a pull request run publishes nothing, the run
+      # on main after the merge does. A failed push (a ruleset on the branch)
+      # is a warning: the README then keeps showing the previous state rather
+      # than a wrong one.
+      - name: Publish the badges
+        if: success() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: |
+          ls .github/badges/*.json >/dev/null 2>&1 || { echo "::warning::The gate wrote no badge files - nothing to publish."; exit 0; }
+          dir="$RUNNER_TEMP/badges"
+          if git ls-remote --exit-code --heads origin badges >/dev/null; then
+            git fetch -q --depth=1 origin badges
+            git worktree add -q "$dir" FETCH_HEAD
+            git -C "$dir" checkout -q -B badges
+          else
+            git worktree add -q --detach "$dir"
+            git -C "$dir" switch -q --orphan badges
+          fi
+          cp .github/badges/*.json "$dir/"
+          cd "$dir"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "The badges branch is up to date."
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' -c user.email='github-actions[bot]@users.noreply.github.com' \
+            commit -qm "Badges for ${GITHUB_SHA::7}"
+          if git push -q origin badges; then
+            echo "Badges published to the badges branch."
+          else
+            echo "::warning::The badges could not be pushed to the badges branch - the README keeps showing the previous state."
+          fi
 
   abaplint:
     runs-on: ubuntu-latest
