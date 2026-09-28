@@ -10,10 +10,11 @@
 
 # abap2UI5 custom controls
 
-Eleven ready-to-use custom controls for
+Twelve ready-to-use custom controls for
 [abap2UI5](https://github.com/abap2UI5/abap2UI5) — signature pad, charts,
-barcodes, Excel export, form validation, product tours, Font Awesome, animations,
-clickable image maps, Markdown and a code editor.
+barcodes, a scanner that reads several barcodes at once, Excel export, form
+validation, product tours, Font Awesome, animations, clickable image maps,
+Markdown and a code editor.
 
 They ship in their **own BSP** (`Z2UI5_CCI`), not inside the framework. Install this
 repository and the controls are there; nothing in abap2UI5 or in the frontend BSP
@@ -77,6 +78,7 @@ and events arrive in `on_event` like for any built-in control.
 | ImageMapster | clickable, highlighting regions on an image | `z2ui5_cl_cci_imagemapster` | `..._sample_09` |
 | Markdown | Markdown from ABAP as HTML, with [marked](https://marked.js.org) | `z2ui5_cl_cci_markdown` | `..._sample_10` |
 | CodeEditor | UI5's own `sap.ui.codeeditor`, reachable from a view | `z2ui5_cl_cci_code_editor` | inside `..._sample_10` |
+| BarcodeScanner | every barcode in the camera picture at once → an ABAP table, with [zxing-wasm](https://github.com/Sec-ant/zxing-wasm) | `z2ui5_cl_cci_barcode_scanner` | `..._sample_11` |
 
 Sample classes are `z2ui5_cl_cci_sample_NN` — start any of them directly with
 `?app_start=…`, or browse them from `z2ui5_cl_cci_sample_00`, which lists one
@@ -141,6 +143,64 @@ values that encode cleanly. Leave `height` empty for 2D codes — a fixed height
 squashes a QR code.
 
 <img width="1250" height="626" alt="image" src="https://github.com/user-attachments/assets/5dbed958-a00d-4b4d-9bc1-e36007e51e7c" />
+
+### BarcodeScanner
+
+`codes` (a `ty_t_code` table, bind two-way), `formats`, `expected`, `text`,
+`icon`, `type`, `enabled`, `title`, `facingmode`, `deviceid`, `liburl`,
+`wasmurl` · events `scanned`, `error` (with `message`).
+
+A button that opens the camera. Every frame is read with
+[zxing-wasm](https://github.com/Sec-ant/zxing-wasm) — ZXing-C++ compiled to
+WebAssembly, the engine SAPUI5's own `sap.ndc` scanner runs too — so **all**
+codes in the picture are found at once, outlined live and collected. A label
+carrying material, batch and quantity as three codes is taken in one scan
+instead of three. `sap.ndc.BarcodeScannerButton` returns one code per scan
+(and needs SAPUI5); even its `multiScan` mode returns just the code the user
+taps.
+
+```abap
+z2ui5_cl_cci_barcode_scanner=>render(
+    view     = page
+    codes    = client->_bind( t_code )    " TYPE z2ui5_cl_cci_barcode_scanner=>ty_t_code
+    formats  = `EAN13,Code128,DataMatrix` " optional - empty reads every format
+    expected = `3`                        " optional - complete at 3 codes, without OK
+    text     = `Scan`
+    scanned  = client->_event( `SCANNED` ) ).
+```
+
+When `scanned` arrives, `t_code` holds one row per distinct code — `text` and
+`format` (`EAN13`, `Code128`, `QRCode`, `DataMatrix`, …). A code only counts
+once it was read in two frames, which keeps a one-off misread of a worn 1D code
+out of the result. Without `expected` the user collects until pressing OK;
+Cancel leaves the table untouched. `formats` takes zxing-wasm's names or groups
+(`AllLinear`, `AllMatrix`, `AllRetail`, …); naming only what is on the label is
+faster and rules out misreads, and a misspelt name is reported through `error`.
+
+Two things the page has to allow:
+
+- **The camera needs a secure connection.** Browsers offer it on `https://`
+  (and `localhost`) only.
+- **WebAssembly needs `'wasm-unsafe-eval'`** in the `script-src` of the
+  Content-Security-Policy, and abap2UI5's default policy does not carry it. It
+  allows compiling WebAssembly and nothing else — JavaScript `eval` stays
+  blocked. Without it the dialog says so. On `main` the reader also comes from
+  jsDelivr, so that host goes into `script-src` and `connect-src` as well; the
+  `local` branch needs neither:
+
+```abap
+METHOD z2ui5_if_ui5_exit~set_config_http_get.
+
+    REPLACE `script-src 'self'` IN cs_config-content_security_policy
+       WITH `script-src 'self' 'wasm-unsafe-eval' cdn.jsdelivr.net`.
+    REPLACE `connect-src 'self'` IN cs_config-content_security_policy
+       WITH `connect-src 'self' cdn.jsdelivr.net`.
+
+ENDMETHOD.
+```
+
+`z2ui5_cl_cci_sample_11` shows a test label with four codes, drawn by the
+Barcode control: open it on a second screen and point a phone at it.
 
 ### DriverJs
 
@@ -252,10 +312,10 @@ this way; `omit_initial_paths` limits the omission to the fields it lists.
 
 ### Third-party libraries
 
-Six controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
-driver.js 1, Font Awesome 6, animate.css 4, and marked 12 together with
-DOMPurify 3. Each control loads its library on first use, cached per URL, so ten
-charts on a page fetch Chart.js once.
+Seven controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
+driver.js 1, Font Awesome 6, animate.css 4, marked 12 together with DOMPurify 3,
+and zxing-wasm 3. Each control loads its library on first use, cached per URL,
+so ten charts on a page fetch Chart.js once.
 
 The other five need nothing: SignaturePad and Validator are self-contained,
 ExportSpreadsheet and CodeEditor use libraries the UI5 distribution already
@@ -288,7 +348,8 @@ with the next run. Install it with abapGit exactly like `main`.
 | `local` | the same, with every library vendored into the BSP | the browsers have no internet access |
 
 `npm run build:local` copies every library out of `node_modules` into
-`app/webapp/lib/` and regenerates the BSP, which grows to about 3.5 MB. The
+`app/webapp/lib/` and regenerates the BSP, which grows to about 5 MB — 1.3 MB of
+it the barcode reader's WebAssembly module. The
 files are the upstream ones byte-for-byte, with two exceptions. The first is
 that **lines are wrapped**. A BSP page is stored as 255-character lines, so a minified bundle
 would be chopped at character 256 — in the middle of an identifier as often as
@@ -305,7 +366,15 @@ afternoon to. Nothing else in the branch reaches outside the SAP system: the
 libraries carry no absolute URL they load from (the http links in them are
 banner comments and marked's autolink prefix), the stylesheets have no
 `@import` and no `url()` other than the inlined fonts, and none of them opens
-an XHR, a `fetch` or a script tag of its own.
+an XHR, a `fetch` or a script tag of its own — with one exception that is
+never taken: zxing-wasm's reader would fetch its WebAssembly module from
+jsDelivr, but BarcodeScanner hands it the module as bytes instead.
+
+That module is the one binary among the libraries, and a BSP page is a text
+object. So it travels the way Font Awesome's fonts do, as base64 inside a text
+file: `lib/zxing_reader_wasm.js`, written by `tools/embed-wasm.mjs`, registers
+it for the control, which decodes it — nothing is fetched at run time. `npm
+test` decodes it back and compares it with the original byte for byte.
 
 **UI5 itself is a separate question and lives outside this repository.**
 abap2UI5 bootstraps from `https://sdk.openui5.org/...` unless told otherwise,
@@ -344,7 +413,8 @@ which look identical from inside the app.
 2. wraps a third-party library? add it to `package.json` with an exact version
    and to `tools/libs.json`, then `npm run vendor` — the control reads its URL
    from `z2ui5_cci/cc/LibUrls`, never from a literal, so it works on `main` and
-   on `local` without a second code path
+   on `local` without a second code path. A WebAssembly module the library
+   compiles gets an entry of `"kind": "wasm"` of its own (see `zxingWasmBinary`)
 3. run `npm run app2bsp` — regenerates the BSP artefacts under `src/01`
 4. add a builder class `z2ui5_cl_cci_<name>` next to the others
 5. add a sample and a row in `z2ui5_cl_cci_sample_00=>model_init( )`
@@ -360,11 +430,13 @@ refuses anything else — otherwise you find out on import, as
 |---|---|
 | `app/webapp/cc/*.js` | the controls — plain UI5, the single source of truth |
 | `app/webapp/cc/MapShapes.js` | the image-map geometry, split out so it can be unit-tested |
+| `app/webapp/cc/BarcodeCollector.js` | what BarcodeScanner keeps between frames, split out likewise |
 | `app/webapp/cc/LibUrls.js` | **generated**: where each control loads its library from |
 | `app/webapp/lib/` | **generated, `local` branch only**: the vendored libraries |
 | `tools/libs.json` | the third-party libraries — npm package, file, CDN URL |
 | `tools/vendor.mjs` | writes `LibUrls.js`, and `app/webapp/lib/` with `--local` |
 | `tools/wrap-lines.mjs` | breaks a library into lines a BSP page can carry |
+| `tools/embed-wasm.mjs` | carries a WebAssembly module as base64 inside a script, for the local build |
 | `tools/*.test.mjs` | unit tests — here, not under `app/`, where they would become BSP pages |
 | `tools/app2bsp.mjs` | generates the abapGit BSP artefacts from `app/webapp` |
 | `src/z2ui5_cl_cci*.clas.abap` | the library and one view builder per control |

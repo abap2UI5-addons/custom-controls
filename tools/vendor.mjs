@@ -22,6 +22,10 @@
 // option. The source-map pointer goes because the .map file is not vendored
 // (stripSourceMap below).
 //
+// An entry of kind "wasm" is a WebAssembly module, a binary a BSP page cannot
+// carry. It is vendored as a script holding the module as base64 - see
+// tools/embed-wasm.mjs. On the CDN build its URL points at the .wasm itself.
+//
 // Run `npm run app2bsp` afterwards - this script writes app/webapp, the BSP
 // artefacts under src/01 are generated from it.
 import {
@@ -32,8 +36,9 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { embedWasm } from "./embed-wasm.mjs";
 import { wrapCss, wrapJs, wrapText, overlongLines, DEFAULT_MAX } from "./wrap-lines.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -123,13 +128,22 @@ function inlineFontAwesome(source, pkg) {
 
 function vendor(entry) {
   const version = packageVersion(entry.package);
-  let content = read(entry.package, entry.file);
 
-  if (entry.generator === "fontawesome") content = inlineFontAwesome(content, entry.package);
+  let wrapped;
+  if (entry.kind === "wasm") {
+    // written short-lined already, and not upstream text a wrapper has to
+    // keep byte-identical - see tools/embed-wasm.mjs
+    const bytes = readFileSync(join(NODE_MODULES, entry.package, entry.file));
+    wrapped = embedWasm(bytes, basename(entry.file), `${entry.package}@${version} ${entry.file}`);
+  } else {
+    let content = read(entry.package, entry.file);
 
-  content = stripSourceMap(content);
+    if (entry.generator === "fontawesome") content = inlineFontAwesome(content, entry.package);
 
-  const wrapped = entry.kind === "css" ? wrapCss(content) : wrapJs(content);
+    content = stripSourceMap(content);
+
+    wrapped = entry.kind === "css" ? wrapCss(content) : wrapJs(content);
+  }
 
   // A pointer written some other way would still 404 - catch it here rather
   // than in a customer's network tab.
@@ -180,6 +194,11 @@ function writeLicences(versions) {
     const dir = join(NODE_MODULES, entry.package);
     const file = readdirSync(dir).find((name) => /^licen[cs]e/i.test(name));
     const meta = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+    // what the package's own licence file does not say - code it bundles
+    // under another licence, for instance
+    const notices = config.entries
+      .filter((other) => other.package === entry.package && other.notice)
+      .map((other) => other.notice);
 
     blocks.push(
       "=".repeat(76),
@@ -189,6 +208,7 @@ function writeLicences(versions) {
       "",
       file ? readFileSync(join(dir, file), "utf8").trimEnd() : "(no licence file in the package)",
       "",
+      ...notices.flatMap((notice) => [notice, ""]),
     );
   }
 
