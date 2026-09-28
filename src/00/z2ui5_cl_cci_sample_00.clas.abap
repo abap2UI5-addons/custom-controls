@@ -301,7 +301,12 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
         module      = `z2ui5_cci/cc/Markdown`
         description = `Renders a bound Markdown string as HTML, sanitized by default`
         library     = `marked, DOMPurify`
-        app         = `Z2UI5_CL_CCI_SAMPLE_10` ) ).
+        app         = `Z2UI5_CL_CCI_SAMPLE_10` )
+      ( name        = `BarcodeScanner`
+        module      = `z2ui5_cci/cc/BarcodeScanner`
+        description = `Scans every barcode in the camera picture at once, into an ABAP table`
+        library     = `zxing-wasm`
+        app         = `Z2UI5_CL_CCI_SAMPLE_11` ) ).
 
   ENDMETHOD.
 

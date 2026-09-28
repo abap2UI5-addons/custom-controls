@@ -80,6 +80,31 @@ test("a template literal does not gain a line break", () => {
   assert.match(wrapped, /`before\$\{a\.k\}after`/);
 });
 
+// eslint-disable-next-line no-new-func
+const evaluate = (source, name) => new Function(`${source}; return ${name};`)();
+
+test("an untagged template literal longer than a line is continued, its value unchanged", () => {
+  // escapes and a substitution in the mix: the split must step over both
+  const text = `${"t".repeat(DEFAULT_MAX)}\\u00e9\\\`${"u".repeat(DEFAULT_MAX)}`;
+  const source = `const s = \`${text}\${1 + 1}${"v".repeat(DEFAULT_MAX)}\`;`;
+  const wrapped = wrapJs(source);
+
+  assert.equal(tree(wrapped), tree(source));
+  assert.ok(wrapped.includes("\\\n"), "expected a line continuation");
+  assert.deepEqual(overlongLines(wrapped, BSP_LINE_WIDTH), []);
+  assert.equal(evaluate(wrapped, "s"), evaluate(source, "s"));
+});
+
+test("a template literal that may be tagged is never continued", () => {
+  // String.raw would hand the inserted backslash and newline to the tag
+  const source = `const s = String.raw\`${"w".repeat(DEFAULT_MAX * 2)}\`;`;
+  const wrapped = wrapJs(source);
+
+  assert.equal(tree(wrapped), tree(source));
+  assert.ok(!wrapped.includes("\\\n"), "a tagged literal gained a line continuation");
+  assert.equal(evaluate(wrapped, "s"), evaluate(source, "s"));
+});
+
 test("a directive prologue is never split", () => {
   const filler = "y".repeat(DEFAULT_MAX * 2);
   const source = `function f() {"use strict"; return "${filler}";}`;

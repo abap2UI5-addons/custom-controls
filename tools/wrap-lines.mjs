@@ -46,9 +46,15 @@
 // CSS alike. The split point never lands inside an escape sequence or between
 // the halves of a surrogate pair.
 //
-// Regular expressions, template literals and comments are never split - a
-// newline there is content, not layout. A line that is still too long after
-// wrapping is reported (`overlongLines`) rather than silently shipped.
+// The text of a template literal is continued the same way, but only when the
+// literal is untagged. `\`<LF> is a LineContinuation there and contributes
+// nothing to the string an untagged literal produces - its "cooked" value. A
+// tag function also receives the raw text, which would carry the backslash and
+// the newline, so a literal that might be tagged is left whole.
+//
+// Regular expressions and comments are never split - a newline there is
+// content, not layout. A line that is still too long after wrapping is
+// reported (`overlongLines`) rather than silently shipped.
 import { tokenizer, tokTypes } from "acorn";
 
 // The width the wrapper aims for. Below the 255 the BSP page format imposes,
@@ -96,6 +102,21 @@ const SAFE_AFTER = new Set([
 // it: `=>` must sit on the same line as its parameter list, and a `++` pushed
 // onto the next line turns from a postfix operator into a prefix one.
 const NEVER_BEFORE = new Set([tokTypes.arrow, tokTypes.incDec]);
+
+// Tokens after which an opening backquote starts an UNTAGGED template literal:
+// a tag is an expression written right before the backquote, and none of these
+// can end one. That is SAFE_AFTER without the closers `)` `]` `}` and without
+// `.`, plus `return`. Anything else - a name, a closing bracket - may be a tag,
+// and the literal is then treated as tagged.
+const UNTAGGED_AFTER = new Set(
+  [...SAFE_AFTER, tokTypes._return].filter(
+    (type) =>
+      type !== tokTypes.parenR &&
+      type !== tokTypes.bracketR &&
+      type !== tokTypes.braceR &&
+      type !== tokTypes.dot,
+  ),
+);
 
 // True when the character at `pos` is escaped, i.e. preceded by an odd number
 // of backslashes. Used to find the end of a literal.
@@ -179,9 +200,12 @@ export function wrapJs(source, max = DEFAULT_MAX) {
 
   // Tracks whether the cursor sits in template-literal text, where an inserted
   // newline would become part of the string. `template` is inside the
-  // backticks, `expr` inside a `${...}`, `brace` an ordinary block or object.
+  // backticks of a literal that may be tagged, `untagged` inside those of one
+  // that certainly is not (UNTAGGED_AFTER), `expr` inside a `${...}`, `brace`
+  // an ordinary block or object.
   const nesting = [];
-  const inTemplateText = () => nesting[nesting.length - 1] === "template";
+  const top = () => nesting[nesting.length - 1];
+  const inTemplateText = () => top() === "template" || top() === "untagged";
 
   // Commits the buffered segment, starting a new line first if it would not
   // fit. Breaking at the last opportunity before the limit - rather than at
@@ -208,7 +232,12 @@ export function wrapJs(source, max = DEFAULT_MAX) {
     const raw = source.slice(token.start, token.end);
     cursor = token.end;
 
-    if (token.type === tokTypes.string && raw.length > max) {
+    // template text is continued only inside an untagged literal (see the
+    // header); the backquotes are tokens of their own, so `raw` is the text
+    const longTemplateText =
+      token.type === tokTypes.template && raw.length > max && top() === "untagged";
+
+    if ((token.type === tokTypes.string && raw.length > max) || longTemplateText) {
       // Longer than a whole line: no break opportunity can help, so the
       // literal itself is continued across lines.
       //
@@ -217,7 +246,8 @@ export function wrapJs(source, max = DEFAULT_MAX) {
       // token before a string is regularly one that must keep it on the same
       // line. `return "<very long>"` is the case that matters: a newline there
       // is not layout, it is an automatic semicolon and the function starts
-      // returning undefined.
+      // returning undefined. In template text a newline in front of it would
+      // be content.
       commit();
       const split = splitLiteral(raw, max - column, max);
       parts.push(split);
@@ -229,7 +259,7 @@ export function wrapJs(source, max = DEFAULT_MAX) {
 
     if (token.type === tokTypes.backQuote) {
       if (inTemplateText()) nesting.pop();
-      else nesting.push("template");
+      else nesting.push(i > 0 && UNTAGGED_AFTER.has(tokens[i - 1].type) ? "untagged" : "template");
     } else if (token.type === tokTypes.dollarBraceL) {
       nesting.push("expr");
     } else if (token.type === tokTypes.braceL) {

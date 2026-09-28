@@ -87,6 +87,29 @@
       "cdn": "https://cdn.jsdelivr.net/npm/bwip-js@{version}/dist/bwip-js-min.js"
     },
     {
+      "key": "zxingWasm",
+      "package": "zxing-wasm",
+      "file": "dist/iife/reader/index.js",
+      "target": "zxing_reader.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/zxing-wasm@{version}/dist/iife/reader/index.js",
+      "notice": "zxing_reader.wasm, the WebAssembly module the reader runs, is compiled from ZXing-C++ (https://github.com/zxing-cpp/zxing-cpp), licensed under the Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)."
+    },
+    {
+      "_comment": [
+        "The WebAssembly module the reader above compiles at run time. On the CDN",
+        "build this is the .wasm itself; on the local build it is a script carrying",
+        "it as base64, because a BSP page cannot carry a binary (tools/embed-wasm.mjs).",
+        "BarcodeScanner tells the two apart by the extension of the URL."
+      ],
+      "key": "zxingWasmBinary",
+      "package": "zxing-wasm",
+      "file": "dist/reader/zxing_reader.wasm",
+      "target": "zxing_reader_wasm.js",
+      "kind": "wasm",
+      "cdn": "https://cdn.jsdelivr.net/npm/zxing-wasm@{version}/dist/reader/zxing_reader.wasm"
+    },
+    {
       "key": "driverJs",
       "package": "driver.js",
       "file": "dist/driver.js.iife.js",
