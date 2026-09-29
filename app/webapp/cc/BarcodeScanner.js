@@ -17,7 +17,8 @@
 //   - the camera: getUserMedia exists in a secure context only, so https://
 //     (or localhost)
 //   - WebAssembly: 'wasm-unsafe-eval' in the script-src of the
-//     Content-Security-Policy; abap2UI5's default policy does not carry it
+//     Content-Security-Policy. abap2UI5's default policy carries it from
+//     abap2UI5/abap2UI5#2810 on; an older installation adds it in its exit
 //   - on the `main` branch, cdn.jsdelivr.net in script-src and connect-src.
 //     The `local` branch ships the reader and its module in this BSP, with
 //     the module embedded as base64 (tools/embed-wasm.mjs)

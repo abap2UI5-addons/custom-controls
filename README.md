@@ -182,19 +182,28 @@ Two things the page has to allow:
 - **The camera needs a secure connection.** Browsers offer it on `https://`
   (and `localhost`) only.
 - **WebAssembly needs `'wasm-unsafe-eval'`** in the `script-src` of the
-  Content-Security-Policy, and abap2UI5's default policy does not carry it. It
-  allows compiling WebAssembly and nothing else — JavaScript `eval` stays
-  blocked. Without it the dialog says so. On `main` the reader also comes from
+  Content-Security-Policy. It allows compiling WebAssembly and nothing else —
+  JavaScript `eval` stays blocked. abap2UI5's default policy carries it from
+  [abap2UI5/abap2UI5#2810](https://github.com/abap2UI5/abap2UI5/pull/2810) on;
+  an older installation, or an exit that writes its own policy, adds it.
+  Without it the dialog says so. On `main` the reader also comes from
   jsDelivr, so that host goes into `script-src` and `connect-src` as well; the
   `local` branch needs neither:
 
 ```abap
 METHOD z2ui5_if_ui5_exit~set_config_http_get.
 
+    " main branch: the reader and its module come from jsDelivr
     REPLACE `script-src 'self'` IN cs_config-content_security_policy
-       WITH `script-src 'self' 'wasm-unsafe-eval' cdn.jsdelivr.net`.
+       WITH `script-src 'self' cdn.jsdelivr.net`.
     REPLACE `connect-src 'self'` IN cs_config-content_security_policy
        WITH `connect-src 'self' cdn.jsdelivr.net`.
+
+    " an abap2UI5 whose default does not carry it yet
+    IF cs_config-content_security_policy NS `'wasm-unsafe-eval'`.
+      REPLACE `script-src ` IN cs_config-content_security_policy
+         WITH `script-src 'wasm-unsafe-eval' `.
+    ENDIF.
 
 ENDMETHOD.
 ```
