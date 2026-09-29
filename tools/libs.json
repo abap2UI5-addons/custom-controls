@@ -150,6 +150,220 @@
       "cdn": "https://cdn.jsdelivr.net/npm/dompurify@{version}/dist/purify.min.js"
     },
     {
+      "_comment": [
+        "SunEditor 3, the engine behind the RichTextEditor control. The bundle",
+        "carries English; every other UI language is a file of its own below, one",
+        "entry each, keyed sunEditorLang_<code> - the control finds a language by",
+        "that key, so a language is available exactly when it has an entry here."
+      ],
+      "key": "sunEditor",
+      "package": "suneditor",
+      "file": "dist/suneditor.min.js",
+      "target": "suneditor.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/dist/suneditor.min.js"
+    },
+    {
+      "key": "sunEditorCss",
+      "package": "suneditor",
+      "file": "dist/suneditor.min.css",
+      "target": "suneditor.css",
+      "kind": "css",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/dist/suneditor.min.css"
+    },
+    {
+      "key": "sunEditorLang_ckb",
+      "package": "suneditor",
+      "file": "src/langs/ckb.js",
+      "target": "suneditor_lang_ckb.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/ckb.js"
+    },
+    {
+      "key": "sunEditorLang_cs",
+      "package": "suneditor",
+      "file": "src/langs/cs.js",
+      "target": "suneditor_lang_cs.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/cs.js"
+    },
+    {
+      "key": "sunEditorLang_da",
+      "package": "suneditor",
+      "file": "src/langs/da.js",
+      "target": "suneditor_lang_da.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/da.js"
+    },
+    {
+      "key": "sunEditorLang_de",
+      "package": "suneditor",
+      "file": "src/langs/de.js",
+      "target": "suneditor_lang_de.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/de.js"
+    },
+    {
+      "key": "sunEditorLang_es",
+      "package": "suneditor",
+      "file": "src/langs/es.js",
+      "target": "suneditor_lang_es.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/es.js"
+    },
+    {
+      "key": "sunEditorLang_fa",
+      "package": "suneditor",
+      "file": "src/langs/fa.js",
+      "target": "suneditor_lang_fa.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/fa.js"
+    },
+    {
+      "key": "sunEditorLang_fr",
+      "package": "suneditor",
+      "file": "src/langs/fr.js",
+      "target": "suneditor_lang_fr.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/fr.js"
+    },
+    {
+      "key": "sunEditorLang_he",
+      "package": "suneditor",
+      "file": "src/langs/he.js",
+      "target": "suneditor_lang_he.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/he.js"
+    },
+    {
+      "key": "sunEditorLang_hu",
+      "package": "suneditor",
+      "file": "src/langs/hu.js",
+      "target": "suneditor_lang_hu.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/hu.js"
+    },
+    {
+      "key": "sunEditorLang_it",
+      "package": "suneditor",
+      "file": "src/langs/it.js",
+      "target": "suneditor_lang_it.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/it.js"
+    },
+    {
+      "key": "sunEditorLang_ja",
+      "package": "suneditor",
+      "file": "src/langs/ja.js",
+      "target": "suneditor_lang_ja.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/ja.js"
+    },
+    {
+      "key": "sunEditorLang_km",
+      "package": "suneditor",
+      "file": "src/langs/km.js",
+      "target": "suneditor_lang_km.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/km.js"
+    },
+    {
+      "key": "sunEditorLang_ko",
+      "package": "suneditor",
+      "file": "src/langs/ko.js",
+      "target": "suneditor_lang_ko.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/ko.js"
+    },
+    {
+      "key": "sunEditorLang_lv",
+      "package": "suneditor",
+      "file": "src/langs/lv.js",
+      "target": "suneditor_lang_lv.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/lv.js"
+    },
+    {
+      "key": "sunEditorLang_nl",
+      "package": "suneditor",
+      "file": "src/langs/nl.js",
+      "target": "suneditor_lang_nl.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/nl.js"
+    },
+    {
+      "key": "sunEditorLang_pl",
+      "package": "suneditor",
+      "file": "src/langs/pl.js",
+      "target": "suneditor_lang_pl.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/pl.js"
+    },
+    {
+      "key": "sunEditorLang_pt_br",
+      "package": "suneditor",
+      "file": "src/langs/pt_br.js",
+      "target": "suneditor_lang_pt_br.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/pt_br.js"
+    },
+    {
+      "key": "sunEditorLang_ro",
+      "package": "suneditor",
+      "file": "src/langs/ro.js",
+      "target": "suneditor_lang_ro.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/ro.js"
+    },
+    {
+      "key": "sunEditorLang_ru",
+      "package": "suneditor",
+      "file": "src/langs/ru.js",
+      "target": "suneditor_lang_ru.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/ru.js"
+    },
+    {
+      "key": "sunEditorLang_se",
+      "package": "suneditor",
+      "file": "src/langs/se.js",
+      "target": "suneditor_lang_se.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/se.js"
+    },
+    {
+      "key": "sunEditorLang_tr",
+      "package": "suneditor",
+      "file": "src/langs/tr.js",
+      "target": "suneditor_lang_tr.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/tr.js"
+    },
+    {
+      "key": "sunEditorLang_uk",
+      "package": "suneditor",
+      "file": "src/langs/uk.js",
+      "target": "suneditor_lang_uk.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/uk.js"
+    },
+    {
+      "key": "sunEditorLang_ur",
+      "package": "suneditor",
+      "file": "src/langs/ur.js",
+      "target": "suneditor_lang_ur.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/ur.js"
+    },
+    {
+      "key": "sunEditorLang_zh_cn",
+      "package": "suneditor",
+      "file": "src/langs/zh_cn.js",
+      "target": "suneditor_lang_zh_cn.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/zh_cn.js"
+    },
+    {
       "key": "fontAwesomeCss",
       "package": "@fortawesome/fontawesome-free",
       "file": "css/all.min.css",

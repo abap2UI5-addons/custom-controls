@@ -306,7 +306,12 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
         module      = `z2ui5_cci/cc/BarcodeScanner`
         description = `Scans every barcode in the camera picture at once, into an ABAP table`
         library     = `zxing-wasm`
-        app         = `Z2UI5_CL_CCI_SAMPLE_11` ) ).
+        app         = `Z2UI5_CL_CCI_SAMPLE_11` )
+      ( name        = `RichTextEditor`
+        module      = `z2ui5_cci/cc/RichTextEditor`
+        description = `WYSIWYG editor for HTML, bound two-way - on OpenUI5 as on SAPUI5`
+        library     = `SunEditor, DOMPurify`
+        app         = `Z2UI5_CL_CCI_SAMPLE_12` ) ).
 
   ENDMETHOD.
 

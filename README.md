@@ -10,11 +10,11 @@
 
 # abap2UI5 custom controls
 
-Twelve ready-to-use custom controls for
+Thirteen ready-to-use custom controls for
 [abap2UI5](https://github.com/abap2UI5/abap2UI5) — signature pad, charts,
 barcodes, a scanner that reads several barcodes at once, Excel export, form
 validation, product tours, Font Awesome, animations, clickable image maps,
-Markdown and a code editor.
+Markdown, a code editor and a rich text editor.
 
 They ship in their **own BSP** (`Z2UI5_CCI`), not inside the framework. Install this
 repository and the controls are there; nothing in abap2UI5 or in the frontend BSP
@@ -79,6 +79,7 @@ and events arrive in `on_event` like for any built-in control.
 | Markdown | Markdown from ABAP as HTML, with [marked](https://marked.js.org) | `z2ui5_cl_cci_markdown` | `..._sample_10` |
 | CodeEditor | UI5's own `sap.ui.codeeditor`, reachable from a view | `z2ui5_cl_cci_code_editor` | inside `..._sample_10` |
 | BarcodeScanner | every barcode in the camera picture at once → an ABAP table, with [zxing-wasm](https://github.com/Sec-ant/zxing-wasm) | `z2ui5_cl_cci_barcode_scanner` | `..._sample_11` |
+| RichTextEditor | a WYSIWYG editor for HTML with [SunEditor](https://github.com/JiHong88/SunEditor) — on OpenUI5 too | `z2ui5_cl_cci_rich_text_editor` | `..._sample_12` |
 
 Sample classes are `z2ui5_cl_cci_sample_NN` — start any of them directly with
 `?app_start=…`, or browse them from `z2ui5_cl_cci_sample_00`, which lists one
@@ -288,6 +289,53 @@ into the app it documents. Every other link opens in a new tab.
 
 <img width="900" height="508" alt="Screenshot 2026-08-10 at 23 31 13" src="https://github.com/user-attachments/assets/3dd6fed0-2014-4eed-af9f-45d91bfc8e37" />
 
+### RichTextEditor
+
+`value` (the HTML, bind two-way), `editable`, `width`, `height`, `placeholder`,
+`toolbar`, `language`, `sanitize`, `liburl`, `cssurl`, `purifyurl`, `langurl` ·
+event `change`.
+
+UI5's own `sap.ui.richtexteditor.RichTextEditor` ships with SAPUI5 only, and
+abap2UI5 bootstraps OpenUI5 unless told otherwise — where that control does not
+exist and the view fails to load. This one runs on both, with
+[SunEditor](https://github.com/JiHong88/SunEditor) 3 (MIT):
+
+```abap
+z2ui5_cl_cci_rich_text_editor=>render(
+    view   = page
+    value  = client->_bind( mv_html )
+    height = `20rem`
+    change = client->_event( `TEXT_CHANGED` ) ).
+```
+
+The model follows the typing without a roundtrip, and is brought fully up to
+date when the editor loses focus — which happens before a button elsewhere can
+start one. `change` fires on that blur, and only when the text changed. A value
+ABAP sets is shown and not rewritten: SunEditor normalizes what it is given
+(plain text gains a `<p>`), and the app gets back what it sent until somebody
+actually edits it.
+
+- **Sanitizing.** The HTML goes through
+  [DOMPurify](https://github.com/cure53/DOMPurify) on its way into the editor
+  and on its way back, unless `sanitize` is `false`. Leave it on: the text ends
+  up in some other page one day, and what comes in may have been typed by
+  somebody else.
+- **Toolbar.** Button groups separated by `|`, buttons by `,`, named as
+  SunEditor names them: `undo,redo|bold,italic|link`. Empty is the full toolbar
+  — formats, fonts, colours, alignment, lists, table, link, image, full screen
+  and the HTML source view; `z2ui5_cl_cci_rich_text_editor=>cs_toolbar` has two
+  smaller ones. Nothing that talks to a server is offered: no video, embeds,
+  math, galleries or uploads.
+- **Images** go into the HTML as data URIs, so they travel with the text on
+  every roundtrip. Give texts that should stay small a toolbar without `image`.
+- **Language** follows the UI5 language; SunEditor ships 24 besides English.
+- **Theme.** The editor, its toolbar and its pop-ups take their colours and
+  font from the UI5 theme — Horizon, its dark variant and the high-contrast
+  themes.
+- **CSP.** On `main`, SunEditor and its stylesheet come from jsDelivr, so the
+  policy has to allow `cdn.jsdelivr.net` in `script-src` and `style-src`. The
+  `local` branch needs neither, and nothing needs `'unsafe-eval'`.
+
 
 ## Two things to know
 
@@ -321,10 +369,10 @@ this way; `omit_initial_paths` limits the omission to the fields it lists.
 
 ### Third-party libraries
 
-Seven controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
-driver.js 1, Font Awesome 6, animate.css 4, marked 12 together with DOMPurify 3,
-and zxing-wasm 3. Each control loads its library on first use, cached per URL,
-so ten charts on a page fetch Chart.js once.
+Eight controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
+driver.js 1, Font Awesome 6, animate.css 4, marked 12 and SunEditor 3 (each
+together with DOMPurify 3), and zxing-wasm 3. Each control loads its library on
+first use, cached per URL, so ten charts on a page fetch Chart.js once.
 
 The other five need nothing: SignaturePad and Validator are self-contained,
 ExportSpreadsheet and CodeEditor use libraries the UI5 distribution already
@@ -357,15 +405,20 @@ with the next run. Install it with abapGit exactly like `main`.
 | `local` | the same, with every library vendored into the BSP | the browsers have no internet access |
 
 `npm run build:local` copies every library out of `node_modules` into
-`app/webapp/lib/` and regenerates the BSP, which grows to about 5 MB — 1.3 MB of
-it the barcode reader's WebAssembly module. The
+`app/webapp/lib/` and regenerates the BSP, which grows to about 6 MB — 1.3 MB of
+it the barcode reader's WebAssembly module, 1.1 MB SunEditor with its 24
+languages. The
 files are the upstream ones byte-for-byte, with two exceptions. The first is
 that **lines are wrapped**. A BSP page is stored as 255-character lines, so a minified bundle
 would be chopped at character 256 — in the middle of an identifier as often as
 not — and the file the system serves back would no longer be the file that went
 in. `tools/wrap-lines.mjs` inserts newlines only where the JavaScript and CSS
 grammars treat them as whitespace, and `npm test` proves it by re-parsing every
-vendored library and comparing its syntax tree against the original's.
+vendored library and comparing its syntax tree against the original's. A string
+or the text of an untagged template literal that does not fit is continued with
+a backslash, which leaves its value alone; an unquoted CSS `url(...)` that does
+not fit — SunEditor inlines its cursors that way — is put in quotes first, which
+CSS reads as the same value.
 
 The second is that the trailing `//# sourceMappingURL=` comment is removed. The
 `.map` files are developer tooling and are not vendored, so the pointer would
@@ -374,10 +427,13 @@ and a 404 next to a custom control is exactly the symptom someone loses an
 afternoon to. Nothing else in the branch reaches outside the SAP system: the
 libraries carry no absolute URL they load from (the http links in them are
 banner comments and marked's autolink prefix), the stylesheets have no
-`@import` and no `url()` other than the inlined fonts, and none of them opens
-an XHR, a `fetch` or a script tag of its own — with one exception that is
-never taken: zxing-wasm's reader would fetch its WebAssembly module from
-jsDelivr, but BarcodeScanner hands it the module as bytes instead.
+`@import` and no `url()` other than inlined fonts and images, and none of them
+opens an XHR, a `fetch` or a script tag of its own — with two exceptions that
+are never taken. zxing-wasm's reader would fetch its WebAssembly module from
+jsDelivr, but BarcodeScanner hands it the module as bytes instead. SunEditor
+carries the endpoints of its embed and video plugins and an XHR for uploads,
+but RichTextEditor registers neither plugin and sets no upload URL — an image
+goes into the text as a data URI.
 
 That module is the one binary among the libraries, and a BSP page is a text
 object. So it travels the way Font Awesome's fonts do, as base64 inside a text
