@@ -2,13 +2,20 @@
 "!
 "! Start with: <em>?app_start=z2ui5_cl_cci_sample_11</em>
 "!
-"! Scans every barcode in the camera picture at once. The panel at the bottom
-"! is a test label with four codes on it, drawn by the Barcode control of this
-"! library: open the demo on a second screen and point a phone at it.
+"! Scans every barcode in the camera picture at once. The panels at the
+"! bottom are something to scan, drawn by the Barcode control of this library:
+"! a test label with four codes on it, and a test pallet of six cartons that
+"! carry two articles' labels. Open the demo on a second screen and point a
+"! phone at it.
+"!
+"! <em>distinct</em> takes every code once - the four codes of the label.
+"! <em>count</em> counts labels instead - the pallet comes back as two rows,
+"! one per article, with the number of its cartons in <em>count</em>.
 "!
 "! With <em>expected</em> set, the scan completes by itself once that many
-"! codes were found; at 0 the user presses OK. Either way the codes arrive in
-"! t_code, which is bound to the scanner and to the table below it.
+"! codes, or in <em>count</em> mode labels, were found; at 0 the user presses
+"! OK. Either way the codes arrive in t_code, which is bound to the scanner
+"! and to the table below it.
 "!
 "! The camera needs a secure (https) connection, and the reader needs
 "! 'wasm-unsafe-eval' in the script-src of the Content-Security-Policy - the
@@ -23,6 +30,7 @@ CLASS z2ui5_cl_cci_sample_11 DEFINITION
 
     " ONLY bound data here - PUBLIC attributes are serialized every roundtrip
     DATA t_code   TYPE z2ui5_cl_cci_barcode_scanner=>ty_t_code.
+    DATA mode     TYPE string.
     DATA formats  TYPE string.
     DATA expected TYPE i.
     DATA info     TYPE string.
@@ -82,7 +90,29 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
 
     box->tag( `Label`
            )->a( n = `text`
+                 v = `mode - every code once, or every label counted`
+       )->ele( `SegmentedButton`
+           )->a( n = `selectedKey`
+                 v = client->_bind( mode )
+           )->a( n = `selectionChange`
+                 v = client->_event( `MODE` )
+           )->ele( `items`
+               )->tag( `SegmentedButtonItem`
+                   )->a( n = `key`
+                         v = z2ui5_cl_cci_barcode_scanner=>cs_mode-distinct
+                   )->a( n = `text`
+                         v = `distinct - the test label`
+               )->tag( `SegmentedButtonItem`
+                   )->a( n = `key`
+                         v = z2ui5_cl_cci_barcode_scanner=>cs_mode-count
+                   )->a( n = `text`
+                         v = `count - the test pallet` ).
+
+    box->tag( `Label`
+           )->a( n = `text`
                  v = `formats - empty reads every format`
+           )->a( n = `class`
+                 v = `sapUiSmallMarginTop`
        )->tag( `Input`
            )->a( n = `value`
                  v = client->_bind( formats )
@@ -113,6 +143,7 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
     z2ui5_cl_cci_barcode_scanner=>render(
         view     = scan
         codes    = client->_bind( t_code )
+        mode     = client->_bind( mode )
         formats  = client->_bind( formats )
         expected = client->_bind( expected )
         text     = `Scan`
@@ -144,6 +175,12 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
         )->tag( `Text`
             )->a( n = `text`
                   v = `Format` ).
+    columns->ele( `Column`
+        )->a( n = `hAlign`
+              v = `End`
+        )->tag( `Text`
+            )->a( n = `text`
+                  v = `Count` ).
 
     table->ele( `items`
         )->ele( `ColumnListItem`
@@ -153,7 +190,10 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
                           v = `{TEXT}`
                 )->tag( `Text`
                     )->a( n = `text`
-                          v = `{FORMAT}` ).
+                          v = `{FORMAT}`
+                )->tag( `Text`
+                    )->a( n = `text`
+                          v = `{COUNT}` ).
 
     " Something to scan: a label with four codes of four formats - material,
     " batch, quantity and shipping unit - drawn in the browser by the Barcode
@@ -196,6 +236,42 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
           height  = symbol-height ).
     ENDLOOP.
 
+    " Something to count: six cartons, four of one article and two of
+    " another, each with its article's EAN-13. The caption and the large
+    " margins are on purpose - the reader takes two equal 1D codes that are
+    " closer than half their width one above the other for one symbol, and
+    " cartons on a real pallet are much further apart than that.
+    DATA(pallet) = box->ele( `Panel`
+                       )->a( n = `headerText`
+                             v = `Test pallet - six cartons of two articles, for the count mode`
+                       )->a( n = `class`
+                             v = `sapUiMediumMarginTop`
+                       )->ele( `content`
+                           )->ele( `HBox`
+                               )->a( n = `wrap`
+                                     v = `Wrap` ).
+
+    DATA(cartons) = VALUE string_table( ( `4006381333931` ) ( `4006381333931` ) ( `4012345678901` )
+                                        ( `4006381333931` ) ( `4006381333931` ) ( `4012345678901` ) ).
+
+    LOOP AT cartons INTO DATA(carton).
+      " before the builder runs - its own table operations overwrite sy-tabix
+      DATA(number) = sy-tabix.
+      DATA(box_carton) = pallet->ele( `VBox`
+                               )->a( n = `class`
+                                     v = `sapUiLargeMargin` ).
+      box_carton->tag( `Text`
+                )->a( n = `text`
+                      t = |carton { number }| ).
+      z2ui5_cl_cci_barcode=>render(
+          view    = box_carton
+          bcid    = `ean13`
+          text    = carton
+          scale   = `2`
+          options = `includetext guardwhitespace`
+          height  = `10` ).
+    ENDLOOP.
+
     client->view_display( view->stringify( ) ).
 
   ENDMETHOD.
@@ -204,10 +280,24 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
 
     CASE client->get( )-event.
 
+      WHEN `MODE`.
+        " each mode has its own thing to scan below, with its own count
+        expected = COND #( WHEN mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count THEN 6 ELSE 4 ).
+        info     = COND #( WHEN mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count
+                           THEN `Press Scan and get the whole test pallet into the picture.`
+                           ELSE `Press Scan and point the camera at the test label.` ).
+
       WHEN `SCANNED`.
         " t_code already holds the codes here - bound data is written back
         " into the attribute before the event handler runs
-        info = |{ lines( t_code ) } code(s) scanned.|.
+        IF mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count.
+          DATA(labels) = REDUCE i( INIT n = 0
+                                   FOR row IN t_code
+                                   NEXT n = n + row-count ).
+          info = |{ labels } label(s) of { lines( t_code ) } code(s) counted.|.
+        ELSE.
+          info = |{ lines( t_code ) } code(s) scanned.|.
+        ENDIF.
 
       WHEN `ERROR`.
         info = client->get_event_arg( ).
@@ -221,6 +311,7 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
   METHOD model_init.
 
     " the test label at the bottom carries four codes
+    mode     = z2ui5_cl_cci_barcode_scanner=>cs_mode-distinct.
     expected = 4.
     info     = `Press Scan and point the camera at the test label.`.
 
