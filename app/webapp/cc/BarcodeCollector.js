@@ -1,5 +1,6 @@
 // z2ui5_cci.cc.BarcodeCollector - what BarcodeScanner keeps between camera
-// frames: the distinct codes seen so far, and when a scan counts as complete.
+// frames: the codes seen so far, how many labels carry each of them, and when
+// a scan counts as complete.
 //
 // Split out of the control for the reason MapShapes.js is split out of
 // ImageMapster: it is the part worth testing, and it needs neither a camera
@@ -11,9 +12,26 @@
 // `confirmations` frames: a single misread of a worn 1D code does not make it
 // into the result, while a code that is really there is read again within a
 // frame or two anyway.
+//
+// Two modes:
+//
+//   - `distinct` (the default) takes every code once, however often it is in
+//     the picture. Right for a label carrying material, batch and quantity as
+//     three codes, and for cartons whose labels differ - an SSCC each.
+//   - `count` takes a code as often as it is in the picture AT ONCE. Right for
+//     identical labels - twelve cartons of one article, each with the same
+//     EAN - where the text cannot tell two cartons apart and only the position
+//     in the frame can. A count is confirmed like a code: 5 counts once
+//     `confirmations` frames showed at least five copies. It is the most
+//     copies one frame showed, never a sum over frames - the camera moves, and
+//     a label seen in two frames is still one label.
 sap.ui.define([], () => {
   "use strict";
 
+  const MODE_DISTINCT = "distinct";
+  const MODE_COUNT = "count";
+
+  // one code - BarcodeScanner keys its list items by it too
   const key = (format, text) => `${format}\u0000${text}`;
 
   // "3", 3 and " 3 " -> 3; anything that is not a positive integer -> 0. The
@@ -25,15 +43,61 @@ sap.ui.define([], () => {
     return text !== "" && Number.isInteger(count) && count > 0 ? count : 0;
   }
 
+  // "count", "Count " -> "count"; empty -> "distinct"; anything else -> ""
+  function toMode(value) {
+    const text = String(value ?? "").trim();
+    const mode = text.toLowerCase() || MODE_DISTINCT;
+    return mode === MODE_DISTINCT || mode === MODE_COUNT ? mode : "";
+  }
+
+  // Where a symbol sits in the frame, and how big it is there - the length of
+  // its longer diagonal, which works for a square QR code as for a long Code 128.
+  function place(position) {
+    if (!position) return null;
+    const { topLeft: a, topRight: b, bottomRight: c, bottomLeft: d } = position;
+    return {
+      x: (a.x + b.x + c.x + d.x) / 4,
+      y: (a.y + b.y + c.y + d.y) / 4,
+      size: Math.max(Math.hypot(a.x - c.x, a.y - c.y), Math.hypot(b.x - d.x, b.y - d.y)),
+    };
+  }
+
+  // The copies of one code in one frame that are different labels. zxing
+  // reports every symbol once, so this is a guard: a copy whose centre lies
+  // within half the size of one already counted is the same symbol read
+  // twice, while two real labels are at least a symbol's width apart. A copy
+  // without a position cannot be compared and counts on its own.
+  function copies(results) {
+    const places = [];
+    let unplaced = 0;
+    for (const result of results) {
+      const here = place(result.position);
+      if (!here) {
+        unplaced += 1;
+        continue;
+      }
+      const same = places.some(
+        (other) => Math.hypot(here.x - other.x, here.y - other.y) < Math.min(here.size, other.size) / 2,
+      );
+      if (!same) places.push(here);
+    }
+    return places.length + unplaced;
+  }
+
   /**
    * @param {object}        [options]
+   * @param {string}        [options.mode]           `distinct` (the default) or `count`
    * @param {number|string} [options.expected]       the scan is complete once this
-   *                                                 many codes are accepted; 0 or
-   *                                                 empty: it never completes by itself
-   * @param {number|string} [options.confirmations]  frames a code has to be read in
-   *                                                 before it is accepted, at least 1
+   *                                                 many labels are accepted - codes
+   *                                                 in `distinct` mode, copies in
+   *                                                 `count` mode; 0 or empty: it
+   *                                                 never completes by itself
+   * @param {number|string} [options.confirmations]  frames a code, and a count of
+   *                                                 it, has to be read in before it
+   *                                                 is accepted, at least 1
    */
   function create(options = {}) {
+    const counting = toMode(options.mode) === MODE_COUNT;
     const expected = toCount(options.expected);
     const confirmations = toCount(options.confirmations) || 1;
 
@@ -42,54 +106,68 @@ sap.ui.define([], () => {
     // the accepted ones, in the order they were accepted
     const accepted = [];
 
+    const total = () => accepted.reduce((sum, entry) => sum + entry.count, 0);
+
     return {
-      // Feeds the codes read in one frame and returns the ones this frame got
-      // accepted. A code read twice within one frame - the same label twice in
-      // the picture - counts as one read of that frame.
+      // Feeds the codes read in one frame and returns the ones whose count
+      // this frame changed, with the new count - a count of 1 is a code
+      // accepted just now. A code read twice within one frame is one read of
+      // that frame; in `count` mode it is two copies of it, if they are at two
+      // places in the picture.
       add(results) {
-        const added = [];
-        const inFrame = new Set();
+        const frame = new Map();
         for (const result of results || []) {
           const text = result && result.text;
           const format = result && result.format;
           if (!text || !format) continue;
-
           const id = key(format, text);
-          if (inFrame.has(id)) continue;
-          inFrame.add(id);
+          if (!frame.has(id)) frame.set(id, []);
+          frame.get(id).push(result);
+        }
 
+        const changed = [];
+        for (const [id, reads] of frame) {
           let entry = seen.get(id);
           if (!entry) {
-            entry = { text, format, reads: 0 };
+            entry = { text: reads[0].text, format: reads[0].format, count: 0, frames: [] };
             seen.set(id, entry);
           }
-          entry.reads += 1;
-          if (entry.reads === confirmations) {
-            accepted.push(entry);
-            added.push({ text, format });
-          }
+          // frames[n - 1]: the frames that showed at least n copies
+          const shown = counting ? copies(reads) : 1;
+          for (let n = 0; n < shown; n += 1) entry.frames[n] = (entry.frames[n] || 0) + 1;
+
+          let count = entry.count;
+          while (entry.frames[count] >= confirmations) count += 1;
+          if (count === entry.count) continue;
+          if (entry.count === 0) accepted.push(entry);
+          entry.count = count;
+          changed.push({ text: entry.text, format: entry.format, count });
         }
-        return added;
+        return changed;
       },
 
       isAccepted(format, text) {
         const entry = seen.get(key(format, text));
-        return Boolean(entry && entry.reads >= confirmations);
+        return Boolean(entry && entry.count > 0);
       },
 
+      // accepted codes - distinct ones, whatever the mode
       size() {
         return accepted.length;
       },
 
+      // accepted labels - the codes, each as often as it was counted
+      total,
+
       isComplete() {
-        return expected > 0 && accepted.length >= expected;
+        return expected > 0 && total() >= expected;
       },
 
       // The result in the shape an abap2UI5 app binds: an internal table with
-      // the components TEXT and FORMAT, which the default name mapping writes
-      // as upper-case keys.
+      // the components TEXT, FORMAT and COUNT, which the default name mapping
+      // writes as upper-case keys. COUNT is 1 throughout in `distinct` mode.
       rows() {
-        return accepted.map((entry) => ({ TEXT: entry.text, FORMAT: entry.format }));
+        return accepted.map((entry) => ({ TEXT: entry.text, FORMAT: entry.format, COUNT: entry.count }));
       },
 
       clear() {
@@ -99,5 +177,5 @@ sap.ui.define([], () => {
     };
   }
 
-  return { create, toCount };
+  return { create, key, toCount, toMode, MODE_DISTINCT, MODE_COUNT };
 });

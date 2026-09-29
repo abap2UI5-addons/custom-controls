@@ -78,7 +78,7 @@ and events arrive in `on_event` like for any built-in control.
 | ImageMapster | clickable, highlighting regions on an image | `z2ui5_cl_cci_imagemapster` | `..._sample_09` |
 | Markdown | Markdown from ABAP as HTML, with [marked](https://marked.js.org) | `z2ui5_cl_cci_markdown` | `..._sample_10` |
 | CodeEditor | UI5's own `sap.ui.codeeditor`, reachable from a view | `z2ui5_cl_cci_code_editor` | inside `..._sample_10` |
-| BarcodeScanner | every barcode in the camera picture at once → an ABAP table, with [zxing-wasm](https://github.com/Sec-ant/zxing-wasm) | `z2ui5_cl_cci_barcode_scanner` | `..._sample_11` |
+| BarcodeScanner | every barcode in the camera picture at once → an ABAP table, or identical labels counted, with [zxing-wasm](https://github.com/Sec-ant/zxing-wasm) | `z2ui5_cl_cci_barcode_scanner` | `..._sample_11` |
 | RichTextEditor | a WYSIWYG editor for HTML with [SunEditor](https://github.com/JiHong88/SunEditor) — on OpenUI5 too | `z2ui5_cl_cci_rich_text_editor` | `..._sample_12` |
 
 Sample classes are `z2ui5_cl_cci_sample_NN` — start any of them directly with
@@ -147,9 +147,9 @@ squashes a QR code.
 
 ### BarcodeScanner
 
-`codes` (a `ty_t_code` table, bind two-way), `formats`, `expected`, `text`,
-`icon`, `type`, `enabled`, `title`, `facingmode`, `deviceid`, `liburl`,
-`wasmurl` · events `scanned`, `error` (with `message`).
+`codes` (a `ty_t_code` table, bind two-way), `mode`, `formats`, `expected`,
+`text`, `icon`, `type`, `enabled`, `title`, `facingmode`, `deviceid`, `liburl`,
+`wasmurl` · events `scanned` (with `count`), `error` (with `message`).
 
 A button that opens the camera. Every frame is read with
 [zxing-wasm](https://github.com/Sec-ant/zxing-wasm) — ZXing-C++ compiled to
@@ -170,13 +170,46 @@ z2ui5_cl_cci_barcode_scanner=>render(
     scanned  = client->_event( `SCANNED` ) ).
 ```
 
-When `scanned` arrives, `t_code` holds one row per distinct code — `text` and
-`format` (`EAN13`, `Code128`, `QRCode`, `DataMatrix`, …). A code only counts
-once it was read in two frames, which keeps a one-off misread of a worn 1D code
-out of the result. Without `expected` the user collects until pressing OK;
-Cancel leaves the table untouched. `formats` takes zxing-wasm's names or groups
-(`AllLinear`, `AllMatrix`, `AllRetail`, …); naming only what is on the label is
-faster and rules out misreads, and a misspelt name is reported through `error`.
+When `scanned` arrives, `t_code` holds one row per distinct code — `text`,
+`format` (`EAN13`, `Code128`, `QRCode`, `DataMatrix`, …) and `count`, which is
+1 unless you count labels (below). A code only counts once it was read in two
+frames, which keeps a one-off misread of a worn 1D code out of the result.
+Without `expected` the user collects until pressing OK; Cancel leaves the table
+untouched. `formats` takes zxing-wasm's names or groups (`AllLinear`,
+`AllMatrix`, `AllRetail`, …); naming only what is on the label is faster and
+rules out misreads, and a misspelt name is reported through `error`.
+
+**Counting identical labels.** Twelve cartons of one article carry twelve
+labels with the same EAN, and a scan of distinct codes returns that EAN once.
+With `mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count` a code is taken as
+often as it is in the picture at once — the scan tells two cartons apart by
+where their labels sit — and comes back as one row per code, with the number
+of labels in `count`:
+
+```abap
+z2ui5_cl_cci_barcode_scanner=>render(
+    view     = page
+    codes    = client->_bind( t_code )
+    mode     = z2ui5_cl_cci_barcode_scanner=>cs_mode-count
+    formats  = `EAN13`
+    expected = `12`                       " optional - complete at 12 labels, all codes together
+    text     = `Count`
+    scanned  = client->_event( `SCANNED` ) ).
+```
+
+A pallet with two articles comes back as two rows, and the event parameter
+`count` is all labels together. What makes it reliable, and what it cannot do:
+
+- **All labels have to be in one picture.** The count of a code is the most
+  copies one frame showed — confirmed, like a code, by a second frame — and
+  never a sum over frames: the camera moves, and a label seen in two frames is
+  still one label. A frame that misses a label takes nothing back. For the
+  sides of a pallet, scan each side and add the counts up in ABAP.
+- **Equal 1D codes one above the other need some room.** The reader takes two
+  equal linear codes that are closer than about half their width, vertically,
+  for one symbol. Cartons on a pallet are much further apart than that; labels
+  printed densely on one sheet are not. QR codes and DataMatrix have no such
+  limit, and neither do codes side by side.
 
 Two things the page has to allow:
 
@@ -209,8 +242,9 @@ METHOD z2ui5_if_ui5_exit~set_config_http_get.
 ENDMETHOD.
 ```
 
-`z2ui5_cl_cci_sample_11` shows a test label with four codes, drawn by the
-Barcode control: open it on a second screen and point a phone at it.
+`z2ui5_cl_cci_sample_11` shows a test label with four codes and a test pallet
+of six cartons of two articles, drawn by the Barcode control: open it on a
+second screen and point a phone at it, in either mode.
 
 ### DriverJs
 
