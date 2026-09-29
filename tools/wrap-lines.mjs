@@ -19,7 +19,8 @@
 // diff.
 //
 // So the libraries are vendored byte-for-byte and only *wrapped* here: newlines
-// are inserted, nothing else is touched.
+// are inserted, nothing else is touched - bar the two quotes an unquoted CSS
+// url() gets when it is too long for a line (see wrapCss).
 //
 // Why the inserted newlines are safe
 // ----------------------------------
@@ -46,8 +47,9 @@
 // CSS alike. The split point never lands inside an escape sequence or between
 // the halves of a surrogate pair.
 //
-// The text of a template literal is continued the same way, but only when the
-// literal is untagged. `\`<LF> is a LineContinuation there and contributes
+// The text of a template literal is continued the same way, wherever a run of
+// it would overflow its line, but only when the literal is untagged. `\`<LF>
+// is a LineContinuation there and contributes
 // nothing to the string an untagged literal produces - its "cooked" value. A
 // tag function also receives the raw text, which would carry the backslash and
 // the newline, so a literal that might be tagged is left whole.
@@ -156,7 +158,12 @@ const ESCAPE =
 function splitLiteral(raw, firstMax, restMax) {
   const out = [];
   let line = "";
-  let limit = Math.max(16, firstMax);
+  // The first chunk takes what room the line has left, however little: a
+  // literal can open on a line that is already full (the key in front of it
+  // ended exactly at the limit), and a minimum on the first chunk is then
+  // what pushes the line past the width a BSP page can carry. Two leaves room
+  // for one unit and its continuation backslash.
+  let limit = Math.max(2, firstMax);
 
   for (let i = 0; i < raw.length; ) {
     const escape = raw[i] === "\\" ? ESCAPE.exec(raw.slice(i, i + 12)) : null;
@@ -207,19 +214,33 @@ export function wrapJs(source, max = DEFAULT_MAX) {
   const top = () => nesting[nesting.length - 1];
   const inTemplateText = () => top() === "template" || top() === "untagged";
 
+  // Set after a continued run of template text went straight into the output:
+  // the segment after it opens with the `${` or the closing backquote of that
+  // same literal, so a newline in front of it would be template text - part
+  // of the string. That segment continues the line, whatever its length.
+  let glued = false;
+
   // Commits the buffered segment, starting a new line first if it would not
   // fit. Breaking at the last opportunity before the limit - rather than at
   // the first one after it - is what keeps every line inside `max`.
   const commit = () => {
     if (!segment) return;
-    if (column > 0 && column + segment.length > max) {
+    if (column > 0 && column + segment.length > max && !glued) {
       parts.push("\n");
       column = 0;
     }
+    glued = false;
     parts.push(segment);
     const nl = segment.lastIndexOf("\n");
     column = nl === -1 ? column + segment.length : segment.length - nl - 1;
     segment = "";
+  };
+
+  // The column the next token would start at if nothing were broken before
+  // it: the committed line plus whatever is still buffered.
+  const landsAt = () => {
+    const nl = segment.lastIndexOf("\n");
+    return nl === -1 ? column + segment.length : segment.length - nl - 1;
   };
 
   for (let i = 0; i < tokens.length; i += 1) {
@@ -233,9 +254,14 @@ export function wrapJs(source, max = DEFAULT_MAX) {
     cursor = token.end;
 
     // template text is continued only inside an untagged literal (see the
-    // header); the backquotes are tokens of their own, so `raw` is the text
+    // header); the backquotes are tokens of their own, so `raw` is the text.
+    // Not only when one run of text is longer than a line by itself: an HTML
+    // template is typically many short runs between `${...}`, no break is
+    // allowed in or after any of them, and together they make a line no BSP
+    // page can carry. So a run that would overflow the line it lands on is
+    // continued as well.
     const longTemplateText =
-      token.type === tokTypes.template && raw.length > max && top() === "untagged";
+      token.type === tokTypes.template && top() === "untagged" && landsAt() + raw.length > max;
 
     if ((token.type === tokTypes.string && raw.length > max) || longTemplateText) {
       // Longer than a whole line: no break opportunity can help, so the
@@ -253,6 +279,7 @@ export function wrapJs(source, max = DEFAULT_MAX) {
       parts.push(split);
       const nl = split.lastIndexOf("\n");
       column = nl === -1 ? column + split.length : split.length - nl - 1;
+      glued = longTemplateText;
     } else {
       segment += raw;
     }
@@ -291,7 +318,9 @@ const CSS_BREAK = new Set([";", ",", "{", "}"]);
  * Strings and `url(...)` values are consumed whole, because a data URI carrying
  * an inlined font contains both `;` and `,` and breaking on those would corrupt
  * it. A quoted value too long for one line is continued with a backslash, which
- * CSS defines exactly like JavaScript does.
+ * CSS defines exactly like JavaScript does. An unquoted `url(...)` too long for
+ * one line is quoted first - the one place the wrapper adds characters other
+ * than line breaks, and two quotes that do not change the value.
  *
  * @param {string} source
  * @param {number} [max]
@@ -347,7 +376,18 @@ export function wrapCss(source, max = DEFAULT_MAX) {
     if (/^url\(/i.test(source.slice(i, i + 4)) && !/["']/.test(source[i + 4] ?? "")) {
       const end = source.indexOf(")", i);
       const stop = end === -1 ? source.length : end + 1;
-      segment += source.slice(i, stop);
+      const run = source.slice(i, stop);
+      const inner = run.slice(4, -1).trim();
+      if (end !== -1 && run.length > max && !/["\n]/.test(inner)) {
+        // Nothing inside an unquoted url() can be continued - a line break
+        // there ends the token - so an inlined image too long for a line is
+        // quoted first. url(x) and url("x") are the same value; the quoted
+        // form is then continued with a backslash like any other string.
+        commit();
+        segment += `${run.slice(0, 4)}${splitLiteral(`"${inner}"`, max - column - 4, max)})`;
+      } else {
+        segment += run;
+      }
       i = stop;
       continue;
     }

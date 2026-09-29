@@ -31,6 +31,10 @@ const tree = (source) =>
     key === "start" || key === "end" || key === "raw" ? undefined : value,
   );
 
+// url("x") and url(x) are the same value in CSS; the wrapper may turn the
+// second into the first, so content comparisons read both the same way.
+const unquoteUrls = (css) => css.replace(/url\("([^"()\s]*)"\)/g, "url($1)");
+
 test("every vendored JavaScript library survives wrapping unchanged", (t) => {
   const entries = config.entries.filter((entry) => entry.kind === "js");
   assert.ok(entries.length > 0, "libs.json declares no JavaScript libraries");
@@ -62,14 +66,16 @@ test("every vendored stylesheet wraps within the BSP line limit", () => {
       `${entry.package}: line(s) too long for a BSP page`,
     );
     // undoing the line continuations and the inserted newlines must give the
-    // declarations back verbatim
+    // declarations back verbatim - up to the quotes an over-long url() gains,
+    // which is why both sides are compared with url("x") read as url(x)
     assert.equal(
-      wrapped.replace(/\\\n/g, "").replace(/\n/g, ""),
-      source.replace(/\n/g, ""),
+      unquoteUrls(wrapped.replace(/\\\n/g, "").replace(/\n/g, "")),
+      unquoteUrls(source.replace(/\n/g, "")),
       `${entry.package}: stylesheet content changed`,
     );
   }
 });
+
 
 test("a template literal does not gain a line break", () => {
   const filler = "x".repeat(DEFAULT_MAX);
@@ -93,6 +99,46 @@ test("an untagged template literal longer than a line is continued, its value un
   assert.ok(wrapped.includes("\\\n"), "expected a line continuation");
   assert.deepEqual(overlongLines(wrapped, BSP_LINE_WIDTH), []);
   assert.equal(evaluate(wrapped, "s"), evaluate(source, "s"));
+});
+
+test("an untagged template made of short runs is continued where it overflows", () => {
+  // An HTML template: no run is longer than a line, but no break may follow
+  // any of them either - together they used to make one line of 400+.
+  const run = (c) => `<li class=\\"${c.repeat(90)}\\">\\n\\t`;
+  const source = `const t = "x"; const s = \`${run("a")}\${t}${run("b")}\${t}${run("c")}\${t}${run("d")}\`;`;
+  const wrapped = wrapJs(source);
+
+  assert.equal(tree(wrapped), tree(source));
+  assert.deepEqual(overlongLines(wrapped, BSP_LINE_WIDTH), []);
+  assert.equal(evaluate(wrapped, "s"), evaluate(source, "s"));
+});
+
+test("a short template at the end of a line keeps its closing backquote there", () => {
+  // Tiny untagged literals, as minifiers write them: when one lands at the
+  // very end of a line it is continued, and the backquote (or the `${`) after
+  // it must stay on that line - a newline in front of it is template text, and
+  // `L` becomes `L\n`. zxing-wasm is where this was found. Which column is the
+  // bad one depends on everything before it, so every one around the wrap
+  // target is tried.
+  for (let pad = 0; pad < 260; pad += 1) {
+    const source = `const a = [${"0,".repeat(pad)}\`L\`,\`M\${1}N\`];`;
+    const wrapped = wrapJs(source);
+
+    assert.equal(tree(wrapped), tree(source), `pad ${pad}`);
+    assert.deepEqual(overlongLines(wrapped, BSP_LINE_WIDTH), [], `pad ${pad}`);
+    assert.deepEqual(evaluate(wrapped, "a"), evaluate(source, "a"), `pad ${pad}`);
+  }
+});
+
+test("a string that opens on a full line still fits a BSP page", () => {
+  // the key ends exactly at the wrap target, so the string opens with no room
+  // left on its line - its first chunk must be the quote and nothing more
+  const key = "k".repeat(DEFAULT_MAX - "const o = {".length - 1);
+  const source = `const o = {${key}:"${"s".repeat(DEFAULT_MAX * 2)}"};`;
+  const wrapped = wrapJs(source);
+
+  assert.equal(tree(wrapped), tree(source));
+  assert.deepEqual(overlongLines(wrapped, BSP_LINE_WIDTH), []);
 });
 
 test("a template literal that may be tagged is never continued", () => {
@@ -155,6 +201,23 @@ test("a CSS data URI survives wrapping", () => {
   assert.deepEqual(overlongLines(wrapped, BSP_LINE_WIDTH), []);
   const flat = wrapped.replace(/\\\n/g, "").replace(/\n/g, "");
   assert.ok(flat.includes(`base64,${base64}`), "data URI did not survive");
+});
+
+test("an unquoted CSS url() too long for a line is quoted and continued", () => {
+  // how SunEditor inlines its cursors and icons - no quotes, so nothing in it
+  // could be continued as it stands
+  const base64 = "PHN2".repeat(DEFAULT_MAX);
+  const source = `.a{cursor:url(data:image/svg+xml;base64,${base64}) 4 4,auto}.b{color:red}`;
+  const wrapped = wrapCss(source);
+
+  assert.deepEqual(overlongLines(wrapped, BSP_LINE_WIDTH), []);
+  const flat = wrapped.replace(/\\\n/g, "").replace(/\n/g, "");
+  assert.equal(flat, `.a{cursor:url("data:image/svg+xml;base64,${base64}") 4 4,auto}.b{color:red}`);
+});
+
+test("a short unquoted CSS url() is left as it is", () => {
+  const source = `.a{background:url(img/x.png) no-repeat}`;
+  assert.equal(wrapCss(source), source);
 });
 
 test("wrapText breaks on words and keeps short lines alone", () => {
