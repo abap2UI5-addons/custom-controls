@@ -1,39 +1,66 @@
-[![ABAP](https://img.shields.io/badge/ABAP-Standard%20(%E2%89%A5%207.50)-blue)](#install)
-[![namespace](https://img.shields.io/badge/namespace-z2ui5__cl__cci-blue)](abaplint.jsonc)
-[![dependency](https://img.shields.io/badge/dependency-abap2UI5-blue)](https://github.com/abap2UI5/abap2UI5)
-[![abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fabap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
-<br><br>
-[![check-abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fcheck-abap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
-[![check](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml/badge.svg)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
+# custom-controls
+
+[![abap2UI5-addons](https://img.shields.io/badge/abap2UI5--addons-library-1873b4)](https://github.com/abap2UI5-addons)
+[![ABAP](https://img.shields.io/badge/ABAP-Standard%20%E2%89%A5%207.50-blue)](#installation)
+[![abap2UI5](https://img.shields.io/badge/requires-abap2UI5-blue)](https://github.com/abap2UI5/abap2UI5)
+[![License](https://img.shields.io/github/license/abap2UI5-addons/custom-controls)](LICENSE)
 <br>
-[![publish-local](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/publish-local.yml/badge.svg)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/publish-local.yml)
+[![check](https://img.shields.io/github/actions/workflow/status/abap2UI5-addons/custom-controls/check.yml?branch=main&label=check)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
+[![check-abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fcheck-abap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
+[![abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fabap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
 
-# abap2UI5 custom controls
-
-Thirteen ready-to-use custom controls for
-[abap2UI5](https://github.com/abap2UI5/abap2UI5) — signature pad, charts,
+**Thirteen ready-to-use custom controls for
+[abap2UI5](https://github.com/abap2UI5/abap2UI5)** — signature pad, charts,
 barcodes, a scanner that reads several barcodes at once, Excel export, form
 validation, product tours, Font Awesome, animations, clickable image maps,
-Markdown, a code editor and a rich text editor.
+Markdown, a code editor and a rich text editor. Each one is a builder class
+with one `render( )` method, for abap2UI5 developers who need a control UI5
+does not bring along.
 
-They ship in their **own BSP** (`Z2UI5_CCI`), not inside the framework. Install this
+> Part of [abap2UI5-addons](https://github.com/abap2UI5-addons) - addons and apps for [abap2UI5](https://github.com/abap2UI5/abap2UI5), installed with [abapGit](https://abapgit.org).
+
+## Why
+
+The controls ship in their **own BSP** (`Z2UI5_CCI`), not inside the framework. Install this
 repository and the controls are there; nothing in abap2UI5 or in the frontend BSP
 has to change, and no pull request against the framework is needed to add one.
 
-## Install
+These controls replace the
+[abap2UI5-addons/js-libraries-obsolet](https://github.com/abap2UI5-addons/js-libraries-obsolet)
+and
+[abap2UI5-addons/custom-controls-obsolet](https://github.com/abap2UI5-addons/custom-controls-obsolet)
+repositories, which shipped the same JavaScript as ABAP string literals injected
+into every view. Each control's JS file names the class it came from and lists
+what changed. Favicon and MessageManager were not ported — abap2UI5 carries them
+itself (`z2ui5_cl_xml_view_cc=>favicon( )` / `=>message_manager( )`).
 
-1. Install this repository with abapGit. It brings the ABAP classes, the BSP
-   application `Z2UI5_CCI` and the two ICF nodes it is served from.
-2. Start **`?app_start=z2ui5_cl_cci_sample_00`** — the overview app lists every
-   control and opens its sample.
+## Installation
 
-Requires abap2UI5 with the reserved resourceRoot `z2ui5_cci` in the frontend
-manifest (see [Troubleshooting](#troubleshooting) if a control stays blank).
+**Requirements**
 
-On a system whose browsers have no internet access, install the `local` branch
-instead — see [Branches](#branches).
+- Standard ABAP 7.50 or higher
+- [abap2UI5](https://github.com/abap2UI5/abap2UI5) with the reserved
+  resourceRoot `z2ui5_cci` in the frontend manifest (see
+  [Troubleshooting](#troubleshooting) if a control stays blank)
 
-## Using a control
+**Steps** - with [abapGit](https://abapgit.org), in this order:
+
+1. [abap2UI5](https://github.com/abap2UI5/abap2UI5)
+2. this repository - it brings the ABAP classes, the BSP application
+   `Z2UI5_CCI` and the two ICF nodes it is served from. Pick the branch:
+
+   | Branch | What it is | Install it when |
+   |---|---|---|
+   | `main` | the sources, ABAP ≥ 7.50, libraries from jsDelivr | the default |
+   | `local` | the same, with every library vendored into the BSP | the browsers have no internet access |
+
+   `local` is generated from `main` by CI - see [Branches](#branches).
+
+**Start** - **`?app_start=z2ui5_cl_cci_sample_00`** — the overview app lists every
+control and opens its sample. If it says `ICF Node NOT found!`, activate the
+node `z2ui5_cci` in transaction `SICF`.
+
+## Usage
 
 Every control has a builder class with one `render( )` method. Declare the
 namespace once per view, then add controls like any other:
@@ -431,12 +458,8 @@ z2ui5_cl_cci_chartjs=>render( view = page config = … liburl = `/sap/bc/ui5_ui5
 
 `main` is where development happens; `local` is **generated from it on every
 push** and force-pushed by CI. Never develop on it — a commit made there is gone
-with the next run. Install it with abapGit exactly like `main`.
-
-| Branch | What it is | Install it when |
-|---|---|---|
-| `main` | the sources, ABAP ≥ 7.50, libraries from jsDelivr | the default |
-| `local` | the same, with every library vendored into the BSP | the browsers have no internet access |
+with the next run. Install it with abapGit exactly like `main` (the table is
+under [Installation](#installation)).
 
 `npm run build:local` copies every library out of `node_modules` into
 `app/webapp/lib/` and regenerates the BSP, which grows to about 6 MB — 1.3 MB of
@@ -492,6 +515,7 @@ Two consequences worth knowing before installing it:
   `fonturi` to switch the IconPool half back on.
 - **ExportSpreadsheet and CodeEditor were never affected**, and still are not:
   both use libraries out of the UI5 distribution rather than a CDN.
+
 
 ## Troubleshooting
 
@@ -551,26 +575,36 @@ UI5 module namespace `z2ui5_cci.cc`. It needs an abap2UI5 that reserves that
 root; frontends predating the rename reserve `z2ui5ccc` (and older ones
 `z2ui5cc`) and cannot resolve the controls.
 
-CI runs abaplint against the abap2UI5 framework in both syntax versions,
-syntax-checks every control, runs the line-wrapper tests, builds the `local`
-variant, and fails if any generated artefact — the BSP under `src/01` or
-`LibUrls.js` — has drifted from its source.
-
 ## Building something only your company needs?
 
 This repository is for controls worth sharing. For a customer's **own**
 frontend artefacts — an in-house reuse library, a corporate icon font, company
 CSS — use
-[abap2UI5/customer-frontend-extension](https://github.com/abap2UI5/customer-frontend-extension).
-It is the same mechanism under a second reserved resourceRoot (`z2ui5ext`
+[abap2UI5-addons/custom-controls-customer](https://github.com/abap2UI5-addons/custom-controls-customer).
+It is the same mechanism under a second reserved resourceRoot (`z2ui5_ccc`
 instead of `z2ui5_cci`), so the two can be installed side by side and neither
 needs a change to abap2UI5.
 
-These controls replace the
-[abap2UI5-addons/js-libraries-obsolet](https://github.com/abap2UI5-addons/js-libraries-obsolet)
-and
-[abap2UI5-addons/custom-controls-obsolet](https://github.com/abap2UI5-addons/custom-controls-obsolet)
-repositories, which shipped the same JavaScript as ABAP string literals injected
-into every view. Each control's JS file names the class it came from and lists
-what changed. Favicon and MessageManager were not ported — abap2UI5 carries them
-itself (`z2ui5_cl_xml_view_cc=>favicon( )` / `=>message_manager( )`).
+## Development
+
+Run what CI runs:
+
+```sh
+npm ci
+npm run check
+```
+
+CI runs abaplint against the abap2UI5 framework in both syntax versions,
+syntax-checks every control, runs the line-wrapper tests, builds the `local`
+variant, and fails if any generated artefact — the BSP under `src/01` or
+`LibUrls.js` — has drifted from its source.
+
+## Contributing
+
+Issues and pull requests are welcome - see [CONTRIBUTING.md](CONTRIBUTING.md)
+and, for the rules of the code, [AGENTS.md](AGENTS.md). Security issues:
+[SECURITY.md](SECURITY.md).
+
+## License
+
+MIT - see [LICENSE](LICENSE).
