@@ -431,7 +431,7 @@ this way; `omit_initial_paths` limits the omission to the fields it lists.
 ### Third-party libraries
 
 Eight controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
-driver.js 1, Font Awesome 6, animate.css 4, marked 12 and SunEditor 3 (each
+driver.js 1, Font Awesome 6, animate.css 4, marked 18 and SunEditor 3 (each
 together with DOMPurify 3), and zxing-wasm 3. Each control loads its library on
 first use, cached per URL, so ten charts on a page fetch Chart.js once.
 
