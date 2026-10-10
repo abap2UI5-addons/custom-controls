@@ -61,7 +61,10 @@ sap.ui.define(
         if (!element || typeof element !== "string") return element;
         if (/^[#.[]/.test(element)) return element;
         const control = Util.resolveControl(this, element);
-        return control ? `#${control.getId()}` : element;
+        if (!control) return element;
+        // a UI5 id may carry characters a selector reads as syntax (`.`, `:`)
+        const id = control.getId();
+        return `#${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(id) : id}`;
       },
 
       // driver.js wants arrays for showButtons/disableButtons, but ABAP has no
