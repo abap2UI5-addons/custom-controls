@@ -134,12 +134,18 @@
       "cdn": "https://cdn.jsdelivr.net/npm/animate.css@{version}/animate.min.css"
     },
     {
+      "_comment": [
+        "Held at 18.0.13: from 18.0.14 on, marked's UMD bundle carries a 287-character",
+        "regular expression literal, and a regex literal has no place a line break",
+        "may go - tools/wrap-lines.mjs cannot fit it into a 255-character BSP line,",
+        "so the local build fails. Move on once a release splits that expression."
+      ],
       "key": "marked",
       "package": "marked",
-      "file": "marked.min.js",
+      "file": "lib/marked.umd.js",
       "target": "marked.js",
       "kind": "js",
-      "cdn": "https://cdn.jsdelivr.net/npm/marked@{version}/marked.min.js"
+      "cdn": "https://cdn.jsdelivr.net/npm/marked@{version}/lib/marked.umd.js"
     },
     {
       "key": "domPurify",
