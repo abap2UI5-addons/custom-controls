@@ -24,9 +24,9 @@ CLASS z2ui5_cl_cci_code_editor DEFINITION
 
   PUBLIC SECTION.
 
-    "! A few of the types sap.ui.codeeditor supports. It knows about eighty;
-    "! any of its names can be passed to render( ) directly.
     CONSTANTS:
+      "! A few of the types sap.ui.codeeditor supports. It knows about eighty;
+      "! any of its names can be passed to render( ) directly.
       BEGIN OF cs_type,
         markdown   TYPE string VALUE `markdown`,
         abap       TYPE string VALUE `abap`,

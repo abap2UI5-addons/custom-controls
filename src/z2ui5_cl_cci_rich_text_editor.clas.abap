@@ -25,11 +25,11 @@ CLASS z2ui5_cl_cci_rich_text_editor DEFINITION
 
   PUBLIC SECTION.
 
-    "! Toolbars for the `toolbar` parameter - button groups separated by `|`,
-    "! buttons by `,`, named as SunEditor names them. Empty is the full default
-    "! toolbar: formats, fonts, colours, alignment, lists, table, link, image,
-    "! full screen and the HTML source view.
     CONSTANTS:
+      "! Toolbars for the `toolbar` parameter - button groups separated by `|`,
+      "! buttons by `,`, named as SunEditor names them. Empty is the full default
+      "! toolbar: formats, fonts, colours, alignment, lists, table, link, image,
+      "! full screen and the HTML source view.
       BEGIN OF cs_toolbar,
         "! text, lists and links - for notes and comments
         basic TYPE string VALUE `undo,redo|bold,italic,underline|list_bulleted,list_numbered|link|removeFormat`,
