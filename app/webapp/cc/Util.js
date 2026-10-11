@@ -102,15 +102,42 @@ sap.ui.define(["sap/ui/core/Element"], (Element) => {
     return null;
   }
 
+  // The control registered under a full id. Element.getElementById arrived
+  // in UI5 1.119; before it the registry is reached through
+  // sap.ui.getCore().byId - the same fallback abap2UI5's own frontend uses
+  // (app/webapp/core/Env.js).
+  function byGlobalId(id) {
+    if (Element.getElementById) return Element.getElementById(id) || null;
+    const core = sap.ui.getCore ? sap.ui.getCore() : null;
+    return (core && core.byId && core.byId(id)) || null;
+  }
+
+  // Every control whose id ends in `suffix`. Element.registry exists from UI5
+  // 1.84 on; older releases have no public list of controls, so the rendered
+  // DOM serves as the index there - a control the app points at by id (a
+  // table to export, a field to validate, a tour step) is on the page.
+  function bySuffix(suffix) {
+    if (Element.registry) {
+      return Element.registry.filter((el) => el.getId().endsWith(suffix));
+    }
+    const hits = [];
+    document.querySelectorAll("[id]").forEach((node) => {
+      if (!node.id.endsWith(suffix)) return;
+      const control = byGlobalId(node.id);
+      if (control && !hits.includes(control)) hits.push(control);
+    });
+    return hits;
+  }
+
   // Resolves the id an abap2UI5 app wrote in the view (`id = 'myTable'`) to
   // the control instance.
   //
   // Three attempts, because the same app id can end up in three different
   // scopes: the main view, a nested view, or a popup/popover fragment. The
-  // last attempt scans the element registry for an id ending in `--<id>`,
-  // which covers every prefixing scheme without the control having to know
-  // which view it landed in - that is what the old
-  // z2ui5.oView/oViewNest/oViewPopup cascade was doing by hand.
+  // last attempt looks for an id ending in `--<id>`, which covers every
+  // prefixing scheme without the control having to know which view it landed
+  // in - that is what the old z2ui5.oView/oViewNest/oViewPopup cascade was
+  // doing by hand.
   function resolveControl(control, id) {
     if (!id) return null;
 
@@ -118,12 +145,11 @@ sap.ui.define(["sap/ui/core/Element"], (Element) => {
     const local = view && view.byId(id);
     if (local) return local;
 
-    const global = Element.getElementById ? Element.getElementById(id) : null;
+    const global = byGlobalId(id);
     if (global) return global;
 
     try {
-      const suffix = `--${id}`;
-      const hits = Element.registry.filter((el) => el.getId().endsWith(suffix));
+      const hits = bySuffix(`--${id}`);
       if (hits.length === 1) return hits[0];
       if (hits.length > 1) {
         logError(
@@ -131,9 +157,9 @@ sap.ui.define(["sap/ui/core/Element"], (Element) => {
         );
       }
     } catch (e) {
-      // Element.registry is not part of every UI5 version - not finding the
-      // control is a normal outcome, not a reason to throw out of a hook.
-      logError("Util.resolveControl: element registry unavailable", e);
+      // not finding the control is a normal outcome, not a reason to throw
+      // out of a hook
+      logError("Util.resolveControl: control lookup failed", e);
     }
 
     return null;
