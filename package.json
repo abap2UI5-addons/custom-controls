@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@abap2ui5/linter": "^0.8.5",
-    "@abaplint/cli": "^2.120.73",
+    "@abaplint/cli": "^2.120.75",
     "@fortawesome/fontawesome-free": "6.7.2",
     "acorn": "^8.19.0",
     "animate.css": "4.1.1",
