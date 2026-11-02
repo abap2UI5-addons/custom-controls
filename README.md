@@ -39,6 +39,8 @@ itself (`z2ui5_cl_xml_view_cc=>favicon( )` / `=>message_manager( )`).
 **Requirements**
 
 - Standard ABAP 7.50 or higher
+- NetWeaver 7.02 - 7.40: the branch `702`, downported automatically from
+  `main` on every push - pull abap2UI5 from their `702` branches as well
 - [abap2UI5](https://github.com/abap2UI5/abap2UI5) with the reserved
   resourceRoot `z2ui5_cci` in the frontend manifest (see
   [Troubleshooting](#troubleshooting) if a control stays blank)
@@ -53,8 +55,9 @@ itself (`z2ui5_cl_xml_view_cc=>favicon( )` / `=>message_manager( )`).
    |---|---|---|
    | `main` | the sources, ABAP ≥ 7.50, libraries from jsDelivr | the default |
    | `local` | the same, with every library vendored into the BSP | the browsers have no internet access |
+   | `702` | `main` downported to ABAP 7.02 | NetWeaver 7.02 - 7.40 |
 
-   `local` is generated from `main` by CI - see [Branches](#branches).
+   `local` and `702` are generated from `main` by CI - see [Branches](#branches).
 
 **Start** - **`?app_start=z2ui5_cl_cci_sample_00`** — the overview app lists every
 control and opens its sample. If it says `ICF Node NOT found!`, activate the
@@ -460,6 +463,10 @@ z2ui5_cl_cci_chartjs=>render( view = page config = … liburl = `/sap/bc/ui5_ui5
 push** and force-pushed by CI. Never develop on it — a commit made there is gone
 with the next run. Install it with abapGit exactly like `main` (the table is
 under [Installation](#installation)).
+
+`702` is generated the same way: `publish-702` downports `main` to ABAP 7.02
+(`npm run auto_downport`) on every push and force-pushes the result, and
+`abap-702` lints it. It carries the jsDelivr libraries of `main`.
 
 `npm run build:local` copies every library out of `node_modules` into
 `app/webapp/lib/` and regenerates the BSP, which grows to about 6 MB — 1.3 MB of

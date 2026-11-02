@@ -1,0 +1,39 @@
+{
+  "global": {
+    "files": "/../../src/**/*.*"
+  },
+  "dependencies": [
+    {
+      // the downported abap2UI5 (branch 702 is generated from main)
+      "url": "https://github.com/abap2UI5/abap2UI5",
+      "branch": "702",
+      "folder": "/abap2UI5",
+      "files": "/src/**/*.*"
+    },
+    {
+      "url": "https://github.com/abapedia/steampunk-2305-api-intersect-702",
+      "folder": "/deps",
+      "files": "/src/**/*.*"
+    }
+  ],
+  "syntax": {
+    "version": "v702",
+    "errorNamespace": "^(Z|Y)"
+  },
+  "rules": {
+    "downport": true,
+    "begin_end_names": true,
+    "check_ddic": true,
+    "check_include": true,
+    "check_syntax": true,
+    "global_class": true,
+    "definitions_top": true,
+    "implement_methods": true,
+    "method_implemented_twice": true,
+    "parser_error": true,
+    "superclass_final": true,
+    "uncaught_exception": true,
+    "unknown_types": true,
+    "xml_consistency": true
+  }
+}
