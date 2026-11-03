@@ -389,6 +389,28 @@
     "redundant_cast": true,
     "smim_consistency": true,
     "sort_empty_key": true,
-    "subrc_after_assign": true
+    "subrc_after_assign": true,
+    // added 2026-11 with their findings fixed. Exceptions: the BSP pages keep
+    // their bytes (final_newline), imagemapster marks single optional parameters
+    // ##NEEDED inside the METHODS statement (pragma_style), and three PUBLIC
+    // constant groups are API for apps, not variables (unused_variables)
+    "short_case": true,
+    "final_newline": {
+      "exclude": [
+        "\\.wapa\\."
+      ]
+    },
+    "pragma_style": {
+      "exclude": [
+        "z2ui5_cl_cci_imagemapster\\."
+      ]
+    },
+    "unused_variables": {
+      "skipNames": [
+        "cs_buttons",
+        "cs_modifier",
+        "cs_exit"
+      ]
+    }
   }
 }

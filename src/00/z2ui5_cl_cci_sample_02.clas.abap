@@ -195,14 +195,11 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
 
   METHOD on_event.
 
-    CASE client->get( )-event.
-
-      WHEN `EXPORTED`.
-        " status already carries what the CONTROL wrote into the model
-        INSERT VALUE #( text = |export { lines( t_log ) + 1 }: { status }| )
-               INTO TABLE t_log.
-
-    ENDCASE.
+    IF client->get( )-event = `EXPORTED`.
+      " status already carries what the CONTROL wrote into the model
+      INSERT VALUE #( text = |export { lines( t_log ) + 1 }: { status }| )
+             INTO TABLE t_log.
+    ENDIF.
 
   ENDMETHOD.
 
