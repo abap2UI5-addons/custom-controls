@@ -17,7 +17,7 @@ Markdown, a code editor and a rich text editor. Each one is a builder class
 with one `render( )` method, for abap2UI5 developers who need a control UI5
 does not bring along.
 
-> Part of [abap2UI5-addons](https://github.com/abap2UI5-addons) - addons and apps for [abap2UI5](https://github.com/abap2UI5/abap2UI5), installed with [abapGit](https://abapgit.org).
+> Part of [abap2UI5-addons](https://github.com/abap2UI5-addons) - addons and apps for [abap2UI5](https://github.com/abap2UI5/abap2UI5), installed with [abapGit](https://abapgit.org). Documentation: [abap2ui5-addons.github.io/custom-controls](https://abap2ui5-addons.github.io/custom-controls/).
 
 ## Why
 
