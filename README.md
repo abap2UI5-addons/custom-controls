@@ -41,7 +41,7 @@ MessageManager as its own control `z2ui5.cc.MessageManager`).
 
 - Standard ABAP 7.50 or higher
 - NetWeaver 7.02 - 7.40: the branch `702`, downported automatically from
-  `main` on every push - pull abap2UI5 from their `702` branches as well
+  `main` on every push - pull abap2UI5 from its `702` branch as well
 - [abap2UI5](https://github.com/abap2UI5/abap2UI5) with the reserved
   resourceRoot `z2ui5_cci` in the frontend manifest (see
   [Troubleshooting](#troubleshooting) if a control stays blank)
@@ -126,7 +126,7 @@ left of the Markdown demo.
 The value is published on pointer-up, not per mouse move. To clear the pad, set
 the bound variable to empty.
 
-<img width="769" height="597" alt="image" src="https://github.com/user-attachments/assets/8aa59505-c73e-4f56-8df9-71b127fea574" />
+<img width="769" height="597" alt="The SignaturePad sample" src="https://github.com/user-attachments/assets/8aa59505-c73e-4f56-8df9-71b127fea574" />
 
 ### ExportSpreadsheet
 
@@ -137,8 +137,7 @@ Reads the bound table in the browser, so the data makes no second trip to the
 backend. Needs SAPUI5 — under OpenUI5 `sap.ui.export` is missing and the button
 renders disabled.
 
-<img width="1252" height="459" alt="image" src="https://github.com/user-attachments/assets/d56be5d4-f43c-4812-94f8-083e38d0fcc2" />
-
+<img width="1252" height="459" alt="The ExportSpreadsheet sample" src="https://github.com/user-attachments/assets/d56be5d4-f43c-4812-94f8-083e38d0fcc2" />
 
 ### Validator
 
@@ -148,8 +147,7 @@ Rule fields: `field`, `type` (`number`/`integer`), `format` (`email`/`date`),
 `pattern`, `required`, `minlength`, `maxlength`, `minimum`, `maximum`,
 `message`. No external library — works without internet access.
 
-<img width="1246" height="636" alt="image" src="https://github.com/user-attachments/assets/c47560cc-503e-439e-a907-f2ff76790b70" />
-
+<img width="1246" height="636" alt="The Validator sample" src="https://github.com/user-attachments/assets/c47560cc-503e-439e-a907-f2ff76790b70" />
 
 ### ChartJs
 
@@ -158,11 +156,12 @@ event `elementpress`.
 
 `config` is the Chart.js configuration verbatim, so anything the Chart.js docs
 describe works from ABAP. Change the structure and the chart updates in
-place — the framework pushes the changed model on its own. `plugins` takes the names from
+place — the framework pushes the changed model on its own. `plugins` takes the
+names from
 `z2ui5_cl_cci_chartjs=>cs_plugin` (`datalabels`, `autocolors`, `deferred`,
 `annotation`, `venn`, `wordcloud`).
 
-<img width="1248" height="630" alt="image" src="https://github.com/user-attachments/assets/7b20eb12-1823-4b25-a3ad-0dfcab95077a" />
+<img width="1248" height="630" alt="The ChartJs sample" src="https://github.com/user-attachments/assets/7b20eb12-1823-4b25-a3ad-0dfcab95077a" />
 
 ### Barcode
 
@@ -174,7 +173,7 @@ event `error`.
 values that encode cleanly. Leave `height` empty for 2D codes — a fixed height
 squashes a QR code.
 
-<img width="1250" height="626" alt="image" src="https://github.com/user-attachments/assets/5dbed958-a00d-4b4d-9bc1-e36007e51e7c" />
+<img width="1250" height="626" alt="The Barcode sample" src="https://github.com/user-attachments/assets/5dbed958-a00d-4b4d-9bc1-e36007e51e7c" />
 
 ### BarcodeScanner
 
@@ -285,8 +284,7 @@ second screen and point a phone at it, in either mode.
 A step's `element` is the **control id from your view**, not a CSS selector; it
 is resolved in the frontend, so a step may point into a nested view or a dialog.
 
-<img width="1244" height="565" alt="image" src="https://github.com/user-attachments/assets/a32d6e9d-ac58-4152-8af0-8d191fc51598" />
-
+<img width="1244" height="565" alt="The DriverJs sample" src="https://github.com/user-attachments/assets/a32d6e9d-ac58-4152-8af0-8d191fc51598" />
 
 ### FontAwesome
 
@@ -297,7 +295,7 @@ One element in the view and Font Awesome is available two ways: as UI5 icons
 (`class="fa-brands fa-github"`). `fonturi` points at a directory holding the font
 *and* the metadata JSON the UI5 IconPool needs.
 
-<img width="1248" height="507" alt="image" src="https://github.com/user-attachments/assets/1545f3d3-0c26-4797-aba9-d1a1de108d4c" />
+<img width="1248" height="507" alt="The FontAwesome sample" src="https://github.com/user-attachments/assets/1545f3d3-0c26-4797-aba9-d1a1de108d4c" />
 
 ### AnimateCss
 
@@ -308,7 +306,7 @@ animates. The class names are constants on `z2ui5_cl_cci_animate_css`
 (`cs_base`, `cs_attention-*`, `cs_entrance-*`, `cs_exit-*`, `cs_modifier-*`).
 `duration`/`delay`/`repeat` retune every animation on the page at once.
 
-<img width="1253" height="623" alt="image" src="https://github.com/user-attachments/assets/b6969b85-73e6-4a27-a7e2-91d78d170b5f" />
+<img width="1253" height="623" alt="The AnimateCss sample" src="https://github.com/user-attachments/assets/b6969b85-73e6-4a27-a7e2-91d78d170b5f" />
 
 ### ImageMapster
 
@@ -329,7 +327,7 @@ only reason anything in this repository needed jQuery. Three parameters survive
 that change as **no-ops**, kept so callers that pass them still compile:
 `liburl` and `autoresize` on `render( )`, and `scale_map` in `ty_s_config`.
 
-<img width="1245" height="508" alt="image" src="https://github.com/user-attachments/assets/b42ba83a-ed4a-43eb-9d06-25f46a493804" />
+<img width="1245" height="508" alt="The ImageMapster sample" src="https://github.com/user-attachments/assets/b42ba83a-ed4a-43eb-9d06-25f46a493804" />
 
 ### Markdown
 
@@ -352,7 +350,7 @@ runs with the user's session. A link whose href starts with `#` does not
 navigate — it raises `linkpress` with the href, which is how a help text links
 into the app it documents. Every other link opens in a new tab.
 
-<img width="900" height="508" alt="Screenshot 2026-08-10 at 23 31 13" src="https://github.com/user-attachments/assets/3dd6fed0-2014-4eed-af9f-45d91bfc8e37" />
+<img width="900" height="508" alt="The Markdown sample" src="https://github.com/user-attachments/assets/3dd6fed0-2014-4eed-af9f-45d91bfc8e37" />
 
 ### RichTextEditor
 
@@ -430,12 +428,10 @@ this way; `omit_initial_paths` limits the omission to the fields it lists.
 `custom_filter` is obsolete on `_bind( )` and the abap2UI5-linter reports it
 (`obsolete-bind-argument`).
 
-
-
 ### Third-party libraries
 
 Eight controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
-driver.js 1, Font Awesome 6, animate.css 4, marked 18 and SunEditor 3 (each
+driver.js 1, Font Awesome 7, animate.css 4, marked 18 and SunEditor 3 (each
 together with DOMPurify 3), and zxing-wasm 3. Each control loads its library on
 first use, cached per URL, so ten charts on a page fetch Chart.js once.
 
