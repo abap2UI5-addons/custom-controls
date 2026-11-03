@@ -18,7 +18,8 @@
     "strip_trailing_ws": "find src -type f -name '*.abap' -exec sed -i 's/[[:space:]]\\+$//' {} +",
     "abaplintpathfix": "sed -i 's|\"/\\.\\./\\.\\./src/|\"/src/|g' abaplint.jsonc",
     "downport": "abaplint --fix .github/abaplint/abap_702.jsonc && npm run syfixes",
-    "auto_downport": "(abaplint --fix .github/abaplint/abap_702.jsonc || true) && npm run syfixes && npm run strip_trailing_ws && abaplint .github/abaplint/abap_702.jsonc && cp -f .github/abaplint/abap_702.jsonc abaplint.jsonc && npm run abaplintpathfix"
+    "auto_downport": "(abaplint --fix .github/abaplint/abap_702.jsonc || true) && npm run syfixes && npm run strip_trailing_ws && abaplint .github/abaplint/abap_702.jsonc && cp -f .github/abaplint/abap_702.jsonc abaplint.jsonc && npm run abaplintpathfix",
+    "deps:post": "npm run vendor && npm run app2bsp"
   },
   "repository": {
     "type": "git",
@@ -51,5 +52,10 @@
     "marked": "18.0.13",
     "suneditor": "3.4.1",
     "zxing-wasm": "3.1.6"
+  },
+  "updateDeps": {
+    "skip": {
+      "marked": "from 18.0.14 on it has a line tools/wrap-lines.mjs cannot break under 255 characters, which the local build needs"
+    }
   }
 }
