@@ -148,14 +148,11 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
 
   METHOD on_event.
 
-    CASE client->get( )-event.
-
-      WHEN `REPLAY`.
-        " a full view_display( ), not a model update: the browser plays a CSS
-        " animation when the class arrives on a fresh element
-        view_display( ).
-
-    ENDCASE.
+    IF client->get( )-event = `REPLAY`.
+      " a full view_display( ), not a model update: the browser plays a CSS
+      " animation when the class arrives on a fresh element
+      view_display( ).
+    ENDIF.
 
   ENDMETHOD.
 

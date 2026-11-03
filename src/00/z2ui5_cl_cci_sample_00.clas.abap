@@ -199,10 +199,9 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
 
   METHOD on_event.
 
-    CASE client->get( )-event.
-      WHEN `LAUNCH`.
-        on_launch( ).
-    ENDCASE.
+    IF client->get( )-event = `LAUNCH`.
+      on_launch( ).
+    ENDIF.
 
   ENDMETHOD.
 

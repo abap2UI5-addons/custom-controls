@@ -13,7 +13,13 @@
     "test": "node --test 'tools/**/*.test.mjs'",
     "check:browser": "node tools/overlay-check.mjs",
     "check:abap2ui5": "abap2ui5lint",
-    "check": "npm run lint && npm run check:abap2ui5 && npm run test"
+    "check": "npm run lint && npm run check:abap2ui5 && npm run test",
+    "syfixes": "find src -type f -name '*.abap' -exec sed -i -e 's/ RAISE EXCEPTION TYPE cx_sy_itab_line_not_found/ ASSERT 1 = 0/g' {} +",
+    "strip_trailing_ws": "find src -type f -name '*.abap' -exec sed -i 's/[[:space:]]\\+$//' {} +",
+    "abaplintpathfix": "sed -i 's|\"/\\.\\./\\.\\./src/|\"/src/|g' abaplint.jsonc",
+    "downport": "abaplint --fix .github/abaplint/abap_702.jsonc && npm run syfixes",
+    "auto_downport": "(abaplint --fix .github/abaplint/abap_702.jsonc || true) && npm run syfixes && npm run strip_trailing_ws && abaplint .github/abaplint/abap_702.jsonc && cp -f .github/abaplint/abap_702.jsonc abaplint.jsonc && npm run abaplintpathfix",
+    "deps:post": "npm run vendor && npm run app2bsp"
   },
   "repository": {
     "type": "git",
@@ -28,23 +34,28 @@
     "node": ">=22"
   },
   "devDependencies": {
-    "@abap2ui5/linter": "^0.8.5",
-    "@abaplint/cli": "^2.120.75",
-    "@fortawesome/fontawesome-free": "6.7.2",
+    "@abap2ui5/linter": "^0.9.0",
+    "@abaplint/cli": "^2.120.92",
+    "@fortawesome/fontawesome-free": "7.3.1",
     "acorn": "^8.19.0",
     "animate.css": "4.1.1",
     "bwip-js": "4.11.4",
-    "chart.js": "4.5.1",
+    "chart.js": "4.6.1",
     "chartjs-chart-venn": "4.3.7",
     "chartjs-chart-wordcloud": "4.4.5",
     "chartjs-plugin-annotation": "3.1.0",
     "chartjs-plugin-autocolors": "0.5.1",
     "chartjs-plugin-datalabels": "2.2.0",
     "chartjs-plugin-deferred": "2.0.0",
-    "dompurify": "3.4.16",
-    "driver.js": "1.9.0",
+    "dompurify": "3.4.17",
+    "driver.js": "1.10.2",
     "marked": "18.0.13",
-    "suneditor": "3.3.3",
-    "zxing-wasm": "3.1.5"
+    "suneditor": "3.4.1",
+    "zxing-wasm": "3.1.6"
+  },
+  "updateDeps": {
+    "skip": {
+      "marked": "from 18.0.14 on it has a line tools/wrap-lines.mjs cannot break under 255 characters, which the local build needs"
+    }
   }
 }

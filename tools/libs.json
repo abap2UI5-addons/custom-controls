@@ -393,9 +393,9 @@
       "'families' lists the @font-face families kept in the local stylesheet. The",
       "package also declares 'Font Awesome 5 *' and 'FontAwesome' aliases for v4/v5",
       "class names; each one would repeat its whole base64 font, so they are",
-      "dropped and only the v6 families survive."
+      "dropped and only the families of the installed major version survive."
     ],
     "cdnFontUri": "https://cdn.jsdelivr.net/gh/choper725/resources/dist/",
-    "families": ["Font Awesome 6 Free", "Font Awesome 6 Brands"]
+    "families": ["Font Awesome 7 Free", "Font Awesome 7 Brands"]
   }
 }
