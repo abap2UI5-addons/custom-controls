@@ -32,17 +32,27 @@ sap.ui.define(
 
     // The properties a value can live in, most specific first - a DatePicker
     // carries a real Date in dateValue and its text in value, and the Date is
-    // the one worth checking.
-    const VALUE_PROPERTIES = ["dateValue", "selectedKey", "selected", "value"];
+    // the one worth checking. value comes before selectedKey: sap.m.Input
+    // declares selectedKey too, and it stays "" unless a suggestion was
+    // picked - the controls that keep their value in the key are named.
+    const VALUE_PROPERTIES = ["dateValue", "selected", "value", "selectedKey"];
+    const KEY_CONTROLS = ["sap.m.Select", "sap.m.ComboBox", "sap.m.SegmentedButton"];
 
     // Deliberately permissive: enough to catch a typo, not an attempt to
     // decide which addresses exist.
     const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const readValue = (control) => {
-      for (const property of VALUE_PROPERTIES) {
+      const properties = control.isA && control.isA(KEY_CONTROLS)
+        ? ["selectedKey"]
+        : VALUE_PROPERTIES;
+      // declared by the control's metadata - "in mProperties" is true for
+      // every property, the bag's prototype holds the defaults
+      const metadata = control.getMetadata && control.getMetadata();
+      for (const property of properties) {
         const getter = `get${property.charAt(0).toUpperCase()}${property.slice(1)}`;
-        if (typeof control[getter] === "function" && property in control.mProperties) {
+        if (typeof control[getter] === "function" &&
+            metadata && metadata.getProperty(property)) {
           return control[getter]();
         }
       }

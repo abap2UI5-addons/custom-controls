@@ -134,9 +134,15 @@ sap.ui.define(
             const index = options && options.state ? options.state.activeIndex : 0;
             this.fireHighlighted({ index: index || 0 });
           },
-          onDestroyed: () => this.fireDone(),
+          // driver.js calls this from destroy( ) as well - a tour torn down
+          // because the control goes away or a new one starts is not done
+          onDestroyed: () => {
+            if (this._quiet || Util.isDestroyed(this)) return;
+            this.fireDone();
+          },
         };
 
+        this._destroyDriver();
         const instance = driver(config);
         this._driver = instance;
 
@@ -183,11 +189,22 @@ sap.ui.define(
         return this;
       },
 
+      _destroyDriver() {
+        if (this._driver && this._driver.destroy) {
+          this._quiet = true;
+          try {
+            this._driver.destroy();
+          } finally {
+            this._quiet = false;
+          }
+        }
+        this._driver = null;
+      },
+
       exit() {
         // a tour outlives its control otherwise: the overlay is appended to
         // <body>, not to this element
-        if (this._driver && this._driver.destroy) this._driver.destroy();
-        this._driver = null;
+        this._destroyDriver();
         const style = document.getElementById(STYLE_ID);
         if (style) style.remove();
       },

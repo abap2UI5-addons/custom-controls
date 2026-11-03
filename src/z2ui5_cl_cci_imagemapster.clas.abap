@@ -42,11 +42,12 @@ CLASS z2ui5_cl_cci_imagemapster DEFINITION
         shape        TYPE string,
         coords       TYPE string,
         alt          TYPE string,
+        "! not used - an area is a button that raises areaPress, not a link
         href         TYPE string,
         fillcolor    TYPE string,
         fillopacity  TYPE string,
         strokecolor  TYPE string,
-        "! start out selected
+        "! start out selected - taken over once, while selectedKeys is empty
         selected     TYPE abap_bool,
         "! always drawn, cannot be turned off by the user
         staticstate  TYPE abap_bool,
