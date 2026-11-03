@@ -13,13 +13,16 @@
     "test": "node --test 'tools/**/*.test.mjs'",
     "check:browser": "node tools/overlay-check.mjs",
     "check:abap2ui5": "abap2ui5lint",
-    "check": "npm run lint && npm run check:abap2ui5 && npm run test",
+    "check:js": "for f in app/webapp/cc/*.js; do node --check \"$f\" || exit 1; done",
+    "check": "npm run lint && npm run check:abap2ui5 && npm run test && npm run check:js && npm run check:browser",
     "syfixes": "find src -type f -name '*.abap' -exec sed -i -e 's/ RAISE EXCEPTION TYPE cx_sy_itab_line_not_found/ ASSERT 1 = 0/g' {} +",
     "strip_trailing_ws": "find src -type f -name '*.abap' -exec sed -i 's/[[:space:]]\\+$//' {} +",
     "abaplintpathfix": "sed -i 's|\"/\\.\\./\\.\\./src/|\"/src/|g' abaplint.jsonc",
     "downport": "abaplint --fix .github/abaplint/abap_702.jsonc && npm run syfixes",
     "auto_downport": "(abaplint --fix .github/abaplint/abap_702.jsonc || true) && npm run syfixes && npm run strip_trailing_ws && abaplint .github/abaplint/abap_702.jsonc && cp -f .github/abaplint/abap_702.jsonc abaplint.jsonc && npm run abaplintpathfix",
-    "deps:post": "npm run vendor && npm run app2bsp"
+    "deps:post": "npm run vendor && npm run app2bsp",
+    "site": "npm run build --prefix site",
+    "site:dev": "npm run dev --prefix site"
   },
   "repository": {
     "type": "git",

@@ -24,8 +24,8 @@ CLASS z2ui5_cl_cci_validator DEFINITION
       "! One rule. <em>field</em> is the control id as the app wrote it in the
       "! view; it is resolved against the view the control sits in.
       "!
-      "! Leave a constraint initial and it is not checked (see
-      "! z2ui5_cl_cci_json_filter). An empty field only fails <em>required</em> -
+      "! Leave a constraint initial and it is not checked (bind with
+      "! omit_initial, see rules below). An empty field only fails <em>required</em> -
       "! every other constraint measures a filled value.
       BEGIN OF ty_s_rule,
         field      TYPE string,
@@ -55,11 +55,11 @@ CLASS z2ui5_cl_cci_validator DEFINITION
 
     "! Emit &lt;z2ui5_cci:Validator/&gt; into an existing view.
     "!
-    "! Bind `rules` with this library's JSON filter, or every constraint the
-    "! app left alone arrives as 0 and rejects everything:
+    "! Bind `rules` with omit_initial, or every constraint the app left alone
+    "! arrives as 0 and rejects everything:
     "!
-    "!   rules = client->_bind( val           = mt_rules
-    "!                          custom_filter = NEW z2ui5_cl_cci_json_filter( ) )
+    "!   rules = client->_bind( val          = mt_rules
+    "!                          omit_initial = abap_true )
     "!
     "! @parameter view      | the builder positioned at the parent element
     "! @parameter rules     | bind of a ty_t_rule table, see above

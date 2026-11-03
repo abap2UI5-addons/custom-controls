@@ -10,6 +10,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  # the abap2UI5 core is resolved from its main branch with no version pin, so
+  # a rename upstream breaks this repository silently. Nothing else notices
+  # while there is no pull request open.
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
 
 concurrency:
   group: check-${{ github.ref }}

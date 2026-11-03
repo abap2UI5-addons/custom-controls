@@ -4,16 +4,18 @@ Ready-to-use custom controls for abap2UI5 - signature pad, charts and more.
 
 ## Before you open a pull request
 
-Run what CI runs:
+Run the local gates:
 
 ```sh
 npm ci
 npm run check
 ```
 
-`npm run check` is the same set of steps the workflows run on a pull request,
-so a green run locally is a green run there. `npm test` runs the Node tests under `tools/`, which `npm run check` also
-includes.
+`npm run check` runs the gates below. CI runs three more, which rewrite the
+tree and so are not part of `check`: `npm run app2bsp` and `npm run vendor`
+must leave `src/` and `app/webapp/` unchanged, and `npm run build:local` must
+succeed. If you changed `app/` or a library version, run `npm run vendor` and
+`npm run app2bsp` and commit the result.
 
 ## What the gates are
 
@@ -22,6 +24,8 @@ includes.
 | `npm run lint` | abaplint: syntax and style, resolved against the abap2UI5 core |
 | `npm run check:abap2ui5` | [abap2UI5-linter](https://github.com/abap2UI5/linter): the app class and the view it builds, judged together — controls, members, bindings, the UI5 version floor |
 | `npm test` | the Node tests under `tools/` |
+| `npm run check:js` | every control under `app/webapp/cc/` parses (`node --check`) |
+| `npm run check:browser` | the ImageMapster overlay in headless Chromium - skipped when no Chromium is found |
 
 The abap2UI5-linter keeps a baseline in `abap2ui5lint-baseline.json`. Findings
 recorded there are counted and never listed; a **new** finding fails the gate,
