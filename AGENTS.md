@@ -38,7 +38,11 @@ npm ci
 npm run check
 ```
 
-`npm run check` runs exactly what CI runs. See [CONTRIBUTING.md](CONTRIBUTING.md)
+`npm run check` runs abaplint, the abap2UI5-linter, the Node tests, a syntax
+check of the controls and the overlay browser check. CI (`check.yml`) also
+checks that `src/01/` matches `npm run app2bsp`, that `LibUrls.js` matches
+`npm run vendor`, and that `npm run build:local` succeeds - those rewrite the
+tree, so they are not part of `check`. See [CONTRIBUTING.md](CONTRIBUTING.md)
 for what each gate proves and how the abap2UI5-linter baseline works.
 
 ## Views

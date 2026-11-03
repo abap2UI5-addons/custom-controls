@@ -32,7 +32,8 @@ and
 repositories, which shipped the same JavaScript as ABAP string literals injected
 into every view. Each control's JS file names the class it came from and lists
 what changed. Favicon and MessageManager were not ported — abap2UI5 carries them
-itself (`z2ui5_cl_xml_view_cc=>favicon( )` / `=>message_manager( )`).
+itself (the favicon through the frontend event `cs_event-set_favicon`, the
+MessageManager as its own control `z2ui5.cc.MessageManager`).
 
 ## Installation
 

@@ -8,15 +8,15 @@
 "! one, so the Chart.js documentation is the reference for what a field means -
 "! neither this class nor the control interprets them.
 "!
-"! Bind it with the camelCase mapper and this library's JSON filter:
+"! Bind it with omit_initial and the camelCase mapper:
 "!
 "!   config = client->_bind(
 "!       val           = ms_chart
-"!       custom_filter = NEW z2ui5_cl_cci_json_filter( )
+"!       omit_initial  = abap_true
 "!       custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
 "!                           iv_first_json_upper = abap_false ) )
 "!
-"! Without the filter every field the app left alone would arrive as 0, ``` or
+"! Without omit_initial every field the app left alone would arrive as 0, ``` or
 "! false and override the Chart.js default; without the mapper the field names
 "! would stay snake_case and Chart.js would ignore all of them.
 "!

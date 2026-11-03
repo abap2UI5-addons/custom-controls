@@ -24,7 +24,7 @@ CLASS z2ui5_cl_cci_spreadsheet DEFINITION
       "! One workbook column. `property` is the name of the field in the bound
       "! ABAP table, in upper case - that is how abap2UI5 puts it into the model.
       "! Everything else is optional; leave it initial and the exporter's default
-      "! applies (see z2ui5_cl_cci_json_filter for why that works).
+      "! applies (bind with omit_initial, see columns below).
       BEGIN OF ty_s_column,
         label             TYPE string,
         property          TYPE string,
@@ -52,12 +52,12 @@ CLASS z2ui5_cl_cci_spreadsheet DEFINITION
 
     "! Emit &lt;z2ui5_cci:ExportSpreadsheet/&gt; into an existing view.
     "!
-    "! Bind `columns` with the camelCase mapper and this library's JSON filter,
-    "! or the exporter sees ABAP field names and a wall of initial values:
+    "! Bind `columns` with omit_initial and the camelCase mapper, or the
+    "! exporter sees ABAP field names and a wall of initial values:
     "!
     "!   columns = client->_bind(
     "!       val           = mt_columns
-    "!       custom_filter = NEW z2ui5_cl_cci_json_filter( )
+    "!       omit_initial  = abap_true
     "!       custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
     "!                           iv_first_json_upper = abap_false ) )
     "!

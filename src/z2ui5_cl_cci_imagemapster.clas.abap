@@ -10,7 +10,7 @@
 "! that was clicked - so a floor plan, a machine drawing or a map becomes an
 "! input control.
 "!
-"! Bind config with the camelCase mapper and this library's JSON filter - see
+"! Bind config with omit_initial and the camelCase mapper - see
 "! z2ui5_cl_cci_chartjs for the same pattern and why both are needed.
 "!
 "! The regions are drawn as an SVG overlay whose viewBox is the image's
