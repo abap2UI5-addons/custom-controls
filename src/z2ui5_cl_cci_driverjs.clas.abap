@@ -96,7 +96,7 @@ CLASS z2ui5_cl_cci_driverjs DEFINITION
         element TYPE string,
         popover TYPE ty_s_popover,
       END OF ty_s_step.
-    TYPES ty_t_step TYPE STANDARD TABLE OF ty_s_step WITH EMPTY KEY.
+    TYPES ty_t_step TYPE STANDARD TABLE OF ty_s_step WITH DEFAULT KEY.
 
     TYPES:
       BEGIN OF ty_s_config,
@@ -158,18 +158,48 @@ CLASS z2ui5_cl_cci_driverjs IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    DATA temp10 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |config={ config }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |trigger={ trigger }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |highlight={ highlight }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |mode={ mode }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |customCss={ customcss }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |libUrl={ liburl }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |cssUrl={ cssurl }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |highlighted={ highlighted }|.
+    INSERT temp9 INTO TABLE temp1.
+
+    temp10 = |done={ done }|.
+    INSERT temp10 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `DriverJs`
-        a    = VALUE #( ( |config={ config }| )
-                        ( |trigger={ trigger }| )
-                        ( |highlight={ highlight }| )
-                        ( |mode={ mode }| )
-                        ( |customCss={ customcss }| )
-                        ( |libUrl={ liburl }| )
-                        ( |cssUrl={ cssurl }| )
-                        ( |highlighted={ highlighted }| )
-                        ( |done={ done }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

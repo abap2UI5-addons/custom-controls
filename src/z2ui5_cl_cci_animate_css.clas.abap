@@ -112,13 +112,28 @@ CLASS z2ui5_cl_cci_animate_css IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |duration={ duration }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |delay={ delay }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |repeat={ repeat }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |cssUrl={ cssurl }|.
+    INSERT temp5 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `AnimateCss`
-        a    = VALUE #( ( |duration={ duration }| )
-                        ( |delay={ delay }| )
-                        ( |repeat={ repeat }| )
-                        ( |cssUrl={ cssurl }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

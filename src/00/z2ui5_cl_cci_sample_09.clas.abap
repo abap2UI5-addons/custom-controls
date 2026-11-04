@@ -28,7 +28,7 @@ CLASS z2ui5_cl_cci_sample_09 DEFINITION
 
     DATA t_area   TYPE z2ui5_cl_cci_imagemapster=>ty_t_area.
     DATA s_config TYPE z2ui5_cl_cci_imagemapster=>ty_s_config.
-    DATA t_log    TYPE STANDARD TABLE OF ty_s_log WITH EMPTY KEY.
+    DATA t_log    TYPE STANDARD TABLE OF ty_s_log WITH DEFAULT KEY.
     DATA image    TYPE string.
     DATA selected TYPE string.
     DATA info     TYPE string.
@@ -50,12 +50,12 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
   METHOD z2ui5_if_app~main.
 
     me->client = client.
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -63,9 +63,14 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA row TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA map TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->ele( n  = `View`
+
+    page = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -95,13 +100,15 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
             )->a( n = `press`
                   v = client->_event( `CLEAR` ) ).
 
-    DATA(row) = page->ele( `HBox`
+
+    row = page->ele( `HBox`
                     )->a( n = `class`
                           v = `sapUiMediumMargin`
                     )->a( n = `wrap`
                           v = `Wrap` ).
 
-    DATA(map) = row->ele( `VBox`
+
+    map = row->ele( `VBox`
                     )->a( n = `width`
                           v = `620px` ).
 
@@ -162,20 +169,36 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD on_event.
+        DATA temp1 TYPE z2ui5_cl_cci_sample_09=>ty_s_log.
+        DATA temp2 TYPE string.
+        DATA temp3 TYPE string_table.
+        DATA ls_area LIKE LINE OF t_area.
 
     CASE client->get( )-event.
 
       WHEN `AREA`.
         " selected already carries what the CONTROL wrote into the model
-        INSERT VALUE #( text = |click { lines( t_log ) + 1 }: selection = { selected }| )
+
+        CLEAR temp1.
+        temp1-text = |click { lines( t_log ) + 1 }: selection = { selected }|.
+        INSERT temp1
                INTO TABLE t_log.
-        info = COND #( WHEN selected IS INITIAL
-                       THEN `Nothing selected.`
-                       ELSE |Selected: { selected }| ).
+
+        IF selected IS INITIAL.
+          temp2 = `Nothing selected.`.
+        ELSE.
+          temp2 = |Selected: { selected }|.
+        ENDIF.
+        info = temp2.
 
       WHEN `ALL`.
-        selected = concat_lines_of( table = VALUE string_table(
-                                        FOR ls_area IN t_area ( ls_area-key ) )
+
+        CLEAR temp3.
+
+        LOOP AT t_area INTO ls_area.
+          INSERT ls_area-key INTO TABLE temp3.
+        ENDLOOP.
+        selected = concat_lines_of( table = temp3
                                     sep   = `,` ).
         info     = |Selected from ABAP: { selected }|.
 
@@ -188,15 +211,35 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD model_init.
+    DATA temp5 TYPE z2ui5_cl_cci_imagemapster=>ty_t_area.
+    DATA temp6 LIKE LINE OF temp5.
 
     image_build( ).
 
     " rect coordinates are x1,y1,x2,y2 - the same the SVG above draws
-    t_area = VALUE #(
-      ( key = `office`  shape = `rect` coords = `20,20,280,190`  alt = `Office` )
-      ( key = `lab`     shape = `rect` coords = `300,20,580,190` alt = `Laboratory` )
-      ( key = `storage` shape = `rect` coords = `20,210,580,380` alt = `Storage`
-        fillcolor = `f6b93b` ) ).
+
+    CLEAR temp5.
+
+    CLEAR temp6.
+    temp6-key = `office`.
+    temp6-shape = `rect`.
+    temp6-coords = `20,20,280,190`.
+    temp6-alt = `Office`.
+    INSERT temp6 INTO TABLE temp5.
+    CLEAR temp6.
+    temp6-key = `lab`.
+    temp6-shape = `rect`.
+    temp6-coords = `300,20,580,190`.
+    temp6-alt = `Laboratory`.
+    INSERT temp6 INTO TABLE temp5.
+    CLEAR temp6.
+    temp6-key = `storage`.
+    temp6-shape = `rect`.
+    temp6-coords = `20,210,580,380`.
+    temp6-alt = `Storage`.
+    temp6-fillcolor = `f6b93b`.
+    INSERT temp6 INTO TABLE temp5.
+    t_area = temp5.
 
     " colours are hex without a leading #, the way ImageMapster wants them
     s_config-fill            = abap_true.
@@ -224,8 +267,11 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
 
     " an inline SVG floor plan, so the demo needs no uploaded image. `#` has
     " to be percent-encoded - inside a data: URI it would start a fragment.
-    DATA(lv_room) = `fill='%23c8d6e5' stroke='%23576574' stroke-width='3'`.
-    DATA(lv_text) = `font-family='sans-serif' font-size='26' ` &&
+    DATA lv_room TYPE string.
+    DATA lv_text TYPE string.
+    lv_room = `fill='%23c8d6e5' stroke='%23576574' stroke-width='3'`.
+
+    lv_text = `font-family='sans-serif' font-size='26' ` &&
                     `text-anchor='middle' fill='%23222f3e'`.
 
     image = `data:image/svg+xml,` &&

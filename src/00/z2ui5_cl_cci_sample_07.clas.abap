@@ -28,8 +28,8 @@ CLASS z2ui5_cl_cci_sample_07 DEFINITION
         icon TYPE string,
       END OF ty_s_key.
 
-    DATA t_collection TYPE STANDARD TABLE OF ty_s_key WITH EMPTY KEY.
-    DATA t_animation  TYPE STANDARD TABLE OF ty_s_key WITH EMPTY KEY.
+    DATA t_collection TYPE STANDARD TABLE OF ty_s_key WITH DEFAULT KEY.
+    DATA t_animation  TYPE STANDARD TABLE OF ty_s_key WITH DEFAULT KEY.
     DATA collection   TYPE string.
     DATA animation    TYPE string.
     DATA icon         TYPE string.
@@ -53,12 +53,12 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
   METHOD z2ui5_if_app~main.
 
     me->client = client.
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -66,9 +66,14 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA box TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA result TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->ele( n  = `View`
+
+    page = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -91,7 +96,8 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
     " one element, and both ways of using Font Awesome are available
     z2ui5_cl_cci_font_awesome=>render( page ).
 
-    DATA(box) = page->ele( `VBox`
+
+    box = page->ele( `VBox`
                     )->a( n = `class`
                           v = `sapUiMediumMargin` ).
 
@@ -151,7 +157,8 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
                 )->a( n = `text`
                       v = `{TEXT}` ).
 
-    DATA(result) = box->ele( `Panel`
+
+    result = box->ele( `Panel`
                        )->a( n = `headerText`
                              v = `Result`
                        )->a( n = `class`
@@ -192,13 +199,23 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD on_event.
+            FIELD-SYMBOLS <temp1> LIKE LINE OF t_collection.
+            DATA temp2 LIKE sy-tabix.
 
     CASE client->get( )-event.
 
       WHEN `COLLECTION`.
         " switching the collection brings an icon that exists in it
         TRY.
-            icon = t_collection[ key = collection ]-icon.
+
+
+            temp2 = sy-tabix.
+            READ TABLE t_collection WITH KEY key = collection ASSIGNING <temp1>.
+            sy-tabix = temp2.
+            IF sy-subrc <> 0.
+              ASSERT 1 = 0.
+            ENDIF.
+            icon = <temp1>-icon.
           CATCH cx_sy_itab_line_not_found ##NO_HANDLER.
         ENDTRY.
         model_refresh( ).
@@ -216,25 +233,64 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
     " exists in fa-brands only, `heart` in fa-solid/fa-regular only - pairing a
     " collection with an icon it does not carry renders nothing at all, which
     " looks like a broken control rather than a wrong combination.
-    t_collection = VALUE #(
-      ( key  = z2ui5_cl_cci_font_awesome=>cs_collection-solid
-        text = `fa-solid`   icon = `heart` )
-      ( key  = z2ui5_cl_cci_font_awesome=>cs_collection-regular
-        text = `fa-regular` icon = `face-smile` )
-      ( key  = z2ui5_cl_cci_font_awesome=>cs_collection-brands
-        text = `fa-brands`  icon = `github` ) ).
+    DATA temp3 LIKE t_collection.
+    DATA temp4 LIKE LINE OF temp3.
+    DATA temp5 LIKE t_animation.
+    DATA temp6 LIKE LINE OF temp5.
+    FIELD-SYMBOLS <temp7> LIKE LINE OF t_collection.
+    DATA temp8 LIKE sy-tabix.
+    CLEAR temp3.
 
-    t_animation = VALUE #(
-      ( key = ``              text = `none` )
-      ( key = `fa-beat`       text = `fa-beat` )
-      ( key = `fa-bounce`     text = `fa-bounce` )
-      ( key = `fa-fade`       text = `fa-fade` )
-      ( key = `fa-flip`       text = `fa-flip` )
-      ( key = `fa-shake`      text = `fa-shake` )
-      ( key = `fa-spin`       text = `fa-spin` ) ).
+    temp4-key = z2ui5_cl_cci_font_awesome=>cs_collection-solid.
+    temp4-text = `fa-solid`.
+    temp4-icon = `heart`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-key = z2ui5_cl_cci_font_awesome=>cs_collection-regular.
+    temp4-text = `fa-regular`.
+    temp4-icon = `face-smile`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-key = z2ui5_cl_cci_font_awesome=>cs_collection-brands.
+    temp4-text = `fa-brands`.
+    temp4-icon = `github`.
+    INSERT temp4 INTO TABLE temp3.
+    t_collection = temp3.
+
+
+    CLEAR temp5.
+
+    temp6-key = ``.
+    temp6-text = `none`.
+    INSERT temp6 INTO TABLE temp5.
+    temp6-key = `fa-beat`.
+    temp6-text = `fa-beat`.
+    INSERT temp6 INTO TABLE temp5.
+    temp6-key = `fa-bounce`.
+    temp6-text = `fa-bounce`.
+    INSERT temp6 INTO TABLE temp5.
+    temp6-key = `fa-fade`.
+    temp6-text = `fa-fade`.
+    INSERT temp6 INTO TABLE temp5.
+    temp6-key = `fa-flip`.
+    temp6-text = `fa-flip`.
+    INSERT temp6 INTO TABLE temp5.
+    temp6-key = `fa-shake`.
+    temp6-text = `fa-shake`.
+    INSERT temp6 INTO TABLE temp5.
+    temp6-key = `fa-spin`.
+    temp6-text = `fa-spin`.
+    INSERT temp6 INTO TABLE temp5.
+    t_animation = temp5.
 
     collection = z2ui5_cl_cci_font_awesome=>cs_collection-brands.
-    icon       = t_collection[ key = collection ]-icon.
+
+
+    temp8 = sy-tabix.
+    READ TABLE t_collection WITH KEY key = collection ASSIGNING <temp7>.
+    sy-tabix = temp8.
+    IF sy-subrc <> 0.
+      ASSERT 1 = 0.
+    ENDIF.
+    icon       = <temp7>-icon.
     animation  = `fa-bounce`.
     model_refresh( ).
 
