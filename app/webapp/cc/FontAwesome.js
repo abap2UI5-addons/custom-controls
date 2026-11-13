@@ -110,22 +110,33 @@ sap.ui.define(
         });
       },
 
-      init() {
-        // registering in init rather than onAfterRendering: an icon elsewhere
-        // in the same view may render before this control does
+      // Registering right after the settings rather than in onAfterRendering:
+      // an icon elsewhere in the same view may render before this control
+      // does. Not in init( ) either - init runs BEFORE the settings, so it saw
+      // the default fontUri and collections, and the IconPool keeps the first
+      // registration of a collection: an app's own fontUri was never used.
+      applySettings(...args) {
+        Control.prototype.applySettings.apply(this, args);
+        this._settingsApplied = true;
         this._register();
+        return this;
       },
 
       setFontUri(value) {
         this.setProperty("fontUri", value, true);
-        this._register();
+        // during the constructor applySettings( ) registers, once every
+        // setting - collections too - is in place
+        if (this._settingsApplied) this._register();
         return this;
       },
 
       onAfterRendering() {
         this._register();
-        if (this.getCssUrl()) {
-          Util.loadStyle(this.getCssUrl()).catch((e) =>
+        // trimmed: the builder documents a space as the way to skip it, and
+        // " " is a URL the browser would resolve to the page itself
+        const cssUrl = String(this.getCssUrl() || "").trim();
+        if (cssUrl) {
+          Util.loadStyle(cssUrl).catch((e) =>
             Util.logError("FontAwesome: stylesheet not available", e),
           );
         }
