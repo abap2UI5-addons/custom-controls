@@ -63,12 +63,24 @@ CLASS z2ui5_cl_cci_font_awesome IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |fontUri={ fonturi }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |collections={ collections }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |cssUrl={ cssurl }|.
+    INSERT temp4 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `FontAwesome`
-        a    = VALUE #( ( |fontUri={ fonturi }| )
-                        ( |collections={ collections }| )
-                        ( |cssUrl={ cssurl }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

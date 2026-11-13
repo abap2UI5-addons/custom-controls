@@ -51,12 +51,12 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
   METHOD z2ui5_if_app~main.
 
     me->client = client.
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -64,9 +64,34 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA box TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA scan TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA table TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA columns TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA label TYPE REF TO z2ui5_cl_ui5_view_builder.
+TYPES BEGIN OF ty_s_symbol.
+TYPES bcid TYPE string.
+TYPES text TYPE string.
+TYPES options TYPE string.
+TYPES height TYPE string.
+TYPES END OF ty_s_symbol.
+    TYPES ty_t_symbol TYPE STANDARD TABLE OF ty_s_symbol WITH DEFAULT KEY.
+    DATA temp1 TYPE ty_t_symbol.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA symbols LIKE temp1.
+    DATA symbol LIKE LINE OF symbols.
+    DATA pallet TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA temp3 TYPE string_table.
+    DATA cartons LIKE temp3.
+    DATA carton LIKE LINE OF cartons.
+      DATA number LIKE sy-tabix.
+      DATA box_carton TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->ele( n  = `View`
+
+    page = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -84,7 +109,8 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
                   v = `abap2UI5 - BarcodeScanner`
             ).
 
-    DATA(box) = page->ele( `VBox`
+
+    box = page->ele( `VBox`
                     )->a( n = `class`
                           v = `sapUiMediumMargin` ).
 
@@ -136,7 +162,8 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
            )->a( n = `width`
                  v = `20rem` ).
 
-    DATA(scan) = box->ele( `HBox`
+
+    scan = box->ele( `HBox`
                      )->a( n = `class`
                            v = `sapUiSmallMarginTop` ).
 
@@ -158,7 +185,8 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
            )->a( n = `class`
                  v = `sapUiSmallMarginTop` ).
 
-    DATA(table) = box->ele( `Table`
+
+    table = box->ele( `Table`
                       )->a( n = `items`
                             v = client->_bind( t_code )
                       )->a( n = `noDataText`
@@ -166,7 +194,8 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
                       )->a( n = `class`
                             v = `sapUiSmallMarginTop` ).
 
-    DATA(columns) = table->ele( `columns` ).
+
+    columns = table->ele( `columns` ).
     columns->ele( `Column`
         )->tag( `Text`
             )->a( n = `text`
@@ -198,7 +227,8 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
     " Something to scan: a label with four codes of four formats - material,
     " batch, quantity and shipping unit - drawn in the browser by the Barcode
     " control of this library.
-    DATA(label) = box->ele( `Panel`
+
+    label = box->ele( `Panel`
                       )->a( n = `headerText`
                             v = `Test label - scan it from a second screen`
                       )->a( n = `class`
@@ -210,22 +240,38 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
                               )->a( n = `alignItems`
                                     v = `Center` ).
 
-    TYPES:
-      BEGIN OF ty_s_symbol,
-        bcid    TYPE string,
-        text    TYPE string,
-        options TYPE string,
-        height  TYPE string,
-      END OF ty_s_symbol.
-    TYPES ty_t_symbol TYPE STANDARD TABLE OF ty_s_symbol WITH EMPTY KEY.
 
-    DATA(symbols) = VALUE ty_t_symbol(
-      ( bcid = `ean13`      text = `4006381333931`           options = `includetext guardwhitespace` height = `10` )
-      ( bcid = `code128`    text = `BATCH-0815`              options = `includetext`                 height = `10` )
-      ( bcid = `qrcode`     text = `QTY:24`                  options = `eclevel=M` )
-      ( bcid = `datamatrix` text = `SSCC 003456789012345678` ) ).
 
-    LOOP AT symbols INTO DATA(symbol).
+
+
+    CLEAR temp1.
+
+    CLEAR temp2.
+    temp2-bcid = `ean13`.
+    temp2-text = `4006381333931`.
+    temp2-options = `includetext guardwhitespace`.
+    temp2-height = `10`.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-bcid = `code128`.
+    temp2-text = `BATCH-0815`.
+    temp2-options = `includetext`.
+    temp2-height = `10`.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-bcid = `qrcode`.
+    temp2-text = `QTY:24`.
+    temp2-options = `eclevel=M`.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-bcid = `datamatrix`.
+    temp2-text = `SSCC 003456789012345678`.
+    INSERT temp2 INTO TABLE temp1.
+
+    symbols = temp1.
+
+
+    LOOP AT symbols INTO symbol.
       z2ui5_cl_cci_barcode=>render(
           view    = label->ele( `VBox`
                         )->a( n = `class`
@@ -241,7 +287,8 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
     " margins are on purpose - the reader takes two equal 1D codes that are
     " closer than half their width one above the other for one symbol, and
     " cartons on a real pallet are much further apart than that.
-    DATA(pallet) = box->ele( `Panel`
+
+    pallet = box->ele( `Panel`
                        )->a( n = `headerText`
                              v = `Test pallet - six cartons of two articles, for the count mode`
                        )->a( n = `class`
@@ -251,13 +298,24 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
                                )->a( n = `wrap`
                                      v = `Wrap` ).
 
-    DATA(cartons) = VALUE string_table( ( `4006381333931` ) ( `4006381333931` ) ( `4012345678901` )
-                                        ( `4006381333931` ) ( `4006381333931` ) ( `4012345678901` ) ).
 
-    LOOP AT cartons INTO DATA(carton).
+    CLEAR temp3.
+    INSERT `4006381333931` INTO TABLE temp3.
+    INSERT `4006381333931` INTO TABLE temp3.
+    INSERT `4012345678901` INTO TABLE temp3.
+    INSERT `4006381333931` INTO TABLE temp3.
+    INSERT `4006381333931` INTO TABLE temp3.
+    INSERT `4012345678901` INTO TABLE temp3.
+
+    cartons = temp3.
+
+
+    LOOP AT cartons INTO carton.
       " before the builder runs - its own table operations overwrite sy-tabix
-      DATA(number) = sy-tabix.
-      DATA(box_carton) = pallet->ele( `VBox`
+
+      number = sy-tabix.
+
+      box_carton = pallet->ele( `VBox`
                                )->a( n = `class`
                                      v = `sapUiLargeMargin` ).
       box_carton->tag( `Text`
@@ -277,23 +335,46 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD on_event.
+        DATA temp5 TYPE i.
+        DATA temp6 TYPE string.
+          DATA temp7 TYPE i.
+          DATA n TYPE i.
+          DATA row LIKE LINE OF t_code.
+          DATA labels LIKE temp7.
 
     CASE client->get( )-event.
 
       WHEN `MODE`.
         " each mode has its own thing to scan below, with its own count
-        expected = COND #( WHEN mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count THEN 6 ELSE 4 ).
-        info     = COND #( WHEN mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count
-                           THEN `Press Scan and get the whole test pallet into the picture.`
-                           ELSE `Press Scan and point the camera at the test label.` ).
+
+        IF mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count.
+          temp5 = 6.
+        ELSE.
+          temp5 = 4.
+        ENDIF.
+        expected = temp5.
+
+        IF mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count.
+          temp6 = `Press Scan and get the whole test pallet into the picture.`.
+        ELSE.
+          temp6 = `Press Scan and point the camera at the test label.`.
+        ENDIF.
+        info     = temp6.
 
       WHEN `SCANNED`.
         " t_code already holds the codes here - bound data is written back
         " into the attribute before the event handler runs
         IF mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count.
-          DATA(labels) = REDUCE i( INIT n = 0
-                                   FOR row IN t_code
-                                   NEXT n = n + row-count ).
+
+
+          n = 0.
+
+          LOOP AT t_code INTO row.
+            n = n + row-count.
+          ENDLOOP.
+          temp7 = n.
+
+          labels = temp7.
           info = |{ labels } label(s) of { lines( t_code ) } code(s) counted.|.
         ELSE.
           info = |{ lines( t_code ) } code(s) scanned.|.

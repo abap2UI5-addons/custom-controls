@@ -53,7 +53,7 @@ CLASS z2ui5_cl_cci_imagemapster DEFINITION
         staticstate  TYPE abap_bool,
         isselectable TYPE abap_bool,
       END OF ty_s_area.
-    TYPES ty_t_area TYPE STANDARD TABLE OF ty_s_area WITH EMPTY KEY.
+    TYPES ty_t_area TYPE STANDARD TABLE OF ty_s_area WITH DEFAULT KEY.
 
     TYPES:
       "! How a region is drawn in one state.
@@ -143,16 +143,40 @@ CLASS z2ui5_cl_cci_imagemapster IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |src={ src }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |areas={ areas }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |config={ config }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |selectedKeys={ selectedkeys }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |width={ width }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |height={ height }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |areaPress={ areapress }|.
+    INSERT temp8 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `ImageMapster`
-        a    = VALUE #( ( |src={ src }| )
-                        ( |areas={ areas }| )
-                        ( |config={ config }| )
-                        ( |selectedKeys={ selectedkeys }| )
-                        ( |width={ width }| )
-                        ( |height={ height }| )
-                        ( |areaPress={ areapress }| ) ) ).
+        a    = temp1 ).
 
 
   ENDMETHOD.

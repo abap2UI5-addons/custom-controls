@@ -48,7 +48,7 @@ CLASS z2ui5_cl_cci_spreadsheet DEFINITION
         display_timezone  TYPE abap_bool,
         utc               TYPE abap_bool,
       END OF ty_s_column.
-    TYPES ty_t_column TYPE STANDARD TABLE OF ty_s_column WITH EMPTY KEY.
+    TYPES ty_t_column TYPE STANDARD TABLE OF ty_s_column WITH DEFAULT KEY.
 
     "! Emit &lt;z2ui5_cci:ExportSpreadsheet/&gt; into an existing view.
     "!
@@ -100,20 +100,56 @@ CLASS z2ui5_cl_cci_spreadsheet IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    DATA temp10 LIKE LINE OF temp1.
+    DATA temp11 LIKE LINE OF temp1.
+    DATA temp12 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |tableId={ tableid }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |columns={ columns }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |fileName={ filename }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |sheetName={ sheetname }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |text={ text }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |icon={ icon }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |type={ type }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |tooltip={ tooltip }|.
+    INSERT temp9 INTO TABLE temp1.
+
+    temp10 = |enabled={ enabled }|.
+    INSERT temp10 INTO TABLE temp1.
+
+    temp11 = |status={ status }|.
+    INSERT temp11 INTO TABLE temp1.
+
+    temp12 = |exported={ exported }|.
+    INSERT temp12 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `ExportSpreadsheet`
-        a    = VALUE #( ( |tableId={ tableid }| )
-                        ( |columns={ columns }| )
-                        ( |fileName={ filename }| )
-                        ( |sheetName={ sheetname }| )
-                        ( |text={ text }| )
-                        ( |icon={ icon }| )
-                        ( |type={ type }| )
-                        ( |tooltip={ tooltip }| )
-                        ( |enabled={ enabled }| )
-                        ( |status={ status }| )
-                        ( |exported={ exported }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

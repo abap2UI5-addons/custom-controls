@@ -34,7 +34,7 @@ CLASS z2ui5_cl_cci_barcode_scanner DEFINITION
         "! the picture at once; always 1 unless the mode is cs_mode-count
         count  TYPE i,
       END OF ty_s_code.
-    TYPES ty_t_code TYPE STANDARD TABLE OF ty_s_code WITH EMPTY KEY.
+    TYPES ty_t_code TYPE STANDARD TABLE OF ty_s_code WITH DEFAULT KEY.
 
     CONSTANTS:
       "! What a scan collects, for the `mode` parameter of render( ).
@@ -108,24 +108,72 @@ CLASS z2ui5_cl_cci_barcode_scanner IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    DATA temp10 LIKE LINE OF temp1.
+    DATA temp11 LIKE LINE OF temp1.
+    DATA temp12 LIKE LINE OF temp1.
+    DATA temp13 LIKE LINE OF temp1.
+    DATA temp14 LIKE LINE OF temp1.
+    DATA temp15 LIKE LINE OF temp1.
+    DATA temp16 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |codes={ codes }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |mode={ mode }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |formats={ formats }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |expected={ expected }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |text={ text }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |icon={ icon }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |type={ type }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |enabled={ enabled }|.
+    INSERT temp9 INTO TABLE temp1.
+
+    temp10 = |title={ title }|.
+    INSERT temp10 INTO TABLE temp1.
+
+    temp11 = |facingMode={ facingmode }|.
+    INSERT temp11 INTO TABLE temp1.
+
+    temp12 = |deviceId={ deviceid }|.
+    INSERT temp12 INTO TABLE temp1.
+
+    temp13 = |libUrl={ liburl }|.
+    INSERT temp13 INTO TABLE temp1.
+
+    temp14 = |wasmUrl={ wasmurl }|.
+    INSERT temp14 INTO TABLE temp1.
+
+    temp15 = |scanned={ scanned }|.
+    INSERT temp15 INTO TABLE temp1.
+
+    temp16 = |error={ error }|.
+    INSERT temp16 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `BarcodeScanner`
-        a    = VALUE #( ( |codes={ codes }| )
-                        ( |mode={ mode }| )
-                        ( |formats={ formats }| )
-                        ( |expected={ expected }| )
-                        ( |text={ text }| )
-                        ( |icon={ icon }| )
-                        ( |type={ type }| )
-                        ( |enabled={ enabled }| )
-                        ( |title={ title }| )
-                        ( |facingMode={ facingmode }| )
-                        ( |deviceId={ deviceid }| )
-                        ( |libUrl={ liburl }| )
-                        ( |wasmUrl={ wasmurl }| )
-                        ( |scanned={ scanned }| )
-                        ( |error={ error }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

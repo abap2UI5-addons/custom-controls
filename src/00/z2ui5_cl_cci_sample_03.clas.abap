@@ -45,12 +45,12 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
   METHOD z2ui5_if_app~main.
 
     me->client = client.
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -58,9 +58,13 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA box TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->ele( n  = `View`
+
+    page = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -88,7 +92,8 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
         rules     = client->_bind( val           = t_rule
                                    omit_initial  = abap_true ) ).
 
-    DATA(box) = page->ele( `VBox`
+
+    box = page->ele( `VBox`
                     )->a( n = `class`
                           v = `sapUiMediumMargin` ).
 
@@ -201,12 +206,32 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
 
   METHOD model_init.
 
-    t_rule = VALUE #(
-      ( field = `email`    required = abap_true format = `email` )
-      ( field = `quantity` required = abap_true type = `integer` minimum = 1 maximum = 999 )
-      ( field = `zipcode`  pattern  = `^[0-9]{5}$`
-        message = `Enter five digits, e.g. 69190` )
-      ( field = `comment`  maxlength = 40 ) ).
+    DATA temp1 TYPE z2ui5_cl_cci_validator=>ty_t_rule.
+    DATA temp2 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    CLEAR temp2.
+    temp2-field = `email`.
+    temp2-required = abap_true.
+    temp2-format = `email`.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-field = `quantity`.
+    temp2-required = abap_true.
+    temp2-type = `integer`.
+    temp2-minimum = 1.
+    temp2-maximum = 999.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-field = `zipcode`.
+    temp2-pattern = `^[0-9]{5}$`.
+    temp2-message = `Enter five digits, e.g. 69190`.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-field = `comment`.
+    temp2-maxlength = 40.
+    INSERT temp2 INTO TABLE temp1.
+    t_rule = temp1.
 
     email    = `not-an-address`.
     quantity = `0`.
