@@ -22,6 +22,7 @@ succeed. If you changed `app/` or a library version, run `npm run vendor` and
 | Gate | What it proves |
 | --- | --- |
 | `npm run lint` | abaplint: syntax and style, resolved against the abap2UI5 core |
+| `npm run check:cloud` | abaplint for ABAP Cloud: released APIs only (`.github/abaplint/abap_cloud.jsonc`) |
 | `npm run check:abap2ui5` | [abap2UI5-linter](https://github.com/abap2UI5/linter): the app class and the view it builds, judged together — controls, members, bindings, the UI5 version floor |
 | `npm test` | the Node tests under `tools/` |
 | `npm run check:js` | every control under `app/webapp/cc/` parses (`node --check`) |
