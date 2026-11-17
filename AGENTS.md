@@ -27,7 +27,7 @@ and CI gates every change. It is installed with abapGit and depends on the
 - [abap2UI5](https://github.com/abap2UI5/abap2UI5) — the framework
 
 There is no version pin on any of them — abaplint resolves each from its `main`
-branch. That is why the check workflows also run on a weekly schedule: a rename
+branch. That is why `ci` also runs on a weekly schedule: a rename
 upstream breaks this repository silently, and with no pull request open nothing
 else would notice.
 
@@ -38,12 +38,42 @@ npm ci
 npm run check
 ```
 
-`npm run check` runs abaplint, the abap2UI5-linter, the Node tests, a syntax
-check of the controls and the overlay browser check. CI (`check.yml`) also
-checks that `src/01/` matches `npm run app2bsp`, that `LibUrls.js` matches
-`npm run vendor`, and that `npm run build:local` succeeds - those rewrite the
-tree, so they are not part of `check`. See [CONTRIBUTING.md](CONTRIBUTING.md)
-for what each gate proves and how the abap2UI5-linter baseline works.
+`npm run check` runs abaplint (Standard and ABAP Cloud), the abap2UI5-linter,
+the Node tests, a syntax check of the controls and the overlay browser check.
+CI also checks that `src/01/` matches `npm run app2bsp`, that `LibUrls.js`
+matches `npm run vendor`, and that `npm run build:local` succeeds - those
+rewrite the tree, so they are not part of `check`. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for what each gate proves and how the
+abap2UI5-linter baseline works.
+
+## CI
+
+The ABAP checks come from the shared CI template of abap2UI5-addons (reusable
+workflows in
+[rap-ext](https://github.com/abap2UI5-addons/rap-ext/blob/main/.github/ci/README.md),
+pinned by commit in the `uses:` lines and moved by `bump-deps`); the
+JavaScript checks are this repository's own jobs in the same workflow:
+
+* `ci` - on every push to `main`, every pull request, weekly and by hand:
+  * `check / abaplint (./abaplint.jsonc)` and
+    `check / abaplint (.github/abaplint/abap_cloud.jsonc)` - Standard ABAP and
+    ABAP Cloud
+  * `check / abap2ui5lint` - the app classes and their views, render gate off
+    (the UI5 metadata snapshot cannot know `z2ui5_cci.cc.SignaturePad`); on
+    `main` the two README badges are published to the branch `badges`
+  * `app2bsp`, `vendor` (with `npm run build:local`) and `js` (`node --check`,
+    `npm test`, `npm run check:browser`)
+* `ci-702` - on every push to `main` `npm run auto_downport` (against
+  `.github/abaplint/abap_702.jsonc`), a force-push to the branch `702`, then
+  abaplint on that branch. Never commit to `702` by hand.
+* `publish-local` - not from the template: rebuilds the branch `local` with
+  the libraries vendored in
+* `deploy-pages`, `bump-deps` (monthly; the template pin moves only with the
+  `DEPS_TOKEN` secret)
+
+No sibling addon, so no `.github/deps.json`; no ABAP Unit tests and no rename
+script, so no `unit` and no `rename` job. The job names above are the
+required status checks of the branch protection.
 
 ## Views
 
