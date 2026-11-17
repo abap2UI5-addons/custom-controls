@@ -35,9 +35,9 @@ CLASS z2ui5_cl_cci_sample_02 DEFINITION
         text TYPE string,
       END OF ty_s_log.
 
-    DATA t_row    TYPE STANDARD TABLE OF ty_s_row WITH EMPTY KEY.
+    DATA t_row    TYPE STANDARD TABLE OF ty_s_row WITH DEFAULT KEY.
     DATA t_column TYPE z2ui5_cl_cci_spreadsheet=>ty_t_column.
-    DATA t_log    TYPE STANDARD TABLE OF ty_s_log WITH EMPTY KEY.
+    DATA t_log    TYPE STANDARD TABLE OF ty_s_log WITH DEFAULT KEY.
     "! written by the control before it fires `exported` - an event parameter
     "! stays in the frontend, a bound property reaches ABAP
     DATA status   TYPE string.
@@ -58,12 +58,12 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
   METHOD z2ui5_if_app~main.
 
     me->client = client.
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -71,9 +71,15 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA table TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA toolbar TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA columns TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->ele( n  = `View`
+
+    page = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -91,7 +97,8 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
                   v = `abap2UI5 - Spreadsheet Export`
             ).
 
-    DATA(table) = page->ele( `Table`
+
+    table = page->ele( `Table`
                       )->a( n = `id`
                             v = `exportTable`
                       )->a( n = `items`
@@ -104,7 +111,8 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
                             v = `sapUiResponsiveMargin` ).
 
     " the export button lives in the table's own toolbar
-    DATA(toolbar) = table->ele( `headerToolbar`
+
+    toolbar = table->ele( `headerToolbar`
                         )->ele( `OverflowToolbar`
                             )->tag( `Title`
                                 )->a( n = `text`
@@ -130,7 +138,8 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
     " wants, which pushes the toolbar's Export button off the right edge. Fixed
     " widths keep the table inside the page; the ones that are only detail get
     " demandPopin so a narrow screen folds them under the row.
-    DATA(columns) = table->ele( `columns` ).
+
+    columns = table->ele( `columns` ).
     columns->ele( `Column`
         )->a( n = `width` v = `5rem`
         )->tag( `Text` )->a( n = `text` v = `Row` )->end( ).
@@ -194,10 +203,14 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD on_event.
+      DATA temp1 TYPE z2ui5_cl_cci_sample_02=>ty_s_log.
 
     IF client->get( )-event = `EXPORTED`.
       " status already carries what the CONTROL wrote into the model
-      INSERT VALUE #( text = |export { lines( t_log ) + 1 }: { status }| )
+
+      CLEAR temp1.
+      temp1-text = |export { lines( t_log ) + 1 }: { status }|.
+      INSERT temp1
              INTO TABLE t_log.
     ENDIF.
 
@@ -205,32 +218,124 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
 
   METHOD model_init.
 
-    t_row = VALUE #(
-      ( rowid = `1` product = `table`    created = `01.01.2023` author = `Olaf`
-        location = `AREA_001` quantity = 400  unit = `PC` price = '1000.50' currency = `EUR` )
-      ( rowid = `2` product = `chair`    created = `01.01.2022` author = `Karlo`
-        location = `AREA_001` quantity = 123  unit = `PC` price = '2000.55' currency = `USD` )
-      ( rowid = `3` product = `sofa`     created = `01.05.2021` author = `Elin`
-        location = `AREA_002` quantity = 700  unit = `PC` price = '3000.11' currency = `CNY` )
-      ( rowid = `4` product = `computer` created = `27.01.2023` author = `Theo`
-        location = `AREA_002` quantity = 200  unit = `EA` price = '4000.88' currency = `USD` )
-      ( rowid = `5` product = `printer`  created = `01.01.2023` author = `Renate`
-        location = `AREA_003` quantity = 90   unit = `PC` price = '5000.47' currency = `EUR` )
-      ( rowid = `6` product = `desk`     created = `01.01.2023` author = `Angela`
-        location = `AREA_003` quantity = 1110 unit = `PC` price = '6000.33' currency = `GBP` ) ).
+    DATA temp2 LIKE t_row.
+    DATA temp3 LIKE LINE OF temp2.
+    DATA temp4 TYPE z2ui5_cl_cci_spreadsheet=>ty_t_column.
+    DATA temp5 LIKE LINE OF temp4.
+    CLEAR temp2.
+
+    temp3-rowid = `1`.
+    temp3-product = `table`.
+    temp3-created = `01.01.2023`.
+    temp3-author = `Olaf`.
+    temp3-location = `AREA_001`.
+    temp3-quantity = 400.
+    temp3-unit = `PC`.
+    temp3-price = '1000.50'.
+    temp3-currency = `EUR`.
+    INSERT temp3 INTO TABLE temp2.
+    temp3-rowid = `2`.
+    temp3-product = `chair`.
+    temp3-created = `01.01.2022`.
+    temp3-author = `Karlo`.
+    temp3-location = `AREA_001`.
+    temp3-quantity = 123.
+    temp3-unit = `PC`.
+    temp3-price = '2000.55'.
+    temp3-currency = `USD`.
+    INSERT temp3 INTO TABLE temp2.
+    temp3-rowid = `3`.
+    temp3-product = `sofa`.
+    temp3-created = `01.05.2021`.
+    temp3-author = `Elin`.
+    temp3-location = `AREA_002`.
+    temp3-quantity = 700.
+    temp3-unit = `PC`.
+    temp3-price = '3000.11'.
+    temp3-currency = `CNY`.
+    INSERT temp3 INTO TABLE temp2.
+    temp3-rowid = `4`.
+    temp3-product = `computer`.
+    temp3-created = `27.01.2023`.
+    temp3-author = `Theo`.
+    temp3-location = `AREA_002`.
+    temp3-quantity = 200.
+    temp3-unit = `EA`.
+    temp3-price = '4000.88'.
+    temp3-currency = `USD`.
+    INSERT temp3 INTO TABLE temp2.
+    temp3-rowid = `5`.
+    temp3-product = `printer`.
+    temp3-created = `01.01.2023`.
+    temp3-author = `Renate`.
+    temp3-location = `AREA_003`.
+    temp3-quantity = 90.
+    temp3-unit = `PC`.
+    temp3-price = '5000.47'.
+    temp3-currency = `EUR`.
+    INSERT temp3 INTO TABLE temp2.
+    temp3-rowid = `6`.
+    temp3-product = `desk`.
+    temp3-created = `01.01.2023`.
+    temp3-author = `Angela`.
+    temp3-location = `AREA_003`.
+    temp3-quantity = 1110.
+    temp3-unit = `PC`.
+    temp3-price = '6000.33'.
+    temp3-currency = `GBP`.
+    INSERT temp3 INTO TABLE temp2.
+    t_row = temp2.
 
     " the workbook, in export order - independent of what the table shows.
     " `property` is the field name as it appears in the model: upper case.
-    t_column = VALUE #(
-      ( label = `Index`    property = `ROWID`    type = `String` )
-      ( label = `Product`  property = `PRODUCT`  type = `String` )
-      ( label = `Date`     property = `CREATED`  type = `String` )
-      ( label = `Name`     property = `AUTHOR`   type = `String` )
-      ( label = `Location` property = `LOCATION` type = `String` )
-      ( label = `Quantity` property = `QUANTITY` type = `Number` delimiter = abap_true )
-      ( label = `Unit`     property = `UNIT`     type = `String` )
-      ( label = `Price`    property = `PRICE`    type = `Currency`
-        unit_property = `CURRENCY` width = 14 scale = 2 ) ).
+
+    CLEAR temp4.
+
+    CLEAR temp5.
+    temp5-label = `Index`.
+    temp5-property = `ROWID`.
+    temp5-type = `String`.
+    INSERT temp5 INTO TABLE temp4.
+    CLEAR temp5.
+    temp5-label = `Product`.
+    temp5-property = `PRODUCT`.
+    temp5-type = `String`.
+    INSERT temp5 INTO TABLE temp4.
+    CLEAR temp5.
+    temp5-label = `Date`.
+    temp5-property = `CREATED`.
+    temp5-type = `String`.
+    INSERT temp5 INTO TABLE temp4.
+    CLEAR temp5.
+    temp5-label = `Name`.
+    temp5-property = `AUTHOR`.
+    temp5-type = `String`.
+    INSERT temp5 INTO TABLE temp4.
+    CLEAR temp5.
+    temp5-label = `Location`.
+    temp5-property = `LOCATION`.
+    temp5-type = `String`.
+    INSERT temp5 INTO TABLE temp4.
+    CLEAR temp5.
+    temp5-label = `Quantity`.
+    temp5-property = `QUANTITY`.
+    temp5-type = `Number`.
+    temp5-delimiter = abap_true.
+    INSERT temp5 INTO TABLE temp4.
+    CLEAR temp5.
+    temp5-label = `Unit`.
+    temp5-property = `UNIT`.
+    temp5-type = `String`.
+    INSERT temp5 INTO TABLE temp4.
+    CLEAR temp5.
+    temp5-label = `Price`.
+    temp5-property = `PRICE`.
+    temp5-type = `Currency`.
+    temp5-unit_property = `CURRENCY`.
+    temp5-width = 14.
+    temp5-scale = 2.
+    INSERT temp5 INTO TABLE temp4.
+    t_column = temp4.
 
   ENDMETHOD.
 

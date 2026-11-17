@@ -43,7 +43,7 @@ CLASS z2ui5_cl_cci_validator DEFINITION
         "! overrides the generated text, e.g. for a translated message
         message    TYPE string,
       END OF ty_s_rule.
-    TYPES ty_t_rule TYPE STANDARD TABLE OF ty_s_rule WITH EMPTY KEY.
+    TYPES ty_t_rule TYPE STANDARD TABLE OF ty_s_rule WITH DEFAULT KEY.
 
     TYPES:
       "! One rejected field, as the control writes it back.
@@ -51,7 +51,7 @@ CLASS z2ui5_cl_cci_validator DEFINITION
         field   TYPE string,
         message TYPE string,
       END OF ty_s_error.
-    TYPES ty_t_error TYPE STANDARD TABLE OF ty_s_error WITH EMPTY KEY.
+    TYPES ty_t_error TYPE STANDARD TABLE OF ty_s_error WITH DEFAULT KEY.
 
     "! Emit &lt;z2ui5_cci:Validator/&gt; into an existing view.
     "!
@@ -88,14 +88,32 @@ CLASS z2ui5_cl_cci_validator IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |rules={ rules }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |trigger={ trigger }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |valid={ valid }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |errors={ errors }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |validated={ validated }|.
+    INSERT temp6 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `Validator`
-        a    = VALUE #( ( |rules={ rules }| )
-                        ( |trigger={ trigger }| )
-                        ( |valid={ valid }| )
-                        ( |errors={ errors }| )
-                        ( |validated={ validated }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

@@ -31,7 +31,7 @@ CLASS z2ui5_cl_cci_sample_08 DEFINITION
   PROTECTED SECTION.
     DATA client TYPE REF TO z2ui5_if_client.
     " not bound - the rows are emitted into the XML, see view_display( )
-    DATA t_row  TYPE STANDARD TABLE OF ty_s_row WITH EMPTY KEY.
+    DATA t_row  TYPE STANDARD TABLE OF ty_s_row WITH DEFAULT KEY.
 
     METHODS view_display.
     METHODS on_event.
@@ -46,12 +46,12 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
   METHOD z2ui5_if_app~main.
 
     me->client = client.
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -59,9 +59,15 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA table TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA items TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA ls_row LIKE LINE OF t_row.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->ele( n  = `View`
+
+    page = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -109,7 +115,8 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
             )->a( n = `press`
                   v = client->_event( `REPLAY` ) ).
 
-    DATA(table) = page->ele( `Table`
+
+    table = page->ele( `Table`
                       )->a( n = `class`
                             v = `sapUiSmallMargin`
                       )->a( n = `mode`
@@ -128,8 +135,10 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
     " every row would end up carrying that expression as its literal class
     " name. The class has to reach the XML as a literal, which means emitting
     " one row per animation - the way the addon's sample did it.
-    DATA(items) = table->ele( `items` ).
-    LOOP AT t_row INTO DATA(ls_row).
+
+    items = table->ele( `items` ).
+
+    LOOP AT t_row INTO ls_row.
       items->ele( `ColumnListItem`
           )->ele( `cells`
               )->tag( `Title`
@@ -157,27 +166,64 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD model_init.
+    DATA temp1 LIKE t_row.
+    DATA temp2 LIKE LINE OF temp1.
 
     duration = `1s`.
     repeat   = `1`.
 
-    t_row = VALUE #(
-      ( name = `bounce`     class = z2ui5_cl_cci_animate_css=>cs_attention-bounce )
-      ( name = `flash`      class = z2ui5_cl_cci_animate_css=>cs_attention-flash )
-      ( name = `pulse`      class = z2ui5_cl_cci_animate_css=>cs_attention-pulse )
-      ( name = `rubberBand` class = z2ui5_cl_cci_animate_css=>cs_attention-rubber_band )
-      ( name = `shakeX`     class = z2ui5_cl_cci_animate_css=>cs_attention-shake_x )
-      ( name = `swing`      class = z2ui5_cl_cci_animate_css=>cs_attention-swing )
-      ( name = `tada`       class = z2ui5_cl_cci_animate_css=>cs_attention-tada )
-      ( name = `wobble`     class = z2ui5_cl_cci_animate_css=>cs_attention-wobble )
-      ( name = `jello`      class = z2ui5_cl_cci_animate_css=>cs_attention-jello )
-      ( name = `heartBeat`  class = z2ui5_cl_cci_animate_css=>cs_attention-heart_beat )
-      ( name = `bounceIn`   class = z2ui5_cl_cci_animate_css=>cs_entrance-bounce_in )
-      ( name = `fadeInDown` class = z2ui5_cl_cci_animate_css=>cs_entrance-fade_in_down )
-      ( name = `fadeInLeft` class = z2ui5_cl_cci_animate_css=>cs_entrance-fade_in_left )
-      ( name = `zoomIn`     class = z2ui5_cl_cci_animate_css=>cs_entrance-zoom_in )
-      ( name = `flipInX`    class = z2ui5_cl_cci_animate_css=>cs_entrance-flip_in_x )
-      ( name = `rollIn`     class = z2ui5_cl_cci_animate_css=>cs_entrance-roll_in ) ).
+
+    CLEAR temp1.
+
+    temp2-name = `bounce`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_attention-bounce.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `flash`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_attention-flash.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `pulse`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_attention-pulse.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `rubberBand`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_attention-rubber_band.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `shakeX`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_attention-shake_x.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `swing`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_attention-swing.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `tada`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_attention-tada.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `wobble`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_attention-wobble.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `jello`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_attention-jello.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `heartBeat`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_attention-heart_beat.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `bounceIn`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_entrance-bounce_in.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `fadeInDown`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_entrance-fade_in_down.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `fadeInLeft`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_entrance-fade_in_left.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `zoomIn`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_entrance-zoom_in.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `flipInX`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_entrance-flip_in_x.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-name = `rollIn`.
+    temp2-class = z2ui5_cl_cci_animate_css=>cs_entrance-roll_in.
+    INSERT temp2 INTO TABLE temp1.
+    t_row = temp1.
 
   ENDMETHOD.
 

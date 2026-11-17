@@ -44,12 +44,12 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
   METHOD z2ui5_if_app~main.
 
     me->client = client.
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -57,9 +57,14 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA box TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA result TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->ele( n  = `View`
+
+    page = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -80,7 +85,8 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
                   v = `abap2UI5 - Barcode`
             ).
 
-    DATA(box) = page->ele( `VBox`
+
+    box = page->ele( `VBox`
                     )->a( n = `class`
                           v = `sapUiMediumMargin` ).
 
@@ -177,7 +183,8 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
            )->a( n = `class`
                  v = `sapUiSmallMarginTop` ).
 
-    DATA(result) = box->ele( `Panel`
+
+    result = box->ele( `Panel`
                        )->a( n = `headerText`
                              v = `Result`
                        )->a( n = `class`
@@ -220,11 +227,23 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD type_apply.
+        DATA ls_type LIKE LINE OF t_type.
+        FIELD-SYMBOLS <temp1> LIKE LINE OF t_type.
+        DATA temp2 LIKE sy-tabix.
 
     " switching the symbology brings its example value and options along -
     " an EAN-13 needs 13 digits, a QR code does not care
     TRY.
-        DATA(ls_type) = t_type[ bcid = bcid ].
+
+
+
+        temp2 = sy-tabix.
+        READ TABLE t_type WITH KEY bcid = bcid ASSIGNING <temp1>.
+        sy-tabix = temp2.
+        IF sy-subrc <> 0.
+          ASSERT 1 = 0.
+        ENDIF.
+        ls_type = <temp1>.
         text    = ls_type-example.
         options = ls_type-options.
         " empty for a matrix code - a height would stretch it out of square
@@ -237,9 +256,19 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD model_init.
+    FIELD-SYMBOLS <temp1> LIKE LINE OF t_type.
+    DATA temp2 LIKE sy-tabix.
 
     t_type   = z2ui5_cl_cci_barcode=>get_types( ).
-    bcid     = t_type[ 1 ]-bcid.
+
+
+    temp2 = sy-tabix.
+    READ TABLE t_type INDEX 1 ASSIGNING <temp1>.
+    sy-tabix = temp2.
+    IF sy-subrc <> 0.
+      ASSERT 1 = 0.
+    ENDIF.
+    bcid     = <temp1>-bcid.
     scale    = `3`.
     renderas = `canvas`.
     type_apply( ).

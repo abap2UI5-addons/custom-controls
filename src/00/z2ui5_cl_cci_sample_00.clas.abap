@@ -28,7 +28,7 @@ CLASS z2ui5_cl_cci_sample_00 DEFINITION
         app         TYPE string,
       END OF ty_s_control.
 
-    DATA t_controls TYPE STANDARD TABLE OF ty_s_control WITH EMPTY KEY.
+    DATA t_controls TYPE STANDARD TABLE OF ty_s_control WITH DEFAULT KEY.
 
   PROTECTED SECTION.
     DATA client TYPE REF TO z2ui5_if_client.
@@ -47,12 +47,12 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
   METHOD z2ui5_if_app~main.
 
     me->client = client.
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -60,7 +60,8 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
     view->ele( n  = `View`
                ns = `mvc`
@@ -208,14 +209,18 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
   METHOD on_launch.
 
     " the demo class name is resolved on the client from the pressed row
-    DATA(lv_class) = to_upper( client->get_event_arg( ) ).
+    DATA lv_class TYPE string.
+    DATA li_app TYPE REF TO z2ui5_if_app .
+    DATA temp1 TYPE string_table.
+    DATA temp2 LIKE LINE OF temp1.
+    lv_class = to_upper( client->get_event_arg( ) ).
     IF lv_class IS INITIAL.
       RETURN.
     ENDIF.
 
     " instantiated only to fail early with a readable message - the tab below
     " would otherwise open on a dump
-    DATA li_app TYPE REF TO z2ui5_if_app ##NEEDED.
+
     TRY.
         CREATE OBJECT li_app TYPE (lv_class).
       CATCH cx_root.
@@ -228,8 +233,13 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
     " trying the next control does not mean walking back first. The URL is
     " relative on purpose - open_new_tab refuses anything that does not
     " resolve to the same origin.
+
+    CLEAR temp1.
+
+    temp2 = |?app_start={ lv_class }|.
+    INSERT temp2 INTO TABLE temp1.
     client->follow_up_action( val   = client->cs_event-open_new_tab
-                              t_arg = VALUE #( ( |?app_start={ lv_class }| ) ) ).
+                              t_arg = temp1 ).
 
   ENDMETHOD.
 
@@ -250,67 +260,83 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
     " CodeEditor has no row of its own - it has no demo of its own either. It
     " is the editor on the left of the Markdown demo, which is where it is
     " shown; a second row launching the very same app was noise.
-    t_controls = VALUE #(
-      ( name        = `SignaturePad`
-        module      = `z2ui5_cci/cc/SignaturePad`
-        description = `Canvas for mouse, finger or stylus; hands the stroke over as a base64 PNG`
-        library     = `none`
-        app         = `Z2UI5_CL_CCI_SAMPLE_01` )
-      ( name        = `ExportSpreadsheet`
-        module      = `z2ui5_cci/cc/ExportSpreadsheet`
-        description = `Exports the rows a table is bound to as .xlsx, in the browser`
-        library     = `sap.ui.export, from UI5`
-        app         = `Z2UI5_CL_CCI_SAMPLE_02` )
-      ( name        = `Validator`
-        module      = `z2ui5_cci/cc/Validator`
-        description = `Checks a form against rules declared in ABAP, without a roundtrip`
-        library     = `none`
-        app         = `Z2UI5_CL_CCI_SAMPLE_03` )
-      ( name        = `ChartJs`
-        module      = `z2ui5_cci/cc/ChartJs`
-        description = `Chart.js canvas driven by a bound ABAP structure`
-        library     = `Chart.js`
-        app         = `Z2UI5_CL_CCI_SAMPLE_04` )
-      ( name        = `Barcode`
-        module      = `z2ui5_cci/cc/Barcode`
-        description = `Barcodes and QR codes with bwip-js, rendered in the browser`
-        library     = `bwip-js`
-        app         = `Z2UI5_CL_CCI_SAMPLE_05` )
-      ( name        = `DriverJs`
-        module      = `z2ui5_cci/cc/DriverJs`
-        description = `Product tours and spotlight highlights over your own controls`
-        library     = `driver.js`
-        app         = `Z2UI5_CL_CCI_SAMPLE_06` )
-      ( name        = `FontAwesome`
-        module      = `z2ui5_cci/cc/FontAwesome`
-        description = `Font Awesome as UI5 icons and as CSS classes`
-        library     = `Font Awesome`
-        app         = `Z2UI5_CL_CCI_SAMPLE_07` )
-      ( name        = `AnimateCss`
-        module      = `z2ui5_cci/cc/AnimateCss`
-        description = `Makes the animate.css class names work on any control`
-        library     = `animate.css`
-        app         = `Z2UI5_CL_CCI_SAMPLE_08` )
-      ( name        = `ImageMapster`
-        module      = `z2ui5_cci/cc/ImageMapster`
-        description = `Image map that highlights, selects and reports the region clicked`
-        library     = `none`
-        app         = `Z2UI5_CL_CCI_SAMPLE_09` )
-      ( name        = `Markdown`
-        module      = `z2ui5_cci/cc/Markdown`
-        description = `Renders a bound Markdown string as HTML, sanitized by default`
-        library     = `marked, DOMPurify`
-        app         = `Z2UI5_CL_CCI_SAMPLE_10` )
-      ( name        = `BarcodeScanner`
-        module      = `z2ui5_cci/cc/BarcodeScanner`
-        description = `Scans every barcode in the camera picture at once, into an ABAP table`
-        library     = `zxing-wasm`
-        app         = `Z2UI5_CL_CCI_SAMPLE_11` )
-      ( name        = `RichTextEditor`
-        module      = `z2ui5_cci/cc/RichTextEditor`
-        description = `WYSIWYG editor for HTML, bound two-way - on OpenUI5 as on SAPUI5`
-        library     = `SunEditor, DOMPurify`
-        app         = `Z2UI5_CL_CCI_SAMPLE_12` ) ).
+    DATA temp3 LIKE t_controls.
+    DATA temp4 LIKE LINE OF temp3.
+    CLEAR temp3.
+
+    temp4-name = `SignaturePad`.
+    temp4-module = `z2ui5_cci/cc/SignaturePad`.
+    temp4-description = `Canvas for mouse, finger or stylus; hands the stroke over as a base64 PNG`.
+    temp4-library = `none`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_01`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-name = `ExportSpreadsheet`.
+    temp4-module = `z2ui5_cci/cc/ExportSpreadsheet`.
+    temp4-description = `Exports the rows a table is bound to as .xlsx, in the browser`.
+    temp4-library = `sap.ui.export, from UI5`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_02`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-name = `Validator`.
+    temp4-module = `z2ui5_cci/cc/Validator`.
+    temp4-description = `Checks a form against rules declared in ABAP, without a roundtrip`.
+    temp4-library = `none`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_03`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-name = `ChartJs`.
+    temp4-module = `z2ui5_cci/cc/ChartJs`.
+    temp4-description = `Chart.js canvas driven by a bound ABAP structure`.
+    temp4-library = `Chart.js`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_04`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-name = `Barcode`.
+    temp4-module = `z2ui5_cci/cc/Barcode`.
+    temp4-description = `Barcodes and QR codes with bwip-js, rendered in the browser`.
+    temp4-library = `bwip-js`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_05`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-name = `DriverJs`.
+    temp4-module = `z2ui5_cci/cc/DriverJs`.
+    temp4-description = `Product tours and spotlight highlights over your own controls`.
+    temp4-library = `driver.js`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_06`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-name = `FontAwesome`.
+    temp4-module = `z2ui5_cci/cc/FontAwesome`.
+    temp4-description = `Font Awesome as UI5 icons and as CSS classes`.
+    temp4-library = `Font Awesome`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_07`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-name = `AnimateCss`.
+    temp4-module = `z2ui5_cci/cc/AnimateCss`.
+    temp4-description = `Makes the animate.css class names work on any control`.
+    temp4-library = `animate.css`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_08`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-name = `ImageMapster`.
+    temp4-module = `z2ui5_cci/cc/ImageMapster`.
+    temp4-description = `Image map that highlights, selects and reports the region clicked`.
+    temp4-library = `none`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_09`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-name = `Markdown`.
+    temp4-module = `z2ui5_cci/cc/Markdown`.
+    temp4-description = `Renders a bound Markdown string as HTML, sanitized by default`.
+    temp4-library = `marked, DOMPurify`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_10`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-name = `BarcodeScanner`.
+    temp4-module = `z2ui5_cci/cc/BarcodeScanner`.
+    temp4-description = `Scans every barcode in the camera picture at once, into an ABAP table`.
+    temp4-library = `zxing-wasm`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_11`.
+    INSERT temp4 INTO TABLE temp3.
+    temp4-name = `RichTextEditor`.
+    temp4-module = `z2ui5_cci/cc/RichTextEditor`.
+    temp4-description = `WYSIWYG editor for HTML, bound two-way - on OpenUI5 as on SAPUI5`.
+    temp4-library = `SunEditor, DOMPurify`.
+    temp4-app = `Z2UI5_CL_CCI_SAMPLE_12`.
+    INSERT temp4 INTO TABLE temp3.
+    t_controls = temp3.
 
   ENDMETHOD.
 

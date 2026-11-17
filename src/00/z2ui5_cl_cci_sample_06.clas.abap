@@ -44,12 +44,12 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
   METHOD z2ui5_if_app~main.
 
     me->client = client.
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -57,9 +57,13 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA panel TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(page) = view->ele( n  = `View`
+
+    page = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -107,7 +111,8 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
             )->a( n = `press`
                   v = client->_event( `HIGHLIGHT` ) ).
 
-    DATA(panel) = page->ele( `Panel`
+
+    panel = page->ele( `Panel`
                       )->a( n = `id`
                             v = `orderPanel`
                       )->a( n = `headerText`
@@ -193,6 +198,8 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD model_init.
+    DATA temp1 TYPE z2ui5_cl_cci_driverjs=>ty_t_step.
+    DATA temp2 LIKE LINE OF temp1.
 
     product  = `tomato`.
     quantity = `500`.
@@ -205,23 +212,29 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
     s_tour-allow_close   = abap_true.
 
     " element is the control id from the view above, nothing else
-    s_tour-steps = VALUE #(
-      ( element = `product`
-        popover-title       = `<strong>What to order</strong>`
-        popover-description = `The material. Type at least three characters ` &&
-                              `to get a value help.`
-        popover-side        = z2ui5_cl_cci_driverjs=>cs_side-right
-        popover-align       = z2ui5_cl_cci_driverjs=>cs_align-start )
-      ( element = `quantity`
-        popover-title       = `<strong>How many</strong>`
-        popover-description = `Whole pieces. The unit comes from the material master.`
-        popover-side        = z2ui5_cl_cci_driverjs=>cs_side-right
-        popover-align       = z2ui5_cl_cci_driverjs=>cs_align-start )
-      ( element = `post`
-        popover-title       = `<strong>Post it</strong>`
-        popover-description = `This sends the order to the backend.`
-        popover-side        = z2ui5_cl_cci_driverjs=>cs_side-bottom
-        popover-align       = z2ui5_cl_cci_driverjs=>cs_align-start ) ).
+
+    CLEAR temp1.
+
+    temp2-element = `product`.
+    temp2-popover-title = `<strong>What to order</strong>`.
+    temp2-popover-description = `The material. Type at least three characters ` &&
+`to get a value help.`.
+    temp2-popover-side = z2ui5_cl_cci_driverjs=>cs_side-right.
+    temp2-popover-align = z2ui5_cl_cci_driverjs=>cs_align-start.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-element = `quantity`.
+    temp2-popover-title = `<strong>How many</strong>`.
+    temp2-popover-description = `Whole pieces. The unit comes from the material master.`.
+    temp2-popover-side = z2ui5_cl_cci_driverjs=>cs_side-right.
+    temp2-popover-align = z2ui5_cl_cci_driverjs=>cs_align-start.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-element = `post`.
+    temp2-popover-title = `<strong>Post it</strong>`.
+    temp2-popover-description = `This sends the order to the backend.`.
+    temp2-popover-side = z2ui5_cl_cci_driverjs=>cs_side-bottom.
+    temp2-popover-align = z2ui5_cl_cci_driverjs=>cs_align-start.
+    INSERT temp2 INTO TABLE temp1.
+    s_tour-steps = temp1.
 
     s_highlight-element             = `orderPanel`.
     s_highlight-popover-title       = `<strong>The whole form</strong>`.

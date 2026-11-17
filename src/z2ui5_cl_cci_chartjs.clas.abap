@@ -38,8 +38,8 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         r TYPE string,
       END OF ty_x_y_r_data.
 
-    TYPES ty_x_y_r_data_t TYPE STANDARD TABLE OF ty_x_y_r_data WITH EMPTY KEY.
-    TYPES ty_bg_color TYPE STANDARD TABLE OF string WITH EMPTY KEY.
+    TYPES ty_x_y_r_data_t TYPE STANDARD TABLE OF ty_x_y_r_data WITH DEFAULT KEY.
+    TYPES ty_bg_color TYPE STANDARD TABLE OF string WITH DEFAULT KEY.
 
     TYPES:
       BEGIN OF ty_padding,
@@ -104,7 +104,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         values TYPE string_table,
       END OF ty_data_venn .
 
-    TYPES ty_data_venn_t TYPE STANDARD TABLE OF ty_data_venn WITH EMPTY KEY.
+    TYPES ty_data_venn_t TYPE STANDARD TABLE OF ty_data_venn WITH DEFAULT KEY.
 
     TYPES:
       BEGIN OF ty_dataset,
@@ -133,7 +133,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         tension            TYPE string,
       END OF ty_dataset.
 
-    TYPES ty_datasets TYPE STANDARD TABLE OF ty_dataset WITH EMPTY KEY.
+    TYPES ty_datasets TYPE STANDARD TABLE OF ty_dataset WITH DEFAULT KEY.
 
     TYPES:
       BEGIN OF ty_data,
@@ -639,15 +639,36 @@ CLASS z2ui5_cl_cci_chartjs IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |config={ config }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |width={ width }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |height={ height }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |plugins={ plugins }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |libUrl={ liburl }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |elementPress={ elementpress }|.
+    INSERT temp7 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `ChartJs`
-        a    = VALUE #( ( |config={ config }| )
-                        ( |width={ width }| )
-                        ( |height={ height }| )
-                        ( |plugins={ plugins }| )
-                        ( |libUrl={ liburl }| )
-                        ( |elementPress={ elementpress }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

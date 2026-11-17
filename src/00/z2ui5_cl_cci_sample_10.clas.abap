@@ -77,12 +77,12 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
 
     me->client = client.
 
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -90,9 +90,16 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA root TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA grid TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA left TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA right TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(root) = view->ele( n  = `View`
+
+    root = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -106,7 +113,8 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
     " the whole integration on the view side - one namespace declaration
     z2ui5_cl_cci=>xmlns( root ).
 
-    DATA(page) = root->ele( `Page`
+
+    page = root->ele( `Page`
         )->a( n = `title`
               v = `abap2UI5 - Markdown` ).
 
@@ -153,7 +161,8 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
               v = `sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiSmallMarginTop` ).
 
     " Editor and preview side by side, and stacked on a phone.
-    DATA(grid) = page->ele( `FlexBox`
+
+    grid = page->ele( `FlexBox`
         )->a( n = `wrap`
               v = `Wrap`
         )->a( n = `class`
@@ -161,7 +170,8 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
         )->a( n = `alignItems`
               v = `Stretch` ).
 
-    DATA(left) = grid->ele( `VBox`
+
+    left = grid->ele( `VBox`
         )->a( n = `class`
               v = `sapUiTinyMarginEnd`
         )->a( n = `width`
@@ -182,7 +192,8 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
 
     left->end( ).
 
-    DATA(right) = grid->ele( `VBox`
+
+    right = grid->ele( `VBox`
         )->a( n = `width`
               v = `48rem`
 
@@ -246,61 +257,71 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
 
   METHOD get_doc.
 
+    DATA temp1 TYPE string_table.
+    CLEAR temp1.
+    INSERT `# Delivery note 80001234` INTO TABLE temp1.
+    INSERT `` INTO TABLE temp1.
+    INSERT `Shipped **2026-08-04** from plant *1000*.` INTO TABLE temp1.
+    INSERT `` INTO TABLE temp1.
+    INSERT `## Positions` INTO TABLE temp1.
+    INSERT `` INTO TABLE temp1.
+    INSERT `| Item | Material | Qty | Unit |` INTO TABLE temp1.
+    INSERT `|-----:|----------|----:|------|` INTO TABLE temp1.
+    INSERT `|   10 | R-1001   |  12 | PC   |` INTO TABLE temp1.
+    INSERT `|   20 | R-1002   |   4 | PC   |` INTO TABLE temp1.
+    INSERT `|   30 | R-2000   | 100 | KG   |` INTO TABLE temp1.
+    INSERT `` INTO TABLE temp1.
+    INSERT `## Notes` INTO TABLE temp1.
+    INSERT `` INTO TABLE temp1.
+    INSERT `- goods checked on arrival` INTO TABLE temp1.
+    INSERT `- one carton damaged, see photo` INTO TABLE temp1.
+    INSERT `- signature captured digitally` INTO TABLE temp1.
+    INSERT `` INTO TABLE temp1.
+    INSERT `> Damaged carton was accepted with a remark.` INTO TABLE temp1.
+    INSERT `` INTO TABLE temp1.
+    INSERT `---` INTO TABLE temp1.
+    INSERT `` INTO TABLE temp1.
+    INSERT `Created by ABAP, rendered by marked.` INTO TABLE temp1.
     result = concat_lines_of(
-        table = VALUE string_table(
-          ( `# Delivery note 80001234` )
-          ( `` )
-          ( `Shipped **2026-08-04** from plant *1000*.` )
-          ( `` )
-          ( `## Positions` )
-          ( `` )
-          ( `| Item | Material | Qty | Unit |` )
-          ( `|-----:|----------|----:|------|` )
-          ( `|   10 | R-1001   |  12 | PC   |` )
-          ( `|   20 | R-1002   |   4 | PC   |` )
-          ( `|   30 | R-2000   | 100 | KG   |` )
-          ( `` )
-          ( `## Notes` )
-          ( `` )
-          ( `- goods checked on arrival` )
-          ( `- one carton damaged, see photo` )
-          ( `- signature captured digitally` )
-          ( `` )
-          ( `> Damaged carton was accepted with a remark.` )
-          ( `` )
-          ( `---` )
-          ( `` )
-          ( `Created by ABAP, rendered by marked.` ) )
+        table = temp1
         sep   = mv_nl ).
 
   ENDMETHOD.
 
   METHOD get_code.
 
+    DATA temp3 TYPE string_table.
+    DATA temp1 LIKE LINE OF temp3.
+    DATA temp2 LIKE LINE OF temp3.
+    CLEAR temp3.
+    INSERT `## How to render Markdown` INTO TABLE temp3.
+    INSERT `` INTO TABLE temp3.
+    INSERT `Bind the string, that is all:` INTO TABLE temp3.
+    INSERT `` INTO TABLE temp3.
+
+    temp1 = |{ c_fence }abap|.
+    INSERT temp1 INTO TABLE temp3.
+    INSERT `z2ui5_cl_cci_markdown=>render(` INTO TABLE temp3.
+    INSERT `    view  = page` INTO TABLE temp3.
+    INSERT `    value = client->_bind( md_text ) ).` INTO TABLE temp3.
+    INSERT c_fence INTO TABLE temp3.
+    INSERT `` INTO TABLE temp3.
+
+    temp2 = |Inline { c_tick }code{ c_tick } works too.|.
+    INSERT temp2 INTO TABLE temp3.
+    INSERT `` INTO TABLE temp3.
+    INSERT `### In-app links` INTO TABLE temp3.
+    INSERT `` INTO TABLE temp3.
+    INSERT `A link starting with a hash does not navigate - it raises` INTO TABLE temp3.
+    INSERT `an event instead:` INTO TABLE temp3.
+    INSERT `` INTO TABLE temp3.
+    INSERT `- [open order 4711](#order/4711)` INTO TABLE temp3.
+    INSERT `- [open customer 100023](#customer/100023)` INTO TABLE temp3.
+    INSERT `` INTO TABLE temp3.
+    INSERT `An ordinary link still leaves the app:` INTO TABLE temp3.
+    INSERT `[abap2UI5](https://abap2ui5.github.io/docs/).` INTO TABLE temp3.
     result = concat_lines_of(
-        table = VALUE string_table(
-          ( `## How to render Markdown` )
-          ( `` )
-          ( `Bind the string, that is all:` )
-          ( `` )
-          ( |{ c_fence }abap| )
-          ( `z2ui5_cl_cci_markdown=>render(` )
-          ( `    view  = page` )
-          ( `    value = client->_bind( md_text ) ).` )
-          ( c_fence )
-          ( `` )
-          ( |Inline { c_tick }code{ c_tick } works too.| )
-          ( `` )
-          ( `### In-app links` )
-          ( `` )
-          ( `A link starting with a hash does not navigate - it raises` )
-          ( `an event instead:` )
-          ( `` )
-          ( `- [open order 4711](#order/4711)` )
-          ( `- [open customer 100023](#customer/100023)` )
-          ( `` )
-          ( `An ordinary link still leaves the app:` )
-          ( `[abap2UI5](https://abap2ui5.github.io/docs/).` ) )
+        table = temp3
         sep   = mv_nl ).
 
   ENDMETHOD.
@@ -311,20 +332,22 @@ CLASS z2ui5_cl_cci_sample_10 IMPLEMENTATION.
     " does not run it. It is here to show that the sanitizer REMOVES it, while
     " the styled span survives either way but only reaches the page unfiltered
     " when sanitizing is off.
+    DATA temp5 TYPE string_table.
+    CLEAR temp5.
+    INSERT `## Markdown may contain raw HTML` INTO TABLE temp5.
+    INSERT `` INTO TABLE temp5.
+    INSERT `Markdown passes HTML through, so whatever wrote this text` INTO TABLE temp5.
+    INSERT `decides what lands in the page:` INTO TABLE temp5.
+    INSERT `` INTO TABLE temp5.
+    INSERT `<span style="color:#c00;font-weight:bold">styled by raw HTML</span>` INTO TABLE temp5.
+    INSERT `` INTO TABLE temp5.
+    INSERT `<script>console.log("stripped by DOMPurify")</script>` INTO TABLE temp5.
+    INSERT `` INTO TABLE temp5.
+    INSERT `With **Sanitize** on, DOMPurify removes the script and keeps the` INTO TABLE temp5.
+    INSERT `harmless markup. With it off, the HTML is trusted as it stands -` INTO TABLE temp5.
+    INSERT `only ever do that for text your own developers wrote.` INTO TABLE temp5.
     result = concat_lines_of(
-        table = VALUE string_table(
-          ( `## Markdown may contain raw HTML` )
-          ( `` )
-          ( `Markdown passes HTML through, so whatever wrote this text` )
-          ( `decides what lands in the page:` )
-          ( `` )
-          ( `<span style="color:#c00;font-weight:bold">styled by raw HTML</span>` )
-          ( `` )
-          ( `<script>console.log("stripped by DOMPurify")</script>` )
-          ( `` )
-          ( `With **Sanitize** on, DOMPurify removes the script and keeps the` )
-          ( `harmless markup. With it off, the HTML is trusted as it stands -` )
-          ( `only ever do that for text your own developers wrote.` ) )
+        table = temp5
         sep   = mv_nl ).
 
   ENDMETHOD.
