@@ -1,0 +1,122 @@
+name: ci
+
+# The checks of this repository. The ABAP side comes from the shared CI
+# template of abap2UI5-addons (rap-ext, .github/ci/README.md), the JavaScript
+# side - the generated BSP, the vendored libraries, the controls themselves -
+# is this repository's own and stays here as jobs of its own:
+#
+#   check / abaplint      Standard ABAP (abaplint.jsonc) and ABAP Cloud
+#                         (.github/abaplint/abap_cloud.jsonc)
+#   check / abap2ui5lint  the app classes and their views (abap2ui5lint.jsonc),
+#                         on main the README badges, published to `badges`
+#   app2bsp               src/01 matches npm run app2bsp
+#   vendor                LibUrls.js matches npm run vendor, and the local
+#                         build succeeds
+#   js                    the controls parse, the Node tests, the overlay
+#                         browser check
+#
+# The abap2UI5-linter's headless view render is deliberately off: it
+# validates views against the UI5 metadata snapshot, which does not know
+# z2ui5_cci.cc.SignaturePad - a custom control is invisible to it by
+# definition. No ABAP Unit tests and no rename script here, so no unit and no
+# rename job.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # the abap2UI5 core is resolved from its main branch with no version pin, so
+  # a rename upstream breaks this repository silently. Nothing else notices
+  # while there is no pull request open.
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    # write only for publish-badges, which runs on main and never for a pull
+    # request; every job that runs the code keeps a read-only token
+    permissions:
+      contents: write
+    uses: abap2UI5-addons/rap-ext/.github/workflows/addon-check.yaml@c81dfd461f69e42bb3678f51f80804066e2c9f96 # ci-v1.0.0
+    with:
+      abaplint: '["./abaplint.jsonc", ".github/abaplint/abap_cloud.jsonc"]'
+      abap2ui5lint-render: false
+      canary: ${{ github.event_name == 'schedule' }}
+
+  app2bsp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      # the generated BSP artefacts must match app/webapp - a stale page would
+      # deploy old JavaScript without anyone noticing
+      - name: app2bsp is up to date
+        run: |
+          npm run app2bsp
+          git diff --exit-code -- src
+
+  # app/webapp/cc/LibUrls.js is generated from tools/libs.json and the installed
+  # package versions. Regenerating it here means a hand-edited URL, or a version
+  # bumped in package.json without re-running the generator, fails the build
+  # instead of shipping a CDN URL nothing was tested against.
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: LibUrls.js is up to date
+        run: |
+          npm run vendor
+          git diff --exit-code -- app/webapp
+
+      # The local build is what the `local` branch ships; building it here
+      # proves every library still vendors and wraps within the BSP line limit
+      # before publish-local tries it.
+      - name: local build succeeds
+        run: npm run build:local
+
+  js:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - name: syntax check the custom controls
+        run: for f in app/webapp/cc/*.js; do node --check "$f"; done
+      - name: unit tests
+        run: npm test
+      # The ImageMapster overlay is geometry, and geometry needs a layout
+      # engine: this drives the control in headless Chromium and checks that a
+      # click at a point in the picture lands on the region drawn there, before
+      # and after a resize. ubuntu-latest ships a Chromium; the runner skips
+      # itself when there is none rather than failing.
+      - name: overlay browser check
+        run: npm run check:browser

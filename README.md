@@ -5,9 +5,10 @@
 [![abap2UI5](https://img.shields.io/badge/requires-abap2UI5-blue)](https://github.com/abap2UI5/abap2UI5)
 [![License](https://img.shields.io/github/license/abap2UI5-addons/custom-controls)](LICENSE)
 <br>
-[![check](https://img.shields.io/github/actions/workflow/status/abap2UI5-addons/custom-controls/check.yml?branch=main&label=check)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
-[![check-abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fcheck-abap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
-[![abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fabap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/check.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/abap2UI5-addons/custom-controls/ci.yaml?branch=main&label=CI)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/ci.yaml)
+[![ABAP 7.02](https://img.shields.io/github/actions/workflow/status/abap2UI5-addons/custom-controls/ci-702.yaml?branch=main&label=ABAP%207.02)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/ci-702.yaml)
+[![check-abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fcheck-abap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/ci.yaml)
+[![abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fabap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/ci.yaml)
 
 **Thirteen ready-to-use custom controls for
 [abap2UI5](https://github.com/abap2UI5/abap2UI5)** — signature pad, charts,
@@ -461,9 +462,9 @@ push** and force-pushed by CI. Never develop on it — a commit made there is go
 with the next run. Install it with abapGit exactly like `main` (the table is
 under [Installation](#installation)).
 
-`702` is generated the same way: `publish-702` downports `main` to ABAP 7.02
-(`npm run auto_downport`) on every push and force-pushes the result, and
-`abap-702` lints it. It carries the jsDelivr libraries of `main`.
+`702` is generated the same way: `ci-702` downports `main` to ABAP 7.02
+(`npm run auto_downport`) on every push, force-pushes the result and lints
+it. It carries the jsDelivr libraries of `main`.
 
 `npm run build:local` copies every library out of `node_modules` into
 `app/webapp/lib/` and regenerates the BSP, which grows to about 6 MB — 1.3 MB of

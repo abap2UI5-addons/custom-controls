@@ -7,3 +7,8 @@ site/node_modules/
 site/.vitepress/cache/
 site/.vitepress/dist/
 build/
+
+# the shared CI template (rap-ext .github/ci/README.md): its scripts and the
+# sibling checkouts of pin-deps.mjs
+.deps/
+.ci-template/
