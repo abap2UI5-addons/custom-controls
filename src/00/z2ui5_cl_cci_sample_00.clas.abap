@@ -310,7 +310,17 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
         module      = `z2ui5_cci/cc/RichTextEditor`
         description = `WYSIWYG editor for HTML, bound two-way - on OpenUI5 as on SAPUI5`
         library     = `SunEditor, DOMPurify`
-        app         = `Z2UI5_CL_CCI_SAMPLE_12` ) ).
+        app         = `Z2UI5_CL_CCI_SAMPLE_12` )
+      ( name        = `NetworkStatus`
+        module      = `z2ui5_cci/cc/NetworkStatus`
+        description = `Online, offline or server not reachable - icon, signal bars and latency, measured in the browser`
+        library     = `none`
+        app         = `Z2UI5_CL_CCI_SAMPLE_13` )
+      ( name        = `Clock`
+        module      = `z2ui5_cci/cc/Clock`
+        description = `Date and time ticking in the browser; a button underneath, so it fits an overflow menu`
+        library     = `none`
+        app         = `Z2UI5_CL_CCI_SAMPLE_14` ) ).
 
   ENDMETHOD.
 
