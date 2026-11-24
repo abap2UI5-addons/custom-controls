@@ -88,8 +88,7 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
 
         )->ele( `Page`
             )->a( n = `title`
-                  v = `abap2UI5 - Spreadsheet Export`
-            ).
+                  v = `abap2UI5 - Spreadsheet Export` ).
 
     DATA(table) = page->ele( `Table`
                       )->a( n = `id`

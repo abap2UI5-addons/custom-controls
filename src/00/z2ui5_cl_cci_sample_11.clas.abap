@@ -64,6 +64,15 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
 
   METHOD view_display.
 
+    TYPES:
+      BEGIN OF ty_s_symbol,
+        bcid    TYPE string,
+        text    TYPE string,
+        options TYPE string,
+        height  TYPE string,
+      END OF ty_s_symbol.
+    TYPES ty_t_symbol TYPE STANDARD TABLE OF ty_s_symbol WITH EMPTY KEY.
+
     DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
 
     DATA(page) = view->ele( n  = `View`
@@ -81,8 +90,7 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
 
         )->ele( `Page`
             )->a( n = `title`
-                  v = `abap2UI5 - BarcodeScanner`
-            ).
+                  v = `abap2UI5 - BarcodeScanner` ).
 
     DATA(box) = page->ele( `VBox`
                     )->a( n = `class`
@@ -209,15 +217,6 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
                                     v = `Wrap`
                               )->a( n = `alignItems`
                                     v = `Center` ).
-
-    TYPES:
-      BEGIN OF ty_s_symbol,
-        bcid    TYPE string,
-        text    TYPE string,
-        options TYPE string,
-        height  TYPE string,
-      END OF ty_s_symbol.
-    TYPES ty_t_symbol TYPE STANDARD TABLE OF ty_s_symbol WITH EMPTY KEY.
 
     DATA(symbols) = VALUE ty_t_symbol(
       ( bcid = `ean13`      text = `4006381333931`           options = `includetext guardwhitespace` height = `10` )

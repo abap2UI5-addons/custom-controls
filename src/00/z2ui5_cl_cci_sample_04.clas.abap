@@ -211,7 +211,7 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
     ls_dataset-label = `# of votes`.
     ls_dataset-border_width = 1.
     ls_dataset-data = VALUE #( ( `12` ) ( `19` ) ( `3` ) ( `5` ) ( `2` ) ( `3` ) ).
-    APPEND ls_dataset TO s_bar-data-datasets.
+    INSERT ls_dataset INTO TABLE s_bar-data-datasets.
     s_bar-options-scales-y-begin_at_zero = abap_true.
     s_bar-options-plugins-title-display = abap_true.
     s_bar-options-plugins-title-text = `Votes per colour`.
@@ -225,13 +225,13 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
     ls_dataset-tension = `0.4`.
     ls_dataset-data = VALUE #( ( `65` ) ( `59` ) ( `80` ) ( `81` )
                                ( `56` ) ( `55` ) ( `40` ) ).
-    APPEND ls_dataset TO s_line-data-datasets.
+    INSERT ls_dataset INTO TABLE s_line-data-datasets.
     CLEAR ls_dataset.
     ls_dataset-label = `Dataset 2`.
     ls_dataset-tension = `0.4`.
     ls_dataset-data = VALUE #( ( `100` ) ( `33` ) ( `22` ) ( `19` )
                                ( `11` ) ( `49` ) ( `30` ) ).
-    APPEND ls_dataset TO s_line-data-datasets.
+    INSERT ls_dataset INTO TABLE s_line-data-datasets.
     s_line-options-responsive = abap_true.
 
     " pie
@@ -241,7 +241,7 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
                                  ( `Green` ) ( `Blue` ) ).
     ls_dataset-label = `Share`.
     ls_dataset-data = VALUE #( ( `63.4` ) ( `47.8` ) ( `50.6` ) ( `21.3` ) ( `38.7` ) ).
-    APPEND ls_dataset TO s_pie-data-datasets.
+    INSERT ls_dataset INTO TABLE s_pie-data-datasets.
     s_pie-options-plugins-legend-position = `bottom`.
 
     " doughnut - same data, different type
@@ -257,7 +257,7 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
                                       ( x = `27` y = `24` r = `5.8` )
                                       ( x = `47` y = `36` r = `8.4` )
                                       ( x = `77` y = `65` r = `9.5` ) ).
-    APPEND ls_dataset TO s_bubble-data-datasets.
+    INSERT ls_dataset INTO TABLE s_bubble-data-datasets.
     s_bubble-options-responsive = abap_true.
 
     " venn - one set list per point, which is why ty_dataset has data_venn
@@ -279,7 +279,7 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
         ( sets = VALUE #( ( `Soccer` ) ( `Volleyball` ) )              value = `1` )
         ( sets = VALUE #( ( `Tennis` ) ( `Volleyball` ) )              value = `1` )
         ( sets = VALUE #( ( `Soccer` ) ( `Tennis` ) ( `Volleyball` ) ) value = `1` ) ).
-    APPEND ls_dataset TO s_venn-data-datasets.
+    INSERT ls_dataset INTO TABLE s_venn-data-datasets.
 
     " word cloud
     CLEAR ls_dataset.
@@ -289,7 +289,7 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
     ls_dataset-label = `size`.
     ls_dataset-data = VALUE #( ( `90` ) ( `70` ) ( `60` ) ( `50` )
                                ( `40` ) ( `30` ) ( `20` ) ).
-    APPEND ls_dataset TO s_wordcloud-data-datasets.
+    INSERT ls_dataset INTO TABLE s_wordcloud-data-datasets.
 
   ENDMETHOD.
 
@@ -305,8 +305,7 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
     " is the binding doing its job. So the datasets are rotated.
     mv_run = mv_run + 1.
 
-    FIELD-SYMBOLS <ds> TYPE z2ui5_cl_cci_chartjs=>ty_dataset.
-    LOOP AT s_bar-data-datasets ASSIGNING <ds>.
+    LOOP AT s_bar-data-datasets ASSIGNING FIELD-SYMBOL(<ds>).
       rotate( CHANGING val = <ds>-data ).
     ENDLOOP.
 
@@ -330,23 +329,20 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
     " entry, so neither uses the plain `data` table the others rotate - they
     " need their own shift, or the second carousel page would sit still while
     " the first one updates.
-    DATA ls_point TYPE z2ui5_cl_cci_chartjs=>ty_x_y_r_data.
     LOOP AT s_bubble-data-datasets ASSIGNING <ds>.
       IF lines( <ds>-data_radial ) >= 2.
-        ls_point = <ds>-data_radial[ 1 ].
+        DATA(ls_point) = <ds>-data_radial[ 1 ].
         DELETE <ds>-data_radial INDEX 1.
-        APPEND ls_point TO <ds>-data_radial.
+        INSERT ls_point INTO TABLE <ds>-data_radial.
       ENDIF.
     ENDLOOP.
 
     " rotate the values across the sets, so the circles resize while the sets
     " themselves stay where they are
-    DATA lv_value TYPE string.
-    DATA lv_last  TYPE i.
     LOOP AT s_venn-data-datasets ASSIGNING <ds>.
-      lv_last = lines( <ds>-data_venn ).
+      DATA(lv_last) = lines( <ds>-data_venn ).
       IF lv_last >= 2.
-        lv_value = <ds>-data_venn[ 1 ]-value.
+        DATA(lv_value) = <ds>-data_venn[ 1 ]-value.
         DO lv_last - 1 TIMES.
           <ds>-data_venn[ sy-index ]-value = <ds>-data_venn[ sy-index + 1 ]-value.
         ENDDO.
@@ -367,7 +363,7 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
 
     DATA(lv_first) = val[ 1 ].
     DELETE val INDEX 1.
-    APPEND lv_first TO val.
+    INSERT lv_first INTO TABLE val.
 
   ENDMETHOD.
 

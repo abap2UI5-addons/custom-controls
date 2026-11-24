@@ -75,8 +75,7 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
 
         )->ele( `Page`
             )->a( n = `title`
-                  v = `abap2UI5 - Validator`
-            ).
+                  v = `abap2UI5 - Validator` ).
 
     " the rules travel to the frontend as data, not as JavaScript
     z2ui5_cl_cci_validator=>render(

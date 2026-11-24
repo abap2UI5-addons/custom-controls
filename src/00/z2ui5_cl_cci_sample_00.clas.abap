@@ -207,15 +207,16 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
 
   METHOD on_launch.
 
+    " instantiated only to fail early with a readable message - the tab below
+    " would otherwise open on a dump
+    DATA li_app TYPE REF TO z2ui5_if_app ##NEEDED.
+
     " the demo class name is resolved on the client from the pressed row
     DATA(lv_class) = to_upper( client->get_event_arg( ) ).
     IF lv_class IS INITIAL.
       RETURN.
     ENDIF.
 
-    " instantiated only to fail early with a readable message - the tab below
-    " would otherwise open on a dump
-    DATA li_app TYPE REF TO z2ui5_if_app ##NEEDED.
     TRY.
         CREATE OBJECT li_app TYPE (lv_class).
       CATCH cx_root.

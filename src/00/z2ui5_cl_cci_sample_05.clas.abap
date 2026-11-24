@@ -77,8 +77,7 @@ CLASS z2ui5_cl_cci_sample_05 IMPLEMENTATION.
 
         )->ele( `Page`
             )->a( n = `title`
-                  v = `abap2UI5 - Barcode`
-            ).
+                  v = `abap2UI5 - Barcode` ).
 
     DATA(box) = page->ele( `VBox`
                     )->a( n = `class`

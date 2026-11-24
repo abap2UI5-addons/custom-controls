@@ -85,8 +85,7 @@ CLASS z2ui5_cl_cci_sample_07 IMPLEMENTATION.
 
         )->ele( `Page`
             )->a( n = `title`
-                  v = `abap2UI5 - Font Awesome`
-            ).
+                  v = `abap2UI5 - Font Awesome` ).
 
     " one element, and both ways of using Font Awesome are available
     z2ui5_cl_cci_font_awesome=>render( page ).
