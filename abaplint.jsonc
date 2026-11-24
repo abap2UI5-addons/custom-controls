@@ -48,9 +48,42 @@
     "obsolete_statement": true,
     "7bit_ascii": true,
     "line_length": {
+      "maxIssuesPerFile": 10,
       "length": 255
     },
     "object_naming": {
+      "ignoreNames": [],
+      "ignorePatterns": [],
+      "prog": "^Z",
+      "fugr": "^Z",
+      "tabl": "^Z",
+      "ttyp": "^Z",
+      "dtel": "^Z",
+      "doma": "^Z",
+      "msag": "^Z",
+      "tran": "^Z",
+      "enqu": "^EZ",
+      "auth": "^Z",
+      "pinf": "^Z",
+      "idoc": "^Z",
+      "xslt": "^Z",
+      "ssfo": "^Z",
+      "ssst": "^Z",
+      "shlp": "^Z",
+      "sxci": "^Z",
+      "enhs": "^Z",
+      "enho": "^Z",
+      "cmod": "^Z",
+      "form": "^Z",
+      "sfpf": "^Z",
+      "sfpi": "^Z",
+      "aqqu": "^Z",
+      "aqsg": "^Z",
+      "aqbg": "^Z",
+      "suso": "^Z",
+      "sucu": "^Z",
+      "wdya": "^Z",
+      "wdyn": "^Z",
       "patternKind": "required",
       // Z2UI5_CL_CCI_* - same shape as the framework and the samples
       // repository use, not the generic ZCL_ prefix
@@ -112,6 +145,8 @@
       "severity": "Error"
     },
     "dangerous_statement": {
+      "editorCallForReport": true,
+      "ignoreRAPQueryProvider": true,
       "deleteDynpro": true,
       "deleteReport": true,
       "deleteTextpool": true,
@@ -257,6 +292,7 @@
     "max_one_statement": true,
     "message_exists": true,
     "method_length": {
+      "checkFunctionModules": true,
       "checkForms": true,
       "errorWhenEmpty": false,
       "exclude": [],
@@ -303,6 +339,7 @@
     "preferred_compare_operator": true,
     "preferred_parameter_ignored": true,
     "prefix_is_current_class": {
+      "omitMeInstanceCalls": true,
       "exclude": [],
       "severity": "Warning"
     },
@@ -322,6 +359,7 @@
     "select_single_full_key": true,
     "selection_screen_naming": true,
     "sequential_blank": {
+      "lines": 4,
       "exclude": [],
       "severity": "Warning"
     },
@@ -406,11 +444,13 @@
       ]
     },
     "pragma_style": {
+      "style": "upper",
       "exclude": [
         "z2ui5_cl_cci_imagemapster\\."
       ]
     },
     "unused_variables": {
+      "skipAbstract": false,
       "skipNames": [
         "cs_buttons",
         "cs_modifier",
@@ -450,6 +490,7 @@
     "copy_chain": true,
     "definitions_top": true,
     "double_space": {
+      "skipKeywords": ["CHANGING","EXPORTING","OTHERS"],
       "keywords": false,
       "startParen": true,
       "endParen": false,
@@ -462,6 +503,11 @@
     "indentation": true,
     "inline_generic_source": true,
     "keyword_case": {
+      "ignoreGlobalClassDefinition": false,
+      "ignoreGlobalInterface": false,
+      "ignoreFunctionModuleName": false,
+      "ignoreGlobalClassBoundaries": false,
+      "maxIssuesPerFile": 10,
       "style": "upper",
       "ignoreExceptions": true,
       "ignoreLowerClassImplmentationStatement": true,
@@ -469,6 +515,8 @@
     },
     "line_only_punc": true,
     "local_class_naming": {
+      "ignoreNames": [],
+      "ignorePatterns": [],
       "patternKind": "required",
       "local": "^LCL_.+$",
       "exception": "^LCX_.+$",
@@ -479,6 +527,19 @@
     "no_macros": true,
     // the sample launcher instantiates the sample it was asked for by name
     "no_dynamic_stuff": {
+      "callMethod": true,
+      "callFunction": true,
+      "callDatabaseProcedure": true,
+      "callTransformation": true,
+      "callTransaction": true,
+      "perform": true,
+      "submit": true,
+      "createObject": true,
+      "createData": true,
+      "getBadi": true,
+      "assign": true,
+      "internalTable": true,
+      "exportImport": true,
       "exclude": [
         "z2ui5_cl_cci_sample_00\\.clas\\."
       ]
