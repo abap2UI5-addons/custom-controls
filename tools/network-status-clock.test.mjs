@@ -31,7 +31,8 @@ function amd(file) {
   return result;
 }
 
-const { evaluate } = amd("NetworkStatus.js");
+const NetworkStatus = amd("NetworkStatus.js");
+const { evaluate } = NetworkStatus;
 const { format } = amd("Clock.js");
 
 test("NetworkStatus: no network is offline, whatever the last ping said", () => {
@@ -97,6 +98,18 @@ test("NetworkStatus: no ping and no network information is plain online", () => 
 });
 
 const DATE = new Date(2026, 10, 23, 7, 5, 9);
+
+test("NetworkStatus: an OverflowToolbar ignores the state it writes on every ping", () => {
+  // every property change of a toolbar item makes the OverflowToolbar lay
+  // itself out again - and close its open overflow menu - unless the item
+  // names the property as unrelated to its size
+  assert.ok(NetworkStatus.metadata.interfaces.includes("sap.m.IOverflowToolbarContent"));
+  const config = NetworkStatus.getOverflowToolbarConfig();
+  assert.equal(config.canOverflow, false);
+  for (const name of ["status", "latency", "quality"]) {
+    assert.ok(config.propsUnrelatedToSize.includes(name), name);
+  }
+});
 
 test("Clock: the four formats", () => {
   assert.equal(format(DATE, "datetime", "de-DE"), "23.11.2026, 07:05:09");
