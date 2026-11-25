@@ -10,12 +10,12 @@
 [![check-abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fcheck-abap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/ci.yaml)
 [![abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fabap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/ci.yaml)
 
-**Fifteen ready-to-use custom controls for
+**Sixteen ready-to-use custom controls for
 [abap2UI5](https://github.com/abap2UI5/abap2UI5)** — signature pad, charts,
 barcodes, a scanner that reads several barcodes at once, Excel export, form
 validation, product tours, Font Awesome, animations, clickable image maps,
-Markdown, a code editor, a rich text editor, a network status display and a
-clock. Each one is a builder class
+Markdown, a code editor, a rich text editor, a network status display, a
+clock and a scan field. Each one is a builder class
 with one `render( )` method, for abap2UI5 developers who need a control UI5
 does not bring along.
 
@@ -115,6 +115,7 @@ and events arrive in `on_event` like for any built-in control.
 | RichTextEditor | a WYSIWYG editor for HTML with [SunEditor](https://github.com/JiHong88/SunEditor) — on OpenUI5 too | `z2ui5_cl_cci_rich_text_editor` | `..._sample_12` |
 | NetworkStatus | online, offline or server not reachable — icon, signal bars, latency, measured in the browser | `z2ui5_cl_cci_network_status` | `..._sample_13` |
 | Clock | date and time ticking in the browser, fits an overflow menu | `z2ui5_cl_cci_clock` | `..._sample_14` |
+| ScanInput | a scan field that keeps the focus, selects on focus, beeps and vibrates on Error, soft keyboard on and off | `z2ui5_cl_cci_scan_input` | `..._sample_15` |
 
 Sample classes are `z2ui5_cl_cci_sample_NN` — start any of them directly with
 `?app_start=…`, or browse them from `z2ui5_cl_cci_sample_00`, which lists one
@@ -458,6 +459,60 @@ z2ui5_cl_cci_clock=>render(
 The time is written into the button's text in the DOM, not set as a property:
 a property change makes the toolbar lay itself out again, and that would close
 an open overflow menu every second.
+
+### ScanInput
+
+`keepfocus`, `selectonfocus`, `beeponerror`, `vibrateonerror`, `keyboard`
+(bind two-way), `inputmode`, `showkeyboardtoggle`, `keyboardtoggletooltip`,
+and of `sap.m.Input`: `id`, `value`, `valuestate`, `valuestatetext`,
+`showvaluestatemessage`, `placeholder`, `enabled`, `editable`, `visible`,
+`width`, `maxlength`, `type`, `class` · events `submit` (Enter - the suffix
+a barcode scanner sends), `change`, `keyboardchange`.
+
+An `sap.m.Input` for scanning, everything in the browser:
+
+- **`keepfocus`** - after every response that touches the field (its
+  rendering, any property the model writes), after a popup closed (dialog,
+  popover, the busy indicator) and when the focus fell to the page, the focus
+  goes back into the field - no `SET_FOCUS` per roundtrip. It never takes the
+  focus from another text field, an iframe or an open popup, never while text
+  is selected on the page, and never goes into a hidden, disabled or read-only
+  field.
+- **`selectonfocus`** - the content is selected when the field gets the
+  focus, so the next scan replaces it.
+- **`beeponerror`**, **`vibrateonerror`** - when `valuestate` turns to
+  `Error`: a short beep (WebAudio, no audio file) and `navigator.vibrate`. A
+  second wrong scan leaves the state at `Error`, so the first model update
+  after a `submit` or `change` counts too. Browsers allow sound and vibration
+  only after the user tapped or typed on the page; before that, and where
+  the API is missing (vibration on iOS), the control stays silent.
+- **`keyboard`** - the soft keyboard: on, the field takes `inputmode`
+  (`numeric`, `text`, ... - empty for the browser's default); off, the HTML
+  inputmode `none` keeps it down while the scanner still types. Switched
+  without re-rendering. `showkeyboardtoggle = 'true'` draws a keyboard icon at
+  the end of the field that switches it; bound two-way, ABAP reads the switch
+  with the next roundtrip.
+
+```abap
+z2ui5_cl_cci_scan_input=>render(
+    view               = form
+    id                 = `ZINPUT`
+    value              = client->_bind( scan )
+    valuestate         = |\{= $\{{ client->_bind_path( has_error ) }\} ? 'Error' : 'Success' \}|
+    inputmode          = `numeric`
+    keyboard           = client->_bind( keyboard )
+    showkeyboardtoggle = `true`
+    keepfocus          = `true`
+    selectonfocus      = `true`
+    beeponerror        = `true`
+    vibrateonerror     = `true`
+    submit             = client->_event( `SCAN` ) ).
+```
+
+The control decides nothing: whether a scan is wrong is the app's
+`valuestate`. It extends `sap.m.Input` directly, not the frontend's
+`z2ui5.cc.InputExt`, so it does not depend on the abap2UI5 frontend release
+installed next to it; the HTML inputmode is implemented the same way.
 
 
 ## Two things to know

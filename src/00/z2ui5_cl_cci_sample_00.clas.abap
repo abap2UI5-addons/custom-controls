@@ -321,7 +321,12 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
         module      = `z2ui5_cci/cc/Clock`
         description = `Date and time ticking in the browser; a button underneath, so it fits an overflow menu`
         library     = `none`
-        app         = `Z2UI5_CL_CCI_SAMPLE_14` ) ).
+        app         = `Z2UI5_CL_CCI_SAMPLE_14` )
+      ( name        = `ScanInput`
+        module      = `z2ui5_cci/cc/ScanInput`
+        description = `Scan field that keeps the focus, selects on focus, beeps on Error, soft keyboard on and off`
+        library     = `none`
+        app         = `Z2UI5_CL_CCI_SAMPLE_15` ) ).
 
   ENDMETHOD.
 
