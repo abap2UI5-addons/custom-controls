@@ -498,9 +498,9 @@
     },
     "field_symbol_never_assigned": true,
     // statements with a successor that this repository no longer uses -
-    // listed so they do not come back (abaplint 2.120.116+). The
-    // widely used READ TABLE / APPEND / CREATE OBJECT / ... follow
-    // once the code no longer has them
+    // listed so they do not come back (abaplint 2.120.116+). CREATE OBJECT
+    // is not listed: the overview creates the demo app from a class name
+    // resolved at runtime (CREATE OBJECT ... TYPE (name)), which NEW cannot
     "forbidden_statement": {
       "statements": [
         "Describe",
@@ -513,7 +513,18 @@
         "TypePools",
         "Perform",
         "Form",
-        "Write"
+        "Write",
+        "ReadTable",
+        "Append",
+        "MoveCorresponding",
+        "GetReference",
+        "Concatenate",
+        "Condense",
+        "Translate",
+        "Replace",
+        "Find",
+        "Shift",
+        "Check"
       ]
     },
     "function_module_parameter_names": true,
