@@ -76,8 +76,7 @@ CLASS z2ui5_cl_cci_sample_08 IMPLEMENTATION.
 
         )->ele( `Page`
             )->a( n = `title`
-                  v = `abap2UI5 - animate.css`
-            ).
+                  v = `abap2UI5 - animate.css` ).
 
     " loads the stylesheet and sets the CSS variables the animations read
     z2ui5_cl_cci_animate_css=>render( view     = page

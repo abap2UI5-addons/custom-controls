@@ -46,12 +46,44 @@
       "allowed": ["CLAS", "DEVC", "INTF", "WAPA", "SICF"]
     },
     "obsolete_statement": true,
-    "definitions_top": false,
     "7bit_ascii": true,
     "line_length": {
+      "maxIssuesPerFile": 10,
       "length": 255
     },
     "object_naming": {
+      "ignoreNames": [],
+      "ignorePatterns": [],
+      "prog": "^Z",
+      "fugr": "^Z",
+      "tabl": "^Z",
+      "ttyp": "^Z",
+      "dtel": "^Z",
+      "doma": "^Z",
+      "msag": "^Z",
+      "tran": "^Z",
+      "enqu": "^EZ",
+      "auth": "^Z",
+      "pinf": "^Z",
+      "idoc": "^Z",
+      "xslt": "^Z",
+      "ssfo": "^Z",
+      "ssst": "^Z",
+      "shlp": "^Z",
+      "sxci": "^Z",
+      "enhs": "^Z",
+      "enho": "^Z",
+      "cmod": "^Z",
+      "form": "^Z",
+      "sfpf": "^Z",
+      "sfpi": "^Z",
+      "aqqu": "^Z",
+      "aqsg": "^Z",
+      "aqbg": "^Z",
+      "suso": "^Z",
+      "sucu": "^Z",
+      "wdya": "^Z",
+      "wdyn": "^Z",
       "patternKind": "required",
       // Z2UI5_CL_CCI_* - same shape as the framework and the samples
       // repository use, not the generic ZCL_ prefix
@@ -113,6 +145,8 @@
       "severity": "Error"
     },
     "dangerous_statement": {
+      "editorCallForReport": true,
+      "ignoreRAPQueryProvider": true,
       "deleteDynpro": true,
       "deleteReport": true,
       "deleteTextpool": true,
@@ -144,7 +178,8 @@
       "do": true,
       "exclude": [],
       "if": true,
-      "loop": false,
+      "loop": true,
+      "loopAllowIfSubrc": true,
       "select": true,
       "try": true,
       "when": false,
@@ -257,6 +292,7 @@
     "max_one_statement": true,
     "message_exists": true,
     "method_length": {
+      "checkFunctionModules": true,
       "checkForms": true,
       "errorWhenEmpty": false,
       "exclude": [],
@@ -303,6 +339,7 @@
     "preferred_compare_operator": true,
     "preferred_parameter_ignored": true,
     "prefix_is_current_class": {
+      "omitMeInstanceCalls": true,
       "exclude": [],
       "severity": "Warning"
     },
@@ -322,6 +359,7 @@
     "select_single_full_key": true,
     "selection_screen_naming": true,
     "sequential_blank": {
+      "lines": 4,
       "exclude": [],
       "severity": "Warning"
     },
@@ -406,11 +444,13 @@
       ]
     },
     "pragma_style": {
+      "style": "upper",
       "exclude": [
         "z2ui5_cl_cci_imagemapster\\."
       ]
     },
     "unused_variables": {
+      "skipAbstract": false,
       "skipNames": [
         "cs_buttons",
         "cs_modifier",
@@ -420,6 +460,177 @@
     // added 2026-11: newer abaplint rules that report nothing here
     "abapdoc_short_link": true,
     "boolean_flag_via_if": true,
-    "cast_via_generic_reference": true
+    "cast_via_generic_reference": true,
+    // added 2026-11 with abaplint 2.120.116: every remaining rule of
+    // 'abaplint --default', with the settings of abap2UI5's app rule set
+    // (.github/abaplint/app-rules.json) or its own abaplint.jsonc where those
+    // switch it on. Findings fixed in the same change.
+    "abapdoc": true,
+    "align_pseudo_comments": true,
+    "align_type_expressions": true,
+    "alias_never_reassigned": true,
+    "bdef_check_syntax": true,
+    "bdef_parser_error": true,
+    "cds_check_syntax": true,
+    "cds_naming": {
+      "basicInterfaceView": "Z2UI5_",
+      "compositeInterfaceView": "Z2UI5_",
+      "consumptionView": "Z2UI5_",
+      "basicRestrictedReuseView": "Z2UI5_",
+      "compositeRestrictedReuseView": "Z2UI5_",
+      "privateView": "Z2UI5_",
+      "remoteAPIView": "Z2UI5_",
+      "viewExtend": "Z2UI5_",
+      "extensionIncludeView": "Z2UI5_",
+      "derivationFunction": "Z2UI5_",
+      "abstractEntity": "Z2UI5_"
+    },
+    "character_field_literal_blanks": true,
+    "commented_code": true,
+    "copy_chain": true,
+    "definitions_top": true,
+    "double_space": {
+      "skipKeywords": ["CHANGING","EXPORTING","OTHERS"],
+      "keywords": false,
+      "startParen": true,
+      "endParen": false,
+      "afterColon": true
+    },
+    "field_symbol_never_assigned": true,
+    // statements with a successor that this repository no longer uses -
+    // listed so they do not come back (abaplint 2.120.116+). CREATE OBJECT
+    // is not listed: the overview creates the demo app from a class name
+    // resolved at runtime (CREATE OBJECT ... TYPE (name)), which NEW cannot
+    "forbidden_statement": {
+      "statements": [
+        "Describe",
+        "Refresh",
+        "Ranges",
+        "SelectLoop",
+        "Collect",
+        "Overlay",
+        "Leave",
+        "TypePools",
+        "Perform",
+        "Form",
+        "Write",
+        "ReadTable",
+        "Append",
+        "MoveCorresponding",
+        "GetReference",
+        "Concatenate",
+        "Condense",
+        "Translate",
+        "Replace",
+        "Find",
+        "Shift",
+        "Check"
+      ]
+    },
+    "function_module_parameter_names": true,
+    "generic_regex": true,
+    "indentation": true,
+    "inline_generic_source": true,
+    "keyword_case": {
+      "ignoreGlobalClassDefinition": false,
+      "ignoreGlobalInterface": false,
+      "ignoreFunctionModuleName": false,
+      "ignoreGlobalClassBoundaries": false,
+      "maxIssuesPerFile": 10,
+      "style": "upper",
+      "ignoreExceptions": true,
+      "ignoreLowerClassImplmentationStatement": true,
+      "ignoreKeywords": []
+    },
+    "line_only_punc": true,
+    "local_class_naming": {
+      "ignoreNames": [],
+      "ignorePatterns": [],
+      "patternKind": "required",
+      "local": "^LCL_.+$",
+      "exception": "^LCX_.+$",
+      "test": "^LTCL_.+$"
+    },
+    "loop_target_misuse": true,
+    "no_exclamation_escape": true,
+    "no_macros": true,
+    // the sample launcher instantiates the sample it was asked for by name
+    "no_dynamic_stuff": {
+      "callMethod": true,
+      "callFunction": true,
+      "callDatabaseProcedure": true,
+      "callTransformation": true,
+      "callTransaction": true,
+      "perform": true,
+      "submit": true,
+      "createObject": true,
+      "createData": true,
+      "getBadi": true,
+      "assign": true,
+      "internalTable": true,
+      "exportImport": true,
+      "exclude": [
+        "z2ui5_cl_cci_sample_00\\.clas\\."
+      ]
+    },
+    "prefer_corresponding": true,
+    "prefer_inline": true,
+    "prefer_inline_cast": true,
+    "prefer_insert_into_table": true,
+    "prefer_raise_message": true,
+    "selection_screen_texts_missing": true,
+    "sequential_read_sorted": true,
+    "sort_required": true,
+    "space_before_colon": true,
+    "space_before_dot": true,
+    "stale_subrc": true,
+    "start_at_tab": true,
+    "suspicious_loop": true,
+    "sy_read_restriction": true,
+    "try_cast_empty_catch": true,
+    "types_naming": {
+      "pattern": "^TY_"
+    },
+    "unhandled_classic_exception": {
+      "missingOthers": true,
+      "missingExceptions": true,
+      "missingErrorMessage": true,
+      "allowLiteralArguments": true
+    },
+    "unit_test_assertions": true,
+    "unnecessary_copy": true,
+    // --- OFF on purpose ---
+    // Naming conventions this repository does not follow - it names variables,
+    // parameters and attributes by the abap2UI5 house style (plain names in
+    // the samples, lv_/ls_/mv_ in the controls), not by one prefix scheme;
+    // the same four are off in abap2UI5 and in its app rule set
+    "class_attribute_names": false,
+    "local_variable_names": false,
+    "method_parameter_names": false,
+    "no_prefixes": false,
+    // The controls are builders whose configuration structures are PUBLIC
+    // attributes by design (cs_* constants, the typed config an app fills);
+    // making them private is an API change, not a lint fix. Off in abap2UI5 too
+    "no_public_attributes": false,
+    // These fight the z2ui5_cl_ui5_view_builder chain layout (abap2UI5
+    // .claude/skills/view-chain-layout): one call per line, n/v on two lines,
+    // a blank line opening a control's content, end( ) in the column of the
+    // ele( ) it closes, a subtree held in a variable for the next statement.
+    // align_parameters and line_break_multiple_parameters are off in abap2UI5
+    // and its app rule set for the same reason
+    "align_parameters": false,
+    "empty_line_in_statement": false,
+    "in_statement_indentation": false,
+    "keep_single_parameter_on_one_line": false,
+    "line_break_multiple_parameters": false,
+    "single_use_expression_temp": false,
+    // Long texts (HTML, CSS, SVG for the samples) are split over lines with
+    // && to stay under 255 characters; a string template would have to escape
+    // every { } of the CSS/JS they carry. Off in the app rule set too
+    "prefer_string_template": false,
+    // LOOP AT ... INTO DATA( ) is the house style; hoisting every loop target
+    // to the top of the method is a rewrite of every LOOP, not a fix. Off in
+    // abap2UI5 and its app rule set too
+    "no_inline_in_optional_branches": false
   }
 }

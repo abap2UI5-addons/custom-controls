@@ -207,15 +207,16 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
 
   METHOD on_launch.
 
+    " instantiated only to fail early with a readable message - the tab below
+    " would otherwise open on a dump
+    DATA li_app TYPE REF TO z2ui5_if_app ##NEEDED.
+
     " the demo class name is resolved on the client from the pressed row
     DATA(lv_class) = to_upper( client->get_event_arg( ) ).
     IF lv_class IS INITIAL.
       RETURN.
     ENDIF.
 
-    " instantiated only to fail early with a readable message - the tab below
-    " would otherwise open on a dump
-    DATA li_app TYPE REF TO z2ui5_if_app ##NEEDED.
     TRY.
         CREATE OBJECT li_app TYPE (lv_class).
       CATCH cx_root.
@@ -310,7 +311,22 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
         module      = `z2ui5_cci/cc/RichTextEditor`
         description = `WYSIWYG editor for HTML, bound two-way - on OpenUI5 as on SAPUI5`
         library     = `SunEditor, DOMPurify`
-        app         = `Z2UI5_CL_CCI_SAMPLE_12` ) ).
+        app         = `Z2UI5_CL_CCI_SAMPLE_12` )
+      ( name        = `NetworkStatus`
+        module      = `z2ui5_cci/cc/NetworkStatus`
+        description = `Online, offline or server not reachable - icon, signal bars and latency, measured in the browser`
+        library     = `none`
+        app         = `Z2UI5_CL_CCI_SAMPLE_13` )
+      ( name        = `Clock`
+        module      = `z2ui5_cci/cc/Clock`
+        description = `Date and time ticking in the browser; a button underneath, so it fits an overflow menu`
+        library     = `none`
+        app         = `Z2UI5_CL_CCI_SAMPLE_14` )
+      ( name        = `ScanInput`
+        module      = `z2ui5_cci/cc/ScanInput`
+        description = `Scan field that keeps the focus, selects on focus, beeps on Error, soft keyboard on and off`
+        library     = `none`
+        app         = `Z2UI5_CL_CCI_SAMPLE_15` ) ).
 
   ENDMETHOD.
 

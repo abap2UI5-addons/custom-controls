@@ -80,8 +80,7 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
 
         )->ele( `Page`
             )->a( n = `title`
-                  v = `abap2UI5 - ImageMapster`
-            ).
+                  v = `abap2UI5 - ImageMapster` ).
 
     page->ele( `headerContent`
         )->tag( `Button`

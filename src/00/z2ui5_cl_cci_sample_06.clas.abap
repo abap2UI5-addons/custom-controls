@@ -74,8 +74,7 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
 
         )->ele( `Page`
             )->a( n = `title`
-                  v = `abap2UI5 - driver.js`
-            ).
+                  v = `abap2UI5 - driver.js` ).
 
     z2ui5_cl_cci_driverjs=>render(
         view        = page

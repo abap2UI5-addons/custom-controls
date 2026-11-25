@@ -28,20 +28,20 @@ CLASS z2ui5_cl_cci_validator DEFINITION
       "! omit_initial, see rules below). An empty field only fails <em>required</em> -
       "! every other constraint measures a filled value.
       BEGIN OF ty_s_rule,
-        field      TYPE string,
+        field     TYPE string,
         "! `number`, `integer` or empty for a plain string
-        type       TYPE string,
+        type      TYPE string,
         "! `email` or `date`
-        format     TYPE string,
+        format    TYPE string,
         "! regular expression the value has to match
-        pattern    TYPE string,
-        required   TYPE abap_bool,
-        minlength  TYPE i,
-        maxlength  TYPE i,
-        minimum    TYPE i,
-        maximum    TYPE i,
+        pattern   TYPE string,
+        required  TYPE abap_bool,
+        minlength TYPE i,
+        maxlength TYPE i,
+        minimum   TYPE i,
+        maximum   TYPE i,
         "! overrides the generated text, e.g. for a translated message
-        message    TYPE string,
+        message   TYPE string,
       END OF ty_s_rule.
     TYPES ty_t_rule TYPE STANDARD TABLE OF ty_s_rule WITH EMPTY KEY.
 

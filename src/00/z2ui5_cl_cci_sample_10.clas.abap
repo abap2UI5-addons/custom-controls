@@ -24,9 +24,9 @@ CLASS z2ui5_cl_cci_sample_10 DEFINITION
     DATA sanitize TYPE abap_bool.
     DATA info     TYPE string.
 
-    " Public because ABAP requires it - CLASS_CONSTRUCTOR is always public,
-    " wherever it is declared. It is not part of the app's surface, and being
-    " a method it is not serialized between roundtrips either.
+    "! Public because ABAP requires it - CLASS_CONSTRUCTOR is always public,
+    "! wherever it is declared. It is not part of the app's surface, and being
+    "! a method it is not serialized between roundtrips either.
     CLASS-METHODS class_constructor.
 
   PROTECTED SECTION.
