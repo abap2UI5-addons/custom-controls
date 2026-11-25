@@ -174,7 +174,7 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
             )->a( n = `text`
                   v = `Close`
             )->a( n = `press`
-                  v = client->_event( `POPUP_CLOSE` ) ).
+                  v = client->follow_up_action( client->cs_event-popup_close ) ).
 
     client->popup_display( popup->stringify( ) ).
 
@@ -189,8 +189,6 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
         message = |Roundtrip done - keyboard { COND #( WHEN keyboard = abap_true THEN `on` ELSE `off` ) }.|.
       WHEN `POPUP`.
         popup_display( ).
-      WHEN `POPUP_CLOSE`.
-        client->popup_destroy( ).
     ENDCASE.
 
   ENDMETHOD.
