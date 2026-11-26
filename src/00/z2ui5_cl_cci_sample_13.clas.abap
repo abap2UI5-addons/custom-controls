@@ -87,15 +87,15 @@ CLASS z2ui5_cl_cci_sample_13 IMPLEMENTATION.
                       v = `sapUiSmallMargin` ).
 
     " the large display - bound, so ABAP learns the state on the next roundtrip
-    page = z2ui5_cl_cci_network_status=>render( view        = page
-                                                status      = client->_bind( status )
-                                                latency     = client->_bind( latency )
-                                                quality     = client->_bind( quality )
-                                                iconsize    = `2rem`
-                                                showtext    = `true`
-                                                showquality = `true`
-                                                showdetails = `true`
-                                                class       = `sapUiSmallMargin` ).
+    page = z2ui5_cl_cci_net_status=>render( view        = page
+                                            status      = client->_bind( status )
+                                            latency     = client->_bind( latency )
+                                            quality     = client->_bind( quality )
+                                            iconsize    = `2rem`
+                                            showtext    = `true`
+                                            showquality = `true`
+                                            showdetails = `true`
+                                            class       = `sapUiSmallMargin` ).
 
     page->tag( `Text`
         )->a( n = `text`
@@ -108,7 +108,7 @@ CLASS z2ui5_cl_cci_sample_13 IMPLEMENTATION.
     DATA(footer) = page->ele( `footer`
         )->ele( `OverflowToolbar` ).
 
-    footer = z2ui5_cl_cci_network_status=>render( footer ).
+    footer = z2ui5_cl_cci_net_status=>render( footer ).
 
     footer->tag( `ToolbarSpacer`
         )->tag( `Button`

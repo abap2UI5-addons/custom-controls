@@ -54,7 +54,7 @@ The [Guide](/guide) has every step.
 ## A first app
 
 ```abap
-z2ui5_cl_cci_rich_text_editor=>render(
+z2ui5_cl_cci_rich_text=>render(
     view   = page
     value  = client->_bind( mv_html )
     height = `20rem`

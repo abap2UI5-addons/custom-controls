@@ -12,7 +12,7 @@
 "! same shape the framework's CameraPicture uses for photos. Clearing is
 "! backend-driven: set the bound variable to empty and the pad is blank after
 "! the next roundtrip.
-CLASS z2ui5_cl_cci_signature_pad DEFINITION
+CLASS z2ui5_cl_cci_signature DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -51,7 +51,7 @@ CLASS z2ui5_cl_cci_signature_pad DEFINITION
 ENDCLASS.
 
 
-CLASS z2ui5_cl_cci_signature_pad IMPLEMENTATION.
+CLASS z2ui5_cl_cci_signature IMPLEMENTATION.
 
   METHOD render.
 

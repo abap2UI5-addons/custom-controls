@@ -139,13 +139,13 @@ CLASS z2ui5_cl_cci_sample_12 IMPLEMENTATION.
 
     " `toolbar` is bound too: switching it rebuilds the editor around the text
     " it holds, without a new view.
-    z2ui5_cl_cci_rich_text_editor=>render( view        = box
-                                           value       = client->_bind( html )
-                                           editable    = client->_bind( editable )
-                                           toolbar     = client->_bind( toolbar )
-                                           height      = `18rem`
-                                           placeholder = `Write something...`
-                                           change      = client->_event( `CHANGED` ) ).
+    z2ui5_cl_cci_rich_text=>render( view        = box
+                                    value       = client->_bind( html )
+                                    editable    = client->_bind( editable )
+                                    toolbar     = client->_bind( toolbar )
+                                    height      = `18rem`
+                                    placeholder = `Write something...`
+                                    change      = client->_event( `CHANGED` ) ).
 
     box->tag( `Label`
         )->a( n = `text`
@@ -192,8 +192,8 @@ CLASS z2ui5_cl_cci_sample_12 IMPLEMENTATION.
         info = `The default toolbar.`.
 
       WHEN `BASIC`.
-        toolbar = z2ui5_cl_cci_rich_text_editor=>cs_toolbar-basic.
-        info = `z2ui5_cl_cci_rich_text_editor=>cs_toolbar-basic.`.
+        toolbar = z2ui5_cl_cci_rich_text=>cs_toolbar-basic.
+        info = `z2ui5_cl_cci_rich_text=>cs_toolbar-basic.`.
 
       WHEN `CHANGED`.
         " `html` already carries the new text here - bound data is written

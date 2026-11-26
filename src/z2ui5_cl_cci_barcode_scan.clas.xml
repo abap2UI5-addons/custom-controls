@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>Z2UI5_CL_CCI_NETWORK_STATUS</CLSNAME>
+    <CLSNAME>Z2UI5_CL_CCI_BARCODE_SCAN</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>abap2UI5 custom controls - NetworkStatus</DESCRIPT>
+    <DESCRIPT>abap2UI5 custom controls - BarcodeScanner</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>

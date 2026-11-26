@@ -62,6 +62,19 @@ MessageManager as its own control `z2ui5.cc.MessageManager`).
 
    `local` and `702` are generated from `main` by CI - see [Branches](#branches).
 
+**Upgrading from a pull before 2026-11-26** - four classes were renamed so
+that every class name leaves room for a namespace rename (at most 25
+characters). abapGit creates the new classes but does not delete the old ones:
+change your apps to the new names, then delete the old classes by hand (SE24
+or ADT), see [changelog.txt](changelog.txt):
+
+| Old class | New class |
+|---|---|
+| `z2ui5_cl_cci_rich_text_editor` | `z2ui5_cl_cci_rich_text` |
+| `z2ui5_cl_cci_barcode_scanner` | `z2ui5_cl_cci_barcode_scan` |
+| `z2ui5_cl_cci_network_status` | `z2ui5_cl_cci_net_status` |
+| `z2ui5_cl_cci_signature_pad` | `z2ui5_cl_cci_signature` |
+
 **Start** - **`?app_start=z2ui5_cl_cci_sample_00`** — the overview app lists every
 control and opens its sample. If it says `ICF Node NOT found!`, activate the
 node `z2ui5_cci` in transaction `SICF`.
@@ -84,7 +97,7 @@ z2ui5_cl_cci=>xmlns( root ).             " declares xmlns:z2ui5_cci - once per v
 DATA(page) = root->ele( `Page`
     )->a( n = `title` v = `Signature` ).
 
-z2ui5_cl_cci_signature_pad=>render(
+z2ui5_cl_cci_signature=>render(
     view   = page
     value  = client->_bind( signature )   " the base64 PNG arrives here
     height = `200px`
@@ -100,7 +113,7 @@ and events arrive in `on_event` like for any built-in control.
 
 | Control | What it does | Builder | Sample |
 |---|---|---|---|
-| SignaturePad | sign with mouse, finger or stylus → base64 PNG | `z2ui5_cl_cci_signature_pad` | `..._sample_01` |
+| SignaturePad | sign with mouse, finger or stylus → base64 PNG | `z2ui5_cl_cci_signature` | `..._sample_01` |
 | ExportSpreadsheet | export a table's rows as `.xlsx`, in the browser | `z2ui5_cl_cci_spreadsheet` | `..._sample_02` |
 | Validator | check a form against ABAP rules without a roundtrip | `z2ui5_cl_cci_validator` | `..._sample_03` |
 | ChartJs | [Chart.js](https://www.chartjs.org) charts from a bound structure | `z2ui5_cl_cci_chartjs` | `..._sample_04` |
@@ -111,9 +124,9 @@ and events arrive in `on_event` like for any built-in control.
 | ImageMapster | clickable, highlighting regions on an image | `z2ui5_cl_cci_imagemapster` | `..._sample_09` |
 | Markdown | Markdown from ABAP as HTML, with [marked](https://marked.js.org) | `z2ui5_cl_cci_markdown` | `..._sample_10` |
 | CodeEditor | UI5's own `sap.ui.codeeditor`, reachable from a view | `z2ui5_cl_cci_code_editor` | inside `..._sample_10` |
-| BarcodeScanner | every barcode in the camera picture at once → an ABAP table, or identical labels counted, with [zxing-wasm](https://github.com/Sec-ant/zxing-wasm) | `z2ui5_cl_cci_barcode_scanner` | `..._sample_11` |
-| RichTextEditor | a WYSIWYG editor for HTML with [SunEditor](https://github.com/JiHong88/SunEditor) — on OpenUI5 too | `z2ui5_cl_cci_rich_text_editor` | `..._sample_12` |
-| NetworkStatus | online, offline or server not reachable — icon, signal bars, latency, measured in the browser | `z2ui5_cl_cci_network_status` | `..._sample_13` |
+| BarcodeScanner | every barcode in the camera picture at once → an ABAP table, or identical labels counted, with [zxing-wasm](https://github.com/Sec-ant/zxing-wasm) | `z2ui5_cl_cci_barcode_scan` | `..._sample_11` |
+| RichTextEditor | a WYSIWYG editor for HTML with [SunEditor](https://github.com/JiHong88/SunEditor) — on OpenUI5 too | `z2ui5_cl_cci_rich_text` | `..._sample_12` |
+| NetworkStatus | online, offline or server not reachable — icon, signal bars, latency, measured in the browser | `z2ui5_cl_cci_net_status` | `..._sample_13` |
 | Clock | date and time ticking in the browser, fits an overflow menu | `z2ui5_cl_cci_clock` | `..._sample_14` |
 | ScanInput | a scan field that keeps the focus, selects on focus, beeps and vibrates on Error, soft keyboard on and off | `z2ui5_cl_cci_scan_input` | `..._sample_15` |
 
@@ -196,9 +209,9 @@ instead of three. `sap.ndc.BarcodeScannerButton` returns one code per scan
 taps.
 
 ```abap
-z2ui5_cl_cci_barcode_scanner=>render(
+z2ui5_cl_cci_barcode_scan=>render(
     view     = page
-    codes    = client->_bind( t_code )    " TYPE z2ui5_cl_cci_barcode_scanner=>ty_t_code
+    codes    = client->_bind( t_code )    " TYPE z2ui5_cl_cci_barcode_scan=>ty_t_code
     formats  = `EAN13,Code128,DataMatrix` " optional - empty reads every format
     expected = `3`                        " optional - complete at 3 codes, without OK
     text     = `Scan`
@@ -216,16 +229,16 @@ rules out misreads, and a misspelt name is reported through `error`.
 
 **Counting identical labels.** Twelve cartons of one article carry twelve
 labels with the same EAN, and a scan of distinct codes returns that EAN once.
-With `mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count` a code is taken as
+With `mode = z2ui5_cl_cci_barcode_scan=>cs_mode-count` a code is taken as
 often as it is in the picture at once — the scan tells two cartons apart by
 where their labels sit — and comes back as one row per code, with the number
 of labels in `count`:
 
 ```abap
-z2ui5_cl_cci_barcode_scanner=>render(
+z2ui5_cl_cci_barcode_scan=>render(
     view     = page
     codes    = client->_bind( t_code )
-    mode     = z2ui5_cl_cci_barcode_scanner=>cs_mode-count
+    mode     = z2ui5_cl_cci_barcode_scan=>cs_mode-count
     formats  = `EAN13`
     expected = `12`                       " optional - complete at 12 labels, all codes together
     text     = `Count`
@@ -369,7 +382,7 @@ exist and the view fails to load. This one runs on both, with
 [SunEditor](https://github.com/JiHong88/SunEditor) 3 (MIT):
 
 ```abap
-z2ui5_cl_cci_rich_text_editor=>render(
+z2ui5_cl_cci_rich_text=>render(
     view   = page
     value  = client->_bind( mv_html )
     height = `20rem`
@@ -391,7 +404,7 @@ actually edits it.
 - **Toolbar.** Button groups separated by `|`, buttons by `,`, named as
   SunEditor names them: `undo,redo|bold,italic|link`. Empty is the full toolbar
   — formats, fonts, colours, alignment, lists, table, link, image, full screen
-  and the HTML source view; `z2ui5_cl_cci_rich_text_editor=>cs_toolbar` has two
+  and the HTML source view; `z2ui5_cl_cci_rich_text=>cs_toolbar` has two
   smaller ones. Nothing that talks to a server is offered: no video, embeds,
   math, galleries or uploads.
 - **Images** go into the HTML as data URIs, so they travel with the text on
@@ -428,7 +441,7 @@ browser's own online flag. Hidden tabs do not ping, and every instance with
 the same settings shares one ping, however many a page shows.
 
 ```abap
-z2ui5_cl_cci_network_status=>render(
+z2ui5_cl_cci_net_status=>render(
     view     = toolbar
     iconsize = `1.25rem`
     class    = `sapUiSmallMarginBegin` ).

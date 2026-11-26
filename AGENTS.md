@@ -90,11 +90,12 @@ the branch `rename_<name>` runs on an abap2UI5 renamed with the same name by
 its own `build-rename`. Not complete yet, and `package.json` `config` says
 where - every run prints it:
 
-- **At most 6 characters** (`renameMaxLength`), not the core's 10: four
-  classes have more than 25 characters (`z2ui5_cl_cci_rich_text_editor` 29,
-  `_barcode_scanner` 28, `_network_status` 27, `_signature_pad` 26).
-  Shortening them would break every app that uses them, so it is not done
-  here - abap2UI5 backlog item `abap2ui5-addon-rename-gaps`.
+- **The full 10 characters** of the core: every class name has at most 25
+  characters (30 minus the 5 a 10-character name adds to `z2ui5`). Four
+  were longer and were shortened on 2026-11-26 - a breaking change, see
+  `changelog.txt`: `z2ui5_cl_cci_rich_text_editor` -> `z2ui5_cl_cci_rich_text`,
+  `_barcode_scanner` -> `_barcode_scan`, `_network_status` -> `_net_status`,
+  `_signature_pad` -> `_signature`. A new class keeps to 25 characters too.
 - **`src/01` is not renamed** (`renameSkip`): abaplint cannot rename a BSP
   (WAPA) - backlog item `abaplint-rename-wapa`, abaplint PR #4721 - and the
   abap2UI5 frontend reserves its resource root `z2ui5_cci`. A renamed

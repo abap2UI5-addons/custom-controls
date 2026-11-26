@@ -13,7 +13,7 @@
 "!
 "! The JavaScript ships in this repository's own BSP (Z2UI5_CCI); see
 "! z2ui5_cl_cci for how the abap2UI5 frontend finds it.
-CLASS z2ui5_cl_cci_network_status DEFINITION
+CLASS z2ui5_cl_cci_net_status DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -73,7 +73,7 @@ CLASS z2ui5_cl_cci_network_status DEFINITION
 ENDCLASS.
 
 
-CLASS z2ui5_cl_cci_network_status IMPLEMENTATION.
+CLASS z2ui5_cl_cci_net_status IMPLEMENTATION.
 
   METHOD render.
 

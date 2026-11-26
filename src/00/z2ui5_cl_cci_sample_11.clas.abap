@@ -29,7 +29,7 @@ CLASS z2ui5_cl_cci_sample_11 DEFINITION
     INTERFACES z2ui5_if_app.
 
     " ONLY bound data here - PUBLIC attributes are serialized every roundtrip
-    DATA t_code   TYPE z2ui5_cl_cci_barcode_scanner=>ty_t_code.
+    DATA t_code   TYPE z2ui5_cl_cci_barcode_scan=>ty_t_code.
     DATA mode     TYPE string.
     DATA formats  TYPE string.
     DATA expected TYPE i.
@@ -107,12 +107,12 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
            )->ele( `items`
                )->tag( `SegmentedButtonItem`
                    )->a( n = `key`
-                         v = z2ui5_cl_cci_barcode_scanner=>cs_mode-distinct
+                         v = z2ui5_cl_cci_barcode_scan=>cs_mode-distinct
                    )->a( n = `text`
                          v = `distinct - the test label`
                )->tag( `SegmentedButtonItem`
                    )->a( n = `key`
-                         v = z2ui5_cl_cci_barcode_scanner=>cs_mode-count
+                         v = z2ui5_cl_cci_barcode_scan=>cs_mode-count
                    )->a( n = `text`
                          v = `count - the test pallet` ).
 
@@ -148,7 +148,7 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
                      )->a( n = `class`
                            v = `sapUiSmallMarginTop` ).
 
-    z2ui5_cl_cci_barcode_scanner=>render(
+    z2ui5_cl_cci_barcode_scan=>render(
         view     = scan
         codes    = client->_bind( t_code )
         mode     = client->_bind( mode )
@@ -281,15 +281,15 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
 
       WHEN `MODE`.
         " each mode has its own thing to scan below, with its own count
-        expected = COND #( WHEN mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count THEN 6 ELSE 4 ).
-        info     = COND #( WHEN mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count
+        expected = COND #( WHEN mode = z2ui5_cl_cci_barcode_scan=>cs_mode-count THEN 6 ELSE 4 ).
+        info     = COND #( WHEN mode = z2ui5_cl_cci_barcode_scan=>cs_mode-count
                            THEN `Press Scan and get the whole test pallet into the picture.`
                            ELSE `Press Scan and point the camera at the test label.` ).
 
       WHEN `SCANNED`.
         " t_code already holds the codes here - bound data is written back
         " into the attribute before the event handler runs
-        IF mode = z2ui5_cl_cci_barcode_scanner=>cs_mode-count.
+        IF mode = z2ui5_cl_cci_barcode_scan=>cs_mode-count.
           DATA(labels) = REDUCE i( INIT n = 0
                                    FOR row IN t_code
                                    NEXT n = n + row-count ).
@@ -310,7 +310,7 @@ CLASS z2ui5_cl_cci_sample_11 IMPLEMENTATION.
   METHOD model_init.
 
     " the test label at the bottom carries four codes
-    mode     = z2ui5_cl_cci_barcode_scanner=>cs_mode-distinct.
+    mode     = z2ui5_cl_cci_barcode_scan=>cs_mode-distinct.
     expected = 4.
     info     = `Press Scan and point the camera at the test label.`.
 
