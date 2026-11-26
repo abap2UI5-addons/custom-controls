@@ -61,7 +61,14 @@ import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statS
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+// the repository root: the nearest folder above this file with a package.json
+// - .github/scripts/ in the addons, scripts/ where a repository keeps every
+// script there
+const ROOT = (() => {
+  let dir = dirname(fileURLToPath(import.meta.url));
+  while (!existsSync(join(dir, "package.json")) && dirname(dir) !== dir) dir = dirname(dir);
+  return dir;
+})();
 const BASE = join(ROOT, ".github/abaplint");
 const DEPS = join(BASE, "rename-deps");
 const OUTPUT = join(BASE, "output");
