@@ -14,12 +14,14 @@ name: ci
 #                         build succeeds
 #   js                    the controls parse, the Node tests, the overlay
 #                         browser check
+#   check / rename        the namespace rename (npm run rename) - without the
+#                         BSP in src/01 and at most 6 characters, see
+#                         AGENTS.md "Namespace rename"
 #
 # The abap2UI5-linter's headless view render is deliberately off: it
 # validates views against the UI5 metadata snapshot, which does not know
 # z2ui5_cci.cc.SignaturePad - a custom control is invisible to it by
-# definition. No ABAP Unit tests and no rename script here, so no unit and no
-# rename job.
+# definition. No ABAP Unit tests here, so no unit job.
 
 on:
   push:
@@ -49,6 +51,7 @@ jobs:
     with:
       abaplint: '["./abaplint.jsonc", ".github/abaplint/abap_cloud.jsonc"]'
       abap2ui5lint-render: false
+      rename: true
       canary: ${{ github.event_name == 'schedule' }}
 
   app2bsp:

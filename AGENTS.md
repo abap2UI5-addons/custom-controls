@@ -71,9 +71,38 @@ JavaScript checks are this repository's own jobs in the same workflow:
 * `deploy-pages`, `bump-deps` (monthly; the template pin moves only with the
   `DEPS_TOKEN` secret)
 
-No sibling addon, so no `.github/deps.json`; no ABAP Unit tests and no rename
-script, so no `unit` and no `rename` job. The job names above are the
-required status checks of the branch protection.
+* `ci` also runs `check / rename`, the namespace rename check
+  (`npm run rename`, see "Namespace rename" below); `build-rename` (manual)
+  pushes a renamed branch `rename_<name>`
+
+No sibling addon, so no `.github/deps.json`; no ABAP Unit tests, so no `unit`
+job. The job names above are the required status checks of the branch
+protection.
+
+## Namespace rename
+
+`npm run rename` (CI: `check / rename`) and the manual `build-rename`
+workflow are abap2UI5's namespace rename - `.github/scripts/rename.mjs`, the
+same file in every repository that has one. Every `z2ui5_` object becomes
+`<name>_...` (a customer name such as `ZMYUI5`) or `/<ns>/...` (a registered
+namespace), and so does every reference to abap2UI5, which is renamed along:
+the branch `rename_<name>` runs on an abap2UI5 renamed with the same name by
+its own `build-rename`. Not complete yet, and `package.json` `config` says
+where - every run prints it:
+
+- **At most 6 characters** (`renameMaxLength`), not the core's 10: four
+  classes have more than 25 characters (`z2ui5_cl_cci_rich_text_editor` 29,
+  `_barcode_scanner` 28, `_network_status` 27, `_signature_pad` 26).
+  Shortening them would break every app that uses them, so it is not done
+  here - abap2UI5 backlog item `abap2ui5-addon-rename-gaps`.
+- **`src/01` is not renamed** (`renameSkip`): abaplint cannot rename a BSP
+  (WAPA) - backlog item `abaplint-rename-wapa`, abaplint PR #4721 - and the
+  abap2UI5 frontend reserves its resource root `z2ui5_cci`. A renamed
+  installation installs the BSP as it is.
+- **Three literals stay** (`renameLiterals`): `z2ui5_cl_cci=>c_ns`, that
+  resource root, and two texts a demo shows. Every other literal that names a
+  `z2ui5_` object fails the check - derive the name instead, as the overview
+  `z2ui5_cl_cci_sample_00` derives its demo classes from its own name.
 
 ## Views
 

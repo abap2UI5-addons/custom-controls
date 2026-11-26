@@ -21,6 +21,7 @@
     "abaplintpathfix": "sed -i 's|\"/\\.\\./\\.\\./src/|\"/src/|g' abaplint.jsonc",
     "downport": "abaplint --fix .github/abaplint/abap_702.jsonc && npm run syfixes",
     "auto_downport": "(abaplint --fix .github/abaplint/abap_702.jsonc || true) && npm run syfixes && npm run strip_trailing_ws && abaplint .github/abaplint/abap_702.jsonc && cp -f .github/abaplint/abap_702.jsonc abaplint.jsonc && npm run abaplintpathfix",
+    "rename": "node .github/scripts/rename.mjs",
     "deps:post": "npm run vendor && npm run app2bsp",
     "site": "npm run build --prefix site",
     "site:dev": "npm run dev --prefix site"
@@ -60,6 +61,18 @@
   "updateDeps": {
     "skip": {
       "marked": "from 18.0.14 on it has a line tools/wrap-lines.mjs cannot break under 255 characters, which the local build needs"
+    }
+  },
+  "config": {
+    "renameMaxLength": 6,
+    "renameMaxLengthWhy": "four classes have more than 25 characters (z2ui5_cl_cci_rich_text_editor 29, _barcode_scanner 28, _network_status 27, _signature_pad 26), so a longer name pushes them over 30; shortening them breaks every app that uses them - abap2UI5 backlog item abap2ui5-addon-rename-gaps",
+    "renameSkip": {
+      "src/01/": "the BSP Z2UI5_CCI (WAPA) and its two ICF nodes - abaplint 2.120.120 has no WAPA renamer (abap2UI5 backlog item abaplint-rename-wapa, abaplint PR #4721), and the abap2UI5 frontend reserves the resource root z2ui5_cci; install the BSP unrenamed"
+    },
+    "renameLiterals": {
+      "z2ui5_cci": "z2ui5_cl_cci=>c_ns, the resource root of the BSP that src/01 keeps unrenamed (abaplint-rename-wapa)",
+      "z2ui5_cl_cci_markdown=>render(": "a code example the Markdown demo shows, not a lookup",
+      "z2ui5_cl_cci_rich_text_editor=>cs_toolbar-basic.": "a text the RichTextEditor demo shows, not a lookup"
     }
   }
 }
