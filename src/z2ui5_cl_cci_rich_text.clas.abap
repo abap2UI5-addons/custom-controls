@@ -8,8 +8,8 @@
 "! bootstraps OpenUI5 unless told otherwise. This one runs on both. Bind the
 "! HTML two-way:
 "!
-"!   z2ui5_cl_cci_rich_text_editor=>render( view  = page
-"!                                          value = client->_bind( mv_html ) ).
+"!   z2ui5_cl_cci_rich_text=>render( view  = page
+"!                                   value = client->_bind( mv_html ) ).
 "!
 "! The model follows the typing without a roundtrip; <em>change</em> fires when
 "! the editor loses focus with a changed text.
@@ -18,7 +18,7 @@
 "! the editor and on its way back, unless <em>sanitize</em> is `false`. Leave it
 "! on: the value is shown in some other page one day, and what comes in may
 "! have been typed by somebody else.
-CLASS z2ui5_cl_cci_rich_text_editor DEFINITION
+CLASS z2ui5_cl_cci_rich_text DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -82,7 +82,7 @@ CLASS z2ui5_cl_cci_rich_text_editor DEFINITION
 ENDCLASS.
 
 
-CLASS z2ui5_cl_cci_rich_text_editor IMPLEMENTATION.
+CLASS z2ui5_cl_cci_rich_text IMPLEMENTATION.
 
   METHOD render.
 

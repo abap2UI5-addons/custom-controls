@@ -1,0 +1,36 @@
+name: build-rename
+
+# Renames every object to a chosen name and pushes the result to the branch
+# rename_<name> - ready to pull with abapGit for a parallel installation in
+# the same SAP system (shared CI template, addon-build-rename.yaml). The name
+# is a customer name (ZMYUI5) or a registered namespace (/CA2UI5/); rename
+# abap2UI5 and every addon of the installation with the same name.
+#
+# Here at most 6 characters, and without src/01 - package.json config, which
+# .github/scripts/rename.mjs reads and prints on every run: four class names
+# have more than 25 characters, and abaplint cannot rename the BSP Z2UI5_CCI
+# (abap2UI5 backlog items abap2ui5-addon-rename-gaps, abaplint-rename-wapa).
+
+on:
+  workflow_dispatch:
+    inputs:
+      namespace:
+        description: "New name: ZMYUI5 (max. 6 characters here) or a registered namespace /AB12/ (max. 6 with both slashes) - the name the abap2UI5 installation was renamed to"
+        required: true
+        type: string
+        default: znamespace
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-rename-${{ inputs.namespace }}
+  cancel-in-progress: false
+
+jobs:
+  build-rename:
+    permissions:
+      contents: write
+    uses: abap2UI5-addons/rap-ext/.github/workflows/addon-build-rename.yaml@c81dfd461f69e42bb3678f51f80804066e2c9f96 # ci-v1.0.0
+    with:
+      namespace: ${{ inputs.namespace }}

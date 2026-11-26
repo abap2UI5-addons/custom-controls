@@ -251,82 +251,91 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
     " CodeEditor has no row of its own - it has no demo of its own either. It
     " is the editor on the left of the Markdown demo, which is where it is
     " shown; a second row launching the very same app was noise.
+    " The demo apps are this class's siblings, Z2UI5_CL_CCI_SAMPLE_01 to _15.
+    " Their names are derived from this class's own rather than written out,
+    " so an installation renamed into another namespace launches its own demos
+    " and not the original names (the rename rewrites no literal).
+    DATA(demo) = substring_after( val = cl_abap_classdescr=>get_class_name( me )
+                                  sub = `=` ).
+    demo = substring( val = demo
+                      len = strlen( demo ) - 2 ).
+
     t_controls = VALUE #(
       ( name        = `SignaturePad`
         module      = `z2ui5_cci/cc/SignaturePad`
         description = `Canvas for mouse, finger or stylus; hands the stroke over as a base64 PNG`
         library     = `none`
-        app         = `Z2UI5_CL_CCI_SAMPLE_01` )
+        app         = |{ demo }01| )
       ( name        = `ExportSpreadsheet`
         module      = `z2ui5_cci/cc/ExportSpreadsheet`
         description = `Exports the rows a table is bound to as .xlsx, in the browser`
         library     = `sap.ui.export, from UI5`
-        app         = `Z2UI5_CL_CCI_SAMPLE_02` )
+        app         = |{ demo }02| )
       ( name        = `Validator`
         module      = `z2ui5_cci/cc/Validator`
         description = `Checks a form against rules declared in ABAP, without a roundtrip`
         library     = `none`
-        app         = `Z2UI5_CL_CCI_SAMPLE_03` )
+        app         = |{ demo }03| )
       ( name        = `ChartJs`
         module      = `z2ui5_cci/cc/ChartJs`
         description = `Chart.js canvas driven by a bound ABAP structure`
         library     = `Chart.js`
-        app         = `Z2UI5_CL_CCI_SAMPLE_04` )
+        app         = |{ demo }04| )
       ( name        = `Barcode`
         module      = `z2ui5_cci/cc/Barcode`
         description = `Barcodes and QR codes with bwip-js, rendered in the browser`
         library     = `bwip-js`
-        app         = `Z2UI5_CL_CCI_SAMPLE_05` )
+        app         = |{ demo }05| )
       ( name        = `DriverJs`
         module      = `z2ui5_cci/cc/DriverJs`
         description = `Product tours and spotlight highlights over your own controls`
         library     = `driver.js`
-        app         = `Z2UI5_CL_CCI_SAMPLE_06` )
+        app         = |{ demo }06| )
       ( name        = `FontAwesome`
         module      = `z2ui5_cci/cc/FontAwesome`
         description = `Font Awesome as UI5 icons and as CSS classes`
         library     = `Font Awesome`
-        app         = `Z2UI5_CL_CCI_SAMPLE_07` )
+        app         = |{ demo }07| )
       ( name        = `AnimateCss`
         module      = `z2ui5_cci/cc/AnimateCss`
         description = `Makes the animate.css class names work on any control`
         library     = `animate.css`
-        app         = `Z2UI5_CL_CCI_SAMPLE_08` )
+        app         = |{ demo }08| )
       ( name        = `ImageMapster`
         module      = `z2ui5_cci/cc/ImageMapster`
         description = `Image map that highlights, selects and reports the region clicked`
         library     = `none`
-        app         = `Z2UI5_CL_CCI_SAMPLE_09` )
+        app         = |{ demo }09| )
       ( name        = `Markdown`
         module      = `z2ui5_cci/cc/Markdown`
         description = `Renders a bound Markdown string as HTML, sanitized by default`
         library     = `marked, DOMPurify`
-        app         = `Z2UI5_CL_CCI_SAMPLE_10` )
+        app         = |{ demo }10| )
       ( name        = `BarcodeScanner`
         module      = `z2ui5_cci/cc/BarcodeScanner`
         description = `Scans every barcode in the camera picture at once, into an ABAP table`
         library     = `zxing-wasm`
-        app         = `Z2UI5_CL_CCI_SAMPLE_11` )
+        app         = |{ demo }11| )
       ( name        = `RichTextEditor`
         module      = `z2ui5_cci/cc/RichTextEditor`
         description = `WYSIWYG editor for HTML, bound two-way - on OpenUI5 as on SAPUI5`
         library     = `SunEditor, DOMPurify`
-        app         = `Z2UI5_CL_CCI_SAMPLE_12` )
+        app         = |{ demo }12| )
       ( name        = `NetworkStatus`
         module      = `z2ui5_cci/cc/NetworkStatus`
         description = `Online, offline or server not reachable - icon, signal bars and latency, measured in the browser`
         library     = `none`
-        app         = `Z2UI5_CL_CCI_SAMPLE_13` )
+        app         = |{ demo }13| )
       ( name        = `Clock`
         module      = `z2ui5_cci/cc/Clock`
         description = `Date and time ticking in the browser; a button underneath, so it fits an overflow menu`
         library     = `none`
-        app         = `Z2UI5_CL_CCI_SAMPLE_14` )
+        app         = |{ demo }14| )
       ( name        = `ScanInput`
         module      = `z2ui5_cci/cc/ScanInput`
         description = `Scan field that keeps the focus, selects on focus, beeps on Error, soft keyboard on and off`
         library     = `none`
-        app         = `Z2UI5_CL_CCI_SAMPLE_15` ) ).
+        app         = |{ demo }15| ) ).
 
   ENDMETHOD.
 

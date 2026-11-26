@@ -122,10 +122,10 @@ CLASS z2ui5_cl_cci_sample_01 IMPLEMENTATION.
                           v = `Signature` ).
 
     " the custom control - emitted by its own ABAP class, unknown to abap2UI5
-    box = z2ui5_cl_cci_signature_pad=>render( view   = box
-                                              value  = client->_bind( signature )
-                                              height = `200px`
-                                              change = client->_event( `SIGNED` ) ).
+    box = z2ui5_cl_cci_signature=>render( view   = box
+                                          value  = client->_bind( signature )
+                                          height = `200px`
+                                          change = client->_event( `SIGNED` ) ).
 
     box->ele( `HBox`
            )->a( n = `class`

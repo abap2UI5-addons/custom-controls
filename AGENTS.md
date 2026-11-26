@@ -71,9 +71,39 @@ JavaScript checks are this repository's own jobs in the same workflow:
 * `deploy-pages`, `bump-deps` (monthly; the template pin moves only with the
   `DEPS_TOKEN` secret)
 
-No sibling addon, so no `.github/deps.json`; no ABAP Unit tests and no rename
-script, so no `unit` and no `rename` job. The job names above are the
-required status checks of the branch protection.
+* `ci` also runs `check / rename`, the namespace rename check
+  (`npm run rename`, see "Namespace rename" below); `build-rename` (manual)
+  pushes a renamed branch `rename_<name>`
+
+No sibling addon, so no `.github/deps.json`; no ABAP Unit tests, so no `unit`
+job. The job names above are the required status checks of the branch
+protection.
+
+## Namespace rename
+
+`npm run rename` (CI: `check / rename`) and the manual `build-rename`
+workflow are abap2UI5's namespace rename - `.github/scripts/rename.mjs`, the
+same file in every repository that has one. Every `z2ui5_` object becomes
+`<name>_...` (a customer name such as `ZMYUI5`) or `/<ns>/...` (a registered
+namespace), and so does every reference to abap2UI5, which is renamed along:
+the branch `rename_<name>` runs on an abap2UI5 renamed with the same name by
+its own `build-rename`. Not complete yet, and `package.json` `config` says
+where - every run prints it:
+
+- **The full 10 characters** of the core: every class name has at most 25
+  characters (30 minus the 5 a 10-character name adds to `z2ui5`). Four
+  were longer and were shortened on 2026-11-26 - a breaking change, see
+  `changelog.txt`: `z2ui5_cl_cci_rich_text_editor` -> `z2ui5_cl_cci_rich_text`,
+  `_barcode_scanner` -> `_barcode_scan`, `_network_status` -> `_net_status`,
+  `_signature_pad` -> `_signature`. A new class keeps to 25 characters too.
+- **`src/01` is not renamed** (`renameSkip`): abaplint cannot rename a BSP
+  (WAPA) - backlog item `abaplint-rename-wapa`, abaplint PR #4721 - and the
+  abap2UI5 frontend reserves its resource root `z2ui5_cci`. A renamed
+  installation installs the BSP as it is.
+- **Three literals stay** (`renameLiterals`): `z2ui5_cl_cci=>c_ns`, that
+  resource root, and two texts a demo shows. Every other literal that names a
+  `z2ui5_` object fails the check - derive the name instead, as the overview
+  `z2ui5_cl_cci_sample_00` derives its demo classes from its own name.
 
 ## Views
 

@@ -14,7 +14,7 @@
 "! Two things the page has to allow, see the README: the camera needs a secure
 "! (https) connection, and WebAssembly needs 'wasm-unsafe-eval' in the
 "! script-src of the Content-Security-Policy.
-CLASS z2ui5_cl_cci_barcode_scanner DEFINITION
+CLASS z2ui5_cl_cci_barcode_scan DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -104,7 +104,7 @@ CLASS z2ui5_cl_cci_barcode_scanner DEFINITION
 ENDCLASS.
 
 
-CLASS z2ui5_cl_cci_barcode_scanner IMPLEMENTATION.
+CLASS z2ui5_cl_cci_barcode_scan IMPLEMENTATION.
 
   METHOD render.
 

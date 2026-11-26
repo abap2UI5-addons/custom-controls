@@ -1,0 +1,14 @@
+custom-controls changelog
+=========================
+
+Legend
+------
+* : fixed
+! : changed
++ : added
+- : removed
+
+
+unreleased
+----------
+! BREAKING: four classes renamed so that every class name has at most 25 characters and the namespace rename takes a name of the full 10 characters (it was capped at 6): z2ui5_cl_cci_rich_text_editor -> z2ui5_cl_cci_rich_text, z2ui5_cl_cci_barcode_scanner -> z2ui5_cl_cci_barcode_scan, z2ui5_cl_cci_network_status -> z2ui5_cl_cci_net_status, z2ui5_cl_cci_signature_pad -> z2ui5_cl_cci_signature. Methods, parameters, types and constants are unchanged, and so are the controls in the BSP (z2ui5_cci.cc.RichTextEditor, ...). An app changes the class name it calls; after the abapGit pull the four old classes are still on the system - abapGit does not delete them - and must be deleted by hand (SE24 or ADT) once no app uses them
