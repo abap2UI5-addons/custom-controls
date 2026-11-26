@@ -86,22 +86,64 @@ CLASS z2ui5_cl_cci_rich_text_editor IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    DATA temp10 LIKE LINE OF temp1.
+    DATA temp11 LIKE LINE OF temp1.
+    DATA temp12 LIKE LINE OF temp1.
+    DATA temp13 LIKE LINE OF temp1.
+    DATA temp14 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |value={ value }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |editable={ editable }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |width={ width }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |height={ height }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |placeholder={ placeholder }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |toolbar={ toolbar }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |language={ language }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |sanitize={ sanitize }|.
+    INSERT temp9 INTO TABLE temp1.
+
+    temp10 = |libUrl={ liburl }|.
+    INSERT temp10 INTO TABLE temp1.
+
+    temp11 = |cssUrl={ cssurl }|.
+    INSERT temp11 INTO TABLE temp1.
+
+    temp12 = |purifyUrl={ purifyurl }|.
+    INSERT temp12 INTO TABLE temp1.
+
+    temp13 = |langUrl={ langurl }|.
+    INSERT temp13 INTO TABLE temp1.
+
+    temp14 = |change={ change }|.
+    INSERT temp14 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `RichTextEditor`
-        a    = VALUE #( ( |value={ value }| )
-                        ( |editable={ editable }| )
-                        ( |width={ width }| )
-                        ( |height={ height }| )
-                        ( |placeholder={ placeholder }| )
-                        ( |toolbar={ toolbar }| )
-                        ( |language={ language }| )
-                        ( |sanitize={ sanitize }| )
-                        ( |libUrl={ liburl }| )
-                        ( |cssUrl={ cssurl }| )
-                        ( |purifyUrl={ purifyurl }| )
-                        ( |langUrl={ langurl }| )
-                        ( |change={ change }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

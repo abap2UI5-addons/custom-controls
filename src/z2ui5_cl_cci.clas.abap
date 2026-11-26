@@ -25,7 +25,7 @@ CLASS z2ui5_cl_cci DEFINITION
 
     "! attribute list - one `key=value` string per attribute, e.g.
     "! a = VALUE #( ( `text=Hello` ) ( `width=100%` ) ). Split on the first `=`.
-    TYPES ty_t_attr TYPE STANDARD TABLE OF string WITH EMPTY KEY.
+    TYPES ty_t_attr TYPE STANDARD TABLE OF string WITH DEFAULT KEY.
 
     "! Declare the library's XML namespace on a view or fragment root.
     "!
@@ -86,13 +86,17 @@ CLASS z2ui5_cl_cci IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD tag.
+    DATA lv_attr LIKE LINE OF a.
+      DATA lv_off TYPE i.
 
     result = view->tag( n  = name
                         ns = c_ns ).
 
-    LOOP AT a INTO DATA(lv_attr).
 
-      DATA(lv_off) = find( val = lv_attr
+    LOOP AT a INTO lv_attr.
+
+
+      lv_off = find( val = lv_attr
                            sub = `=` ).
       " no `=` at all is a malformed attribute, `key=` an unset one - both
       " would end up as an empty attribute value in the rendered XML

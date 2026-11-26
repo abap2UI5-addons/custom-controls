@@ -81,17 +81,44 @@ CLASS z2ui5_cl_cci_code_editor IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |value={ value }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |type={ type }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |width={ width }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |height={ height }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |editable={ editable }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |lineNumbers={ linenumbers }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |colorTheme={ colortheme }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |liveChange={ livechange }|.
+    INSERT temp9 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `CodeEditor`
-        a    = VALUE #( ( |value={ value }| )
-                        ( |type={ type }| )
-                        ( |width={ width }| )
-                        ( |height={ height }| )
-                        ( |editable={ editable }| )
-                        ( |lineNumbers={ linenumbers }| )
-                        ( |colorTheme={ colortheme }| )
-                        ( |liveChange={ livechange }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

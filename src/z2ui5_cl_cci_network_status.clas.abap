@@ -77,25 +77,76 @@ CLASS z2ui5_cl_cci_network_status IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    DATA temp10 LIKE LINE OF temp1.
+    DATA temp11 LIKE LINE OF temp1.
+    DATA temp12 LIKE LINE OF temp1.
+    DATA temp13 LIKE LINE OF temp1.
+    DATA temp14 LIKE LINE OF temp1.
+    DATA temp15 LIKE LINE OF temp1.
+    DATA temp16 LIKE LINE OF temp1.
+    DATA temp17 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |status={ status }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |latency={ latency }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |quality={ quality }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |ping={ ping }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |pingUrl={ pingurl }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |pingInterval={ pinginterval }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |pingTimeout={ pingtimeout }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |iconSize={ iconsize }|.
+    INSERT temp9 INTO TABLE temp1.
+
+    temp10 = |showText={ showtext }|.
+    INSERT temp10 INTO TABLE temp1.
+
+    temp11 = |showQuality={ showquality }|.
+    INSERT temp11 INTO TABLE temp1.
+
+    temp12 = |showDetails={ showdetails }|.
+    INSERT temp12 INTO TABLE temp1.
+
+    temp13 = |textOnline={ textonline }|.
+    INSERT temp13 INTO TABLE temp1.
+
+    temp14 = |textUnreachable={ textunreachable }|.
+    INSERT temp14 INTO TABLE temp1.
+
+    temp15 = |textOffline={ textoffline }|.
+    INSERT temp15 INTO TABLE temp1.
+
+    temp16 = |class={ class }|.
+    INSERT temp16 INTO TABLE temp1.
+
+    temp17 = |change={ change }|.
+    INSERT temp17 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `NetworkStatus`
-        a    = VALUE #( ( |status={ status }| )
-                        ( |latency={ latency }| )
-                        ( |quality={ quality }| )
-                        ( |ping={ ping }| )
-                        ( |pingUrl={ pingurl }| )
-                        ( |pingInterval={ pinginterval }| )
-                        ( |pingTimeout={ pingtimeout }| )
-                        ( |iconSize={ iconsize }| )
-                        ( |showText={ showtext }| )
-                        ( |showQuality={ showquality }| )
-                        ( |showDetails={ showdetails }| )
-                        ( |textOnline={ textonline }| )
-                        ( |textUnreachable={ textunreachable }| )
-                        ( |textOffline={ textoffline }| )
-                        ( |class={ class }| )
-                        ( |change={ change }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

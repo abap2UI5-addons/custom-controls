@@ -64,18 +64,48 @@ CLASS z2ui5_cl_cci_markdown IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    DATA temp10 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |value={ value }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |sanitize={ sanitize }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |breaks={ breaks }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |gfm={ gfm }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |width={ width }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |height={ height }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |libUrl={ liburl }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |purifyUrl={ purifyurl }|.
+    INSERT temp9 INTO TABLE temp1.
+
+    temp10 = |linkPress={ linkpress }|.
+    INSERT temp10 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `Markdown`
-        a    = VALUE #( ( |value={ value }| )
-                        ( |sanitize={ sanitize }| )
-                        ( |breaks={ breaks }| )
-                        ( |gfm={ gfm }| )
-                        ( |width={ width }| )
-                        ( |height={ height }| )
-                        ( |libUrl={ liburl }| )
-                        ( |purifyUrl={ purifyurl }| )
-                        ( |linkPress={ linkpress }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

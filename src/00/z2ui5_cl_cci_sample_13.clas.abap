@@ -41,12 +41,12 @@ CLASS z2ui5_cl_cci_sample_13 IMPLEMENTATION.
 
     me->client = client.
 
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       refresh_info( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -54,9 +54,14 @@ CLASS z2ui5_cl_cci_sample_13 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA root TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA footer TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(root) = view->ele( n  = `View`
+
+    root = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -65,7 +70,8 @@ CLASS z2ui5_cl_cci_sample_13 IMPLEMENTATION.
 
     z2ui5_cl_cci=>xmlns( root ).
 
-    DATA(page) = root->a( n = `displayBlock`
+
+    page = root->a( n = `displayBlock`
                           v = `true`
         )->a( n = `height`
               v = `100%`
@@ -105,7 +111,8 @@ CLASS z2ui5_cl_cci_sample_13 IMPLEMENTATION.
 
     " the small one in a footer - an icon only, it never moves into the
     " overflow menu, so it stays visible
-    DATA(footer) = page->ele( `footer`
+
+    footer = page->ele( `footer`
         )->ele( `OverflowToolbar` ).
 
     footer = z2ui5_cl_cci_network_status=>render( footer ).
