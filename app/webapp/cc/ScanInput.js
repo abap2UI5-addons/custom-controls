@@ -28,6 +28,16 @@
 //                   last wins. A field inside a dialog counts only the
 //                   popups above its own dialog (a scan field in a popup
 //                   view keeps its focus there).
+//                   A focus sequence over several fields: bind keepFocus of
+//                   each field to a flag of its own. The field whose flag
+//                   turns on while it is on screen CLAIMS the focus - it
+//                   takes it also from another text field, because the
+//                   backend moved on to the next step. A popup, a hidden or
+//                   a disabled field still make it wait.
+//   upperCase       what is typed, scanned or pasted is turned into capital
+//                   letters in the field itself, so value, submit and
+//                   change all carry them. A value the model writes is
+//                   shown as it is. Not applied to a password field.
 //   selectOnFocus   the content is selected when the field gets the focus,
 //                   so the next scan replaces it
 //   beepOnError     a short beep (WebAudio oscillator, no audio file) when
@@ -109,10 +119,36 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
     if (f.documentHidden) return "document hidden";
     if (f.hasFocus) return "has focus";
     if (f.popupOpen || f.activeInPopup) return "popup";
+    // a claim is the backend moving the focus on: what the user does in
+    // another field is exactly what it is taken from
+    if (f.claim) return null;
     if (f.activeIsTextEntry) return "typing elsewhere";
     if (f.textSelected) return "text selected";
     return null;
   };
+
+  // Capital letters, one character for one: the caret stays where it is and
+  // a maximum length holds. A letter whose capital form is two characters
+  // (the German sharp s becomes SS) is kept - which is also what ABAP's
+  // TRANSLATE ... TO UPPER CASE does.
+  const toUpper = (value) => {
+    const text = String(value ?? "");
+    let out = "";
+    for (let i = 0; i < text.length; i++) {
+      const upper = text[i].toUpperCase();
+      out += upper.length === 1 ? upper : text[i];
+    }
+    return out;
+  };
+
+  // the fields in the order they are asked for the focus: a pending claim
+  // first, the latest claim before an older one, then the field rendered
+  // last. `fields` is rendered-first, each { claim } a sequence number or 0.
+  const focusOrder = (fields) =>
+    fields
+      .map((field, index) => ({ field, index }))
+      .sort((a, b) => (b.field.claim || 0) - (a.field.claim || 0) || b.index - a.index)
+      .map((entry) => entry.field);
 
   // does this value state change deserve a beep?
   //   previous, next  the value state before and after
@@ -128,6 +164,7 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
 
   const page = {
     instances: [], // rendered instances, the last rendered last
+    claims: 0, // sequence of focus claims
     activated: false, // the user interacted with the page
     audio: null,
     timer: null,
@@ -245,7 +282,8 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
     page.poll = null;
   };
 
-  // give the focus to the field that may take it - the one rendered last
+  // give the focus to the field that may take it - a field that claims it
+  // first, then the one rendered last
   const run = () => {
     page.timer = null;
     if (!page.instances.length) {
@@ -253,8 +291,9 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
       return;
     }
     let blocked = false;
-    for (let i = page.instances.length - 1; i >= 0; i--) {
-      const inst = page.instances[i];
+    const order = focusOrder(page.instances.map((inst) => ({ inst, claim: inst._claim || 0 })));
+    for (let i = 0; i < order.length; i++) {
+      const inst = order[i].inst;
       let reason;
       try {
         reason = whyNot(inst._facts());
@@ -263,10 +302,12 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
         continue;
       }
       if (reason === "has focus") {
+        inst._claim = 0;
         stopPoll();
         return;
       }
       if (reason === null) {
+        inst._claim = 0;
         inst._takeFocus();
         stopPoll();
         return;
@@ -349,6 +390,8 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
         // a keyboard icon at the end of the field that switches `keyboard`
         showKeyboardToggle: { type: "boolean", defaultValue: false },
         keyboardToggleTooltip: { type: "string", defaultValue: "Keyboard" },
+        // capital letters for what is typed, scanned or pasted
+        upperCase: { type: "boolean", defaultValue: false },
       },
       events: {
         // the user switched the keyboard with the icon
@@ -362,8 +405,15 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
     // --- properties the renderer draws nothing from: no re-render ---------
 
     setKeepFocus(value) {
+      const before = this.getKeepFocus();
       this.setProperty("keepFocus", value, true);
-      if (this.getKeepFocus() && this.getDomRef()) schedule(0);
+      const now = this.getKeepFocus();
+      // switched on while the field is on screen: the backend moved the
+      // focus here. A field that is created with keepFocus claims nothing -
+      // it gets the focus the polite way, as before.
+      if (now && !before && this.getDomRef()) this._claim = ++page.claims;
+      if (!now) this._claim = 0;
+      if (now && this.getDomRef()) schedule(0);
       return this;
     },
 
@@ -392,6 +442,11 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
     setInputMode(value) {
       this.setProperty("inputMode", value, true);
       this._applyMode();
+      return this;
+    },
+
+    setUpperCase(value) {
+      this.setProperty("upperCase", value, true);
       return this;
     },
 
@@ -560,6 +615,7 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
       const rendered = Boolean(root && dom && document.body && document.body.contains(root));
       return {
         keepFocus: this.getKeepFocus(),
+        claim: Boolean(this._claim),
         rendered,
         visible: rendered && this.getVisible() && isShown(root),
         enabled: this.getEnabled(),
@@ -591,6 +647,52 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
       } catch (e) {
         // an input type without a selection
       }
+    },
+
+    // --- capital letters ---------------------------------------------------------
+
+    // Rewrites the text IN the field, so everything sap.m.Input reads from
+    // it afterwards - live value, change, submit - is already upper case.
+    _upper() {
+      if (!this.getUpperCase() || this.getType() === "Password") return;
+      const dom = this.getFocusDomRef();
+      if (!dom || typeof dom.value !== "string") return;
+      const upper = toUpper(dom.value);
+      if (upper === dom.value) return;
+      let start = null;
+      let end = null;
+      try {
+        start = dom.selectionStart;
+        end = dom.selectionEnd;
+      } catch (e) {
+        // an input type without a selection
+      }
+      dom.value = upper;
+      if (start === null || end === null) return;
+      try {
+        dom.setSelectionRange(start, end);
+      } catch (e) {
+        // an input type without a selection
+      }
+    },
+
+    oninput(event) {
+      // while an input method composes a character the text is not final -
+      // rewriting it would break the composition; the change that follows
+      // is caught below
+      const composing = Boolean(event && event.originalEvent && event.originalEvent.isComposing);
+      if (!composing) this._upper();
+      if (Input.prototype.oninput) Input.prototype.oninput.apply(this, arguments);
+    },
+
+    onChange() {
+      this._upper();
+      return Input.prototype.onChange.apply(this, arguments);
+    },
+
+    onsapenter() {
+      this._upper();
+      if (Input.prototype.onsapenter) Input.prototype.onsapenter.apply(this, arguments);
     },
 
     onfocusin(event) {
@@ -654,6 +756,8 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
   ScanInput.effectiveMode = effectiveMode;
   ScanInput.isTextEntry = isTextEntry;
   ScanInput.whyNot = whyNot;
+  ScanInput.toUpper = toUpper;
+  ScanInput.focusOrder = focusOrder;
   ScanInput.errorSignal = errorSignal;
   return ScanInput;
 });
