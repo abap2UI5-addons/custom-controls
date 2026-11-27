@@ -29,7 +29,7 @@ CLASS z2ui5_cl_cci_gauge DEFINITION
         high  TYPE ty_number,
         color TYPE string,
       END OF ty_s_highlight.
-    TYPES ty_t_highlight TYPE STANDARD TABLE OF ty_s_highlight WITH EMPTY KEY.
+    TYPES ty_t_highlight TYPE STANDARD TABLE OF ty_s_highlight WITH DEFAULT KEY.
 
     "! Emit &lt;z2ui5_cci:Gauge/&gt; into an existing view.
     "!
@@ -98,25 +98,79 @@ CLASS z2ui5_cl_cci_gauge IMPLEMENTATION.
 
     " an attribute the caller left empty is dropped by tag( ) - it would
     " override the control's own default with an empty string
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    DATA temp10 LIKE LINE OF temp1.
+    DATA temp11 LIKE LINE OF temp1.
+    DATA temp12 LIKE LINE OF temp1.
+    DATA temp13 LIKE LINE OF temp1.
+    DATA temp14 LIKE LINE OF temp1.
+    DATA temp15 LIKE LINE OF temp1.
+    DATA temp16 LIKE LINE OF temp1.
+    DATA temp17 LIKE LINE OF temp1.
+    DATA temp18 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |value={ value }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |minValue={ minvalue }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |maxValue={ maxvalue }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |title={ title }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |units={ units }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |width={ width }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |height={ height }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |startAngle={ startangle }|.
+    INSERT temp9 INTO TABLE temp1.
+
+    temp10 = |ticksAngle={ ticksangle }|.
+    INSERT temp10 INTO TABLE temp1.
+
+    temp11 = |tickInterval={ tickinterval }|.
+    INSERT temp11 INTO TABLE temp1.
+
+    temp12 = |minorTicks={ minorticks }|.
+    INSERT temp12 INTO TABLE temp1.
+
+    temp13 = |highlights={ highlights }|.
+    INSERT temp13 INTO TABLE temp1.
+
+    temp14 = |valueBox={ valuebox }|.
+    INSERT temp14 INTO TABLE temp1.
+
+    temp15 = |decimals={ decimals }|.
+    INSERT temp15 INTO TABLE temp1.
+
+    temp16 = |animation={ animation }|.
+    INSERT temp16 INTO TABLE temp1.
+
+    temp17 = |options={ options }|.
+    INSERT temp17 INTO TABLE temp1.
+
+    temp18 = |libUrl={ liburl }|.
+    INSERT temp18 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag( view = view
                                 name = `Gauge`
-                                a    = VALUE #( ( |value={ value }| )
-                                                ( |minValue={ minvalue }| )
-                                                ( |maxValue={ maxvalue }| )
-                                                ( |title={ title }| )
-                                                ( |units={ units }| )
-                                                ( |width={ width }| )
-                                                ( |height={ height }| )
-                                                ( |startAngle={ startangle }| )
-                                                ( |ticksAngle={ ticksangle }| )
-                                                ( |tickInterval={ tickinterval }| )
-                                                ( |minorTicks={ minorticks }| )
-                                                ( |highlights={ highlights }| )
-                                                ( |valueBox={ valuebox }| )
-                                                ( |decimals={ decimals }| )
-                                                ( |animation={ animation }| )
-                                                ( |options={ options }| )
-                                                ( |libUrl={ liburl }| ) ) ).
+                                a    = temp1 ).
 
   ENDMETHOD.
 

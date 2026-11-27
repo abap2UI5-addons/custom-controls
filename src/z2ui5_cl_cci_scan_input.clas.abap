@@ -105,35 +105,116 @@ CLASS z2ui5_cl_cci_scan_input IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    DATA temp10 LIKE LINE OF temp1.
+    DATA temp11 LIKE LINE OF temp1.
+    DATA temp12 LIKE LINE OF temp1.
+    DATA temp13 LIKE LINE OF temp1.
+    DATA temp14 LIKE LINE OF temp1.
+    DATA temp15 LIKE LINE OF temp1.
+    DATA temp16 LIKE LINE OF temp1.
+    DATA temp17 LIKE LINE OF temp1.
+    DATA temp18 LIKE LINE OF temp1.
+    DATA temp19 LIKE LINE OF temp1.
+    DATA temp20 LIKE LINE OF temp1.
+    DATA temp21 LIKE LINE OF temp1.
+    DATA temp22 LIKE LINE OF temp1.
+    DATA temp23 LIKE LINE OF temp1.
+    DATA temp24 LIKE LINE OF temp1.
+    DATA temp25 LIKE LINE OF temp1.
+    DATA temp26 LIKE LINE OF temp1.
+    DATA temp27 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |id={ id }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |value={ value }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |valueState={ valuestate }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |valueStateText={ valuestatetext }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |showValueStateMessage={ showvaluestatemessage }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |placeholder={ placeholder }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |enabled={ enabled }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |editable={ editable }|.
+    INSERT temp9 INTO TABLE temp1.
+
+    temp10 = |visible={ visible }|.
+    INSERT temp10 INTO TABLE temp1.
+
+    temp11 = |width={ width }|.
+    INSERT temp11 INTO TABLE temp1.
+
+    temp12 = |maxLength={ maxlength }|.
+    INSERT temp12 INTO TABLE temp1.
+
+    temp13 = |type={ type }|.
+    INSERT temp13 INTO TABLE temp1.
+
+    temp14 = |keepFocus={ keepfocus }|.
+    INSERT temp14 INTO TABLE temp1.
+
+    temp15 = |selectOnFocus={ selectonfocus }|.
+    INSERT temp15 INTO TABLE temp1.
+
+    temp16 = |beepOnError={ beeponerror }|.
+    INSERT temp16 INTO TABLE temp1.
+
+    temp17 = |beepOnSuccess={ beeponsuccess }|.
+    INSERT temp17 INTO TABLE temp1.
+
+    temp18 = |vibrateOnError={ vibrateonerror }|.
+    INSERT temp18 INTO TABLE temp1.
+
+    temp19 = |keyboard={ keyboard }|.
+    INSERT temp19 INTO TABLE temp1.
+
+    temp20 = |inputMode={ inputmode }|.
+    INSERT temp20 INTO TABLE temp1.
+
+    temp21 = |showKeyboardToggle={ showkeyboardtoggle }|.
+    INSERT temp21 INTO TABLE temp1.
+
+    temp22 = |keyboardToggleTooltip={ keyboardtoggletooltip }|.
+    INSERT temp22 INTO TABLE temp1.
+
+    temp23 = |upperCase={ uppercase }|.
+    INSERT temp23 INTO TABLE temp1.
+
+    temp24 = |class={ class }|.
+    INSERT temp24 INTO TABLE temp1.
+
+    temp25 = |submit={ submit }|.
+    INSERT temp25 INTO TABLE temp1.
+
+    temp26 = |change={ change }|.
+    INSERT temp26 INTO TABLE temp1.
+
+    temp27 = |keyboardChange={ keyboardchange }|.
+    INSERT temp27 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `ScanInput`
-        a    = VALUE #( ( |id={ id }| )
-                        ( |value={ value }| )
-                        ( |valueState={ valuestate }| )
-                        ( |valueStateText={ valuestatetext }| )
-                        ( |showValueStateMessage={ showvaluestatemessage }| )
-                        ( |placeholder={ placeholder }| )
-                        ( |enabled={ enabled }| )
-                        ( |editable={ editable }| )
-                        ( |visible={ visible }| )
-                        ( |width={ width }| )
-                        ( |maxLength={ maxlength }| )
-                        ( |type={ type }| )
-                        ( |keepFocus={ keepfocus }| )
-                        ( |selectOnFocus={ selectonfocus }| )
-                        ( |beepOnError={ beeponerror }| )
-                        ( |beepOnSuccess={ beeponsuccess }| )
-                        ( |vibrateOnError={ vibrateonerror }| )
-                        ( |keyboard={ keyboard }| )
-                        ( |inputMode={ inputmode }| )
-                        ( |showKeyboardToggle={ showkeyboardtoggle }| )
-                        ( |keyboardToggleTooltip={ keyboardtoggletooltip }| )
-                        ( |upperCase={ uppercase }| )
-                        ( |class={ class }| )
-                        ( |submit={ submit }| )
-                        ( |change={ change }| )
-                        ( |keyboardChange={ keyboardchange }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

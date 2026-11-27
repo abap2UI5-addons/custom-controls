@@ -96,7 +96,7 @@ CLASS z2ui5_cl_cci_floor_plan DEFINITION
         "! third line
         info     TYPE string,
       END OF ty_s_item.
-    TYPES ty_t_item TYPE STANDARD TABLE OF ty_s_item WITH EMPTY KEY.
+    TYPES ty_t_item TYPE STANDARD TABLE OF ty_s_item WITH DEFAULT KEY.
 
     TYPES:
       "! An outline behind the items - a hall, a zone - with its name in the
@@ -109,7 +109,7 @@ CLASS z2ui5_cl_cci_floor_plan DEFINITION
         height TYPE ty_number,
         title  TYPE string,
       END OF ty_s_area.
-    TYPES ty_t_area TYPE STANDARD TABLE OF ty_s_area WITH EMPTY KEY.
+    TYPES ty_t_area TYPE STANDARD TABLE OF ty_s_area WITH DEFAULT KEY.
 
     "! Emit &lt;z2ui5_cci:FloorPlan/&gt; into an existing view.
     "!
@@ -165,19 +165,55 @@ CLASS z2ui5_cl_cci_floor_plan IMPLEMENTATION.
 
     " an attribute the caller left empty is dropped by tag( ) - it would
     " override the control's own default with an empty string
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    DATA temp10 LIKE LINE OF temp1.
+    DATA temp11 LIKE LINE OF temp1.
+    DATA temp12 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |items={ items }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |areas={ areas }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |selectedKeys={ selectedkeys }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |highlightKeys={ highlightkeys }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |fitKeys={ fitkeys }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |selectionMode={ selectionmode }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |showControls={ showcontrols }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |zoomable={ zoomable }|.
+    INSERT temp9 INTO TABLE temp1.
+
+    temp10 = |width={ width }|.
+    INSERT temp10 INTO TABLE temp1.
+
+    temp11 = |height={ height }|.
+    INSERT temp11 INTO TABLE temp1.
+
+    temp12 = |itemPress={ itempress }|.
+    INSERT temp12 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag( view = view
                                 name = `FloorPlan`
-                                a    = VALUE #( ( |items={ items }| )
-                                                ( |areas={ areas }| )
-                                                ( |selectedKeys={ selectedkeys }| )
-                                                ( |highlightKeys={ highlightkeys }| )
-                                                ( |fitKeys={ fitkeys }| )
-                                                ( |selectionMode={ selectionmode }| )
-                                                ( |showControls={ showcontrols }| )
-                                                ( |zoomable={ zoomable }| )
-                                                ( |width={ width }| )
-                                                ( |height={ height }| )
-                                                ( |itemPress={ itempress }| ) ) ).
+                                a    = temp1 ).
 
   ENDMETHOD.
 

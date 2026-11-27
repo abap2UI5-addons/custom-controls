@@ -48,12 +48,12 @@ CLASS z2ui5_cl_cci_sample_18 IMPLEMENTATION.
 
     me->client = client.
 
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -61,9 +61,15 @@ CLASS z2ui5_cl_cci_sample_18 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA root TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA box TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA bar TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(root) = view->ele( n  = `View`
+
+    root = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -72,7 +78,8 @@ CLASS z2ui5_cl_cci_sample_18 IMPLEMENTATION.
 
     z2ui5_cl_cci=>xmlns( root ).
 
-    DATA(page) = root->a( n = `displayBlock`
+
+    page = root->a( n = `displayBlock`
                           v = `true`
         )->a( n = `height`
               v = `100%`
@@ -81,11 +88,13 @@ CLASS z2ui5_cl_cci_sample_18 IMPLEMENTATION.
             )->a( n = `title`
                   v = `abap2UI5 - FloorPlan` ).
 
-    DATA(box) = page->ele( `VBox`
+
+    box = page->ele( `VBox`
         )->a( n = `class`
               v = `sapUiSmallMargin` ).
 
-    DATA(bar) = box->ele( `HBox`
+
+    bar = box->ele( `HBox`
         )->a( n = `alignItems`
               v = `Center`
         )->a( n = `class`
@@ -133,28 +142,53 @@ CLASS z2ui5_cl_cci_sample_18 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD on_event.
+        DATA lv_key TYPE string.
+          DATA temp1 TYPE z2ui5_cl_cci_floor_plan=>ty_s_item.
+          DATA temp2 TYPE z2ui5_cl_cci_floor_plan=>ty_s_item.
+          DATA ls_item LIKE temp1.
+          DATA temp3 TYPE string.
+        DATA temp4 TYPE string.
 
     CASE client->get( )-event.
 
       WHEN `LANE`.
         " selected already carries what the CONTROL wrote into the model
-        DATA(lv_key) = client->get_event_arg( ).
+
+        lv_key = client->get_event_arg( ).
         IF selected IS INITIAL.
           info = `Nothing selected.`.
         ELSE.
-          DATA(ls_item) = VALUE #( t_item[ key = lv_key ] OPTIONAL ).
+
+          CLEAR temp1.
+
+          READ TABLE t_item INTO temp2 WITH KEY key = lv_key.
+          IF sy-subrc = 0.
+            temp1 = temp2.
+          ENDIF.
+
+          ls_item = temp1.
           info = |Lane { ls_item-title }: { ls_item-text }, { ls_item-info }|.
         ENDIF.
 
       WHEN `FULL`.
         CLEAR highlight.
         LOOP AT t_item INTO ls_item WHERE fill > '0.9'.
-          highlight = |{ highlight }{ COND #( WHEN highlight IS NOT INITIAL THEN `,` ) }{ ls_item-key }|.
+
+          IF highlight IS NOT INITIAL.
+            temp3 = `,`.
+          ELSE.
+            CLEAR temp3.
+          ENDIF.
+          highlight = |{ highlight }{ temp3 }{ ls_item-key }|.
         ENDLOOP.
         fit  = highlight.
-        info = COND #( WHEN highlight IS INITIAL
-                       THEN `No lane is above 90 %.`
-                       ELSE `Lanes above 90 % - the plan flew to them.` ).
+
+        IF highlight IS INITIAL.
+          temp4 = `No lane is above 90 %.`.
+        ELSE.
+          temp4 = `Lanes above 90 % - the plan flew to them.`.
+        ENDIF.
+        info = temp4.
 
       WHEN `ALL`.
         CLEAR highlight.
@@ -175,31 +209,85 @@ CLASS z2ui5_cl_cci_sample_18 IMPLEMENTATION.
 
     " plan units are metres: a lane is 2.7 m wide and 12 m deep, with 0.3 m
     " between two lanes and an 8 m aisle between the two blocks of a hall
-    t_area = VALUE #(
-      ( key = `H1` x = 0  y = 0 width = 84 height = 36 title = `Hall 1` )
-      ( key = `H2` x = 90 y = 0 width = 78 height = 36 title = `Hall 2` ) ).
+    DATA temp5 TYPE z2ui5_cl_cci_floor_plan=>ty_t_area.
+    DATA temp6 LIKE LINE OF temp5.
+      DATA lv_block LIKE sy-index.
+      DATA temp7 TYPE i.
+      DATA lv_lanes LIKE temp7.
+      DATA temp8 TYPE i.
+      DATA lv_left LIKE temp8.
+      DATA temp9 TYPE i.
+      DATA lv_top LIKE temp9.
+        DATA lv_number TYPE i.
+        DATA temp10 TYPE z2ui5_cl_cci_floor_plan=>ty_s_item.
+        DATA temp1 TYPE z2ui5_cl_cci_floor_plan=>ty_s_item-dir.
+    CLEAR temp5.
+
+    temp6-key = `H1`.
+    temp6-x = 0.
+    temp6-y = 0.
+    temp6-width = 84.
+    temp6-height = 36.
+    temp6-title = `Hall 1`.
+    INSERT temp6 INTO TABLE temp5.
+    temp6-key = `H2`.
+    temp6-x = 90.
+    temp6-y = 0.
+    temp6-width = 78.
+    temp6-height = 36.
+    temp6-title = `Hall 2`.
+    INSERT temp6 INTO TABLE temp5.
+    t_area = temp5.
 
     CLEAR t_item.
     DO 4 TIMES.
-      DATA(lv_block) = sy-index.
+
+      lv_block = sy-index.
       " blocks 1 and 2 are hall 1 with 27 lanes each, 3 and 4 hall 2 with 25
-      DATA(lv_lanes) = COND i( WHEN lv_block <= 2 THEN 27 ELSE 25 ).
-      DATA(lv_left)  = COND i( WHEN lv_block <= 2 THEN 2 ELSE 92 ).
-      DATA(lv_top)   = COND i( WHEN lv_block MOD 2 = 1 THEN 2 ELSE 22 ).
+
+      IF lv_block <= 2.
+        temp7 = 27.
+      ELSE.
+        temp7 = 25.
+      ENDIF.
+
+      lv_lanes = temp7.
+
+      IF lv_block <= 2.
+        temp8 = 2.
+      ELSE.
+        temp8 = 92.
+      ENDIF.
+
+      lv_left = temp8.
+
+      IF lv_block MOD 2 = 1.
+        temp9 = 2.
+      ELSE.
+        temp9 = 22.
+      ENDIF.
+
+      lv_top = temp9.
 
       DO lv_lanes TIMES.
-        DATA(lv_number) = lv_block * 1000 + sy-index.
-        INSERT VALUE #( key    = |{ lv_number }|
-                        title  = |{ lv_number }|
-                        x      = lv_left + ( sy-index - 1 ) * 3
-                        y      = lv_top
-                        width  = '2.7'
-                        height = 12
-                        " the upper block fills from the wall towards the
-                        " aisle, the lower one the other way round
-                        dir    = COND #( WHEN lv_block MOD 2 = 1
-                                         THEN z2ui5_cl_cci_floor_plan=>cs_dir-down
-                                         ELSE z2ui5_cl_cci_floor_plan=>cs_dir-up ) )
+
+        lv_number = lv_block * 1000 + sy-index.
+
+        CLEAR temp10.
+        temp10-key = |{ lv_number }|.
+        temp10-title = |{ lv_number }|.
+        temp10-x = lv_left + ( sy-index - 1 ) * 3.
+        temp10-y = lv_top.
+        temp10-width = '2.7'.
+        temp10-height = 12.
+
+        IF lv_block MOD 2 = 1.
+          temp1 = z2ui5_cl_cci_floor_plan=>cs_dir-down.
+        ELSE.
+          temp1 = z2ui5_cl_cci_floor_plan=>cs_dir-up.
+        ENDIF.
+        temp10-dir = temp1.
+        INSERT temp10
                INTO TABLE t_item.
       ENDDO.
     ENDDO.
@@ -214,23 +302,56 @@ CLASS z2ui5_cl_cci_sample_18 IMPLEMENTATION.
 
     " no random numbers: the same picture on every system, and a new one
     " with every stock taking
-    LOOP AT t_item ASSIGNING FIELD-SYMBOL(<item>).
+    FIELD-SYMBOLS <item> LIKE LINE OF t_item.
+      DATA lv_seed TYPE i.
+      DATA temp11 TYPE i.
+      DATA lv_percent LIKE temp11.
+      DATA temp1 TYPE xsdboolean.
+      DATA temp12 TYPE z2ui5_cl_cci_floor_plan=>ty_s_item-state.
+      DATA temp13 TYPE z2ui5_cl_cci_floor_plan=>ty_s_item-text.
+      DATA temp14 TYPE z2ui5_cl_cci_floor_plan=>ty_s_item-info.
+    LOOP AT t_item ASSIGNING <item>.
 
-      DATA(lv_seed)    = ( sy-tabix * 37 + round * 53 ) MOD 101.
-      DATA(lv_percent) = COND i( WHEN lv_seed MOD 9 = 0 THEN 0 ELSE lv_seed ).
+
+      lv_seed    = ( sy-tabix * 37 + round * 53 ) MOD 101.
+
+      IF lv_seed MOD 9 = 0.
+        temp11 = 0.
+      ELSE.
+        temp11 = lv_seed.
+      ENDIF.
+
+      lv_percent = temp11.
 
       <item>-fill    = lv_percent / 100.
-      <item>-blocked = xsdbool( sy-tabix MOD 23 = 0 ).
-      <item>-state   = COND #( WHEN lv_percent = 0  THEN z2ui5_cl_cci_floor_plan=>cs_state-none
-                               WHEN lv_percent > 90 THEN z2ui5_cl_cci_floor_plan=>cs_state-error
-                               WHEN lv_percent > 70 THEN z2ui5_cl_cci_floor_plan=>cs_state-warning
-                               ELSE z2ui5_cl_cci_floor_plan=>cs_state-success ).
-      <item>-text    = COND #( WHEN lv_percent = 0
-                               THEN `empty`
-                               ELSE |Board { 8 + ( sy-tabix MOD 6 ) * 3 } mm| ).
-      <item>-info    = COND #( WHEN <item>-blocked = abap_true
-                               THEN `blocked`
-                               ELSE |{ lv_percent } %| ).
+
+      temp1 = boolc( sy-tabix MOD 23 = 0 ).
+      <item>-blocked = temp1.
+
+      IF lv_percent = 0.
+        temp12 = z2ui5_cl_cci_floor_plan=>cs_state-none.
+      ELSEIF lv_percent > 90.
+        temp12 = z2ui5_cl_cci_floor_plan=>cs_state-error.
+      ELSEIF lv_percent > 70.
+        temp12 = z2ui5_cl_cci_floor_plan=>cs_state-warning.
+      ELSE.
+        temp12 = z2ui5_cl_cci_floor_plan=>cs_state-success.
+      ENDIF.
+      <item>-state   = temp12.
+
+      IF lv_percent = 0.
+        temp13 = `empty`.
+      ELSE.
+        temp13 = |Board { 8 + ( sy-tabix MOD 6 ) * 3 } mm|.
+      ENDIF.
+      <item>-text    = temp13.
+
+      IF <item>-blocked = abap_true.
+        temp14 = `blocked`.
+      ELSE.
+        temp14 = |{ lv_percent } %|.
+      ENDIF.
+      <item>-info    = temp14.
 
     ENDLOOP.
 

@@ -54,7 +54,7 @@ CLASS z2ui5_cl_cci_gridstack DEFINITION
         "! cannot be moved or resized, also when the grid is editable
         locked   TYPE abap_bool,
       END OF ty_s_item.
-    TYPES ty_t_item TYPE STANDARD TABLE OF ty_s_item WITH EMPTY KEY.
+    TYPES ty_t_item TYPE STANDARD TABLE OF ty_s_item WITH DEFAULT KEY.
 
     "! Emit &lt;z2ui5_cci:GridStack/&gt; into an existing view.
     "!
@@ -108,20 +108,59 @@ CLASS z2ui5_cl_cci_gridstack IMPLEMENTATION.
 
     " an attribute the caller left empty is dropped by tag( ) - it would
     " override the control's own default with an empty string
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    DATA temp10 LIKE LINE OF temp1.
+    DATA temp11 LIKE LINE OF temp1.
+    DATA temp12 LIKE LINE OF temp1.
+    DATA temp13 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |items={ items }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |columns={ columns }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |rows={ rows }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |cellHeight={ cellheight }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |margin={ margin }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |editable={ editable }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |float={ float }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |width={ width }|.
+    INSERT temp9 INTO TABLE temp1.
+
+    temp10 = |libUrl={ liburl }|.
+    INSERT temp10 INTO TABLE temp1.
+
+    temp11 = |cssUrl={ cssurl }|.
+    INSERT temp11 INTO TABLE temp1.
+
+    temp12 = |change={ change }|.
+    INSERT temp12 INTO TABLE temp1.
+
+    temp13 = |itemPress={ itempress }|.
+    INSERT temp13 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag( view = view
                                 name = `GridStack`
-                                a    = VALUE #( ( |items={ items }| )
-                                                ( |columns={ columns }| )
-                                                ( |rows={ rows }| )
-                                                ( |cellHeight={ cellheight }| )
-                                                ( |margin={ margin }| )
-                                                ( |editable={ editable }| )
-                                                ( |float={ float }| )
-                                                ( |width={ width }| )
-                                                ( |libUrl={ liburl }| )
-                                                ( |cssUrl={ cssurl }| )
-                                                ( |change={ change }| )
-                                                ( |itemPress={ itempress }| ) ) ).
+                                a    = temp1 ).
 
   ENDMETHOD.
 

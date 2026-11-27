@@ -55,16 +55,40 @@ CLASS z2ui5_cl_cci_signature IMPLEMENTATION.
 
   METHOD render.
 
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    temp2 = |value={ value }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |width={ width }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |height={ height }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |lineWidth={ linewidth }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |lineColor={ linecolor }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |editable={ editable }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |change={ change }|.
+    INSERT temp8 INTO TABLE temp1.
     result = z2ui5_cl_cci=>tag(
         view = view
         name = `SignaturePad`
-        a    = VALUE #( ( |value={ value }| )
-                        ( |width={ width }| )
-                        ( |height={ height }| )
-                        ( |lineWidth={ linewidth }| )
-                        ( |lineColor={ linecolor }| )
-                        ( |editable={ editable }| )
-                        ( |change={ change }| ) ) ).
+        a    = temp1 ).
 
   ENDMETHOD.
 

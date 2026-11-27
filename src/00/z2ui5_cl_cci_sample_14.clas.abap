@@ -28,13 +28,13 @@ CLASS z2ui5_cl_cci_sample_14 IMPLEMENTATION.
 
     me->client = client.
 
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       IF client->get( )-event = `PRESSED`.
         client->message_toast_display( `A button in the overflow menu - the clock kept ticking.` ).
       ENDIF.
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -42,9 +42,15 @@ CLASS z2ui5_cl_cci_sample_14 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA root TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA form TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA footer TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(root) = view->ele( n  = `View`
+
+    root = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -55,7 +61,8 @@ CLASS z2ui5_cl_cci_sample_14 IMPLEMENTATION.
 
     z2ui5_cl_cci=>xmlns( root ).
 
-    DATA(page) = root->a( n = `displayBlock`
+
+    page = root->a( n = `displayBlock`
                           v = `true`
         )->a( n = `height`
               v = `100%`
@@ -64,7 +71,8 @@ CLASS z2ui5_cl_cci_sample_14 IMPLEMENTATION.
             )->a( n = `title`
                   v = `abap2UI5 - Clock` ).
 
-    DATA(form) = page->ele( n  = `SimpleForm`
+
+    form = page->ele( n  = `SimpleForm`
                             ns = `form`
         )->a( n = `editable`
               v = `false`
@@ -98,7 +106,8 @@ CLASS z2ui5_cl_cci_sample_14 IMPLEMENTATION.
                                 format = `shorttime`
                                 locale = `de-DE` ).
 
-    DATA(footer) = page->ele( `footer`
+
+    footer = page->ele( `footer`
         )->ele( `OverflowToolbar` ).
 
     footer->tag( `ToolbarSpacer` ).

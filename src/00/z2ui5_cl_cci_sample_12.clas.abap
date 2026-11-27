@@ -49,12 +49,12 @@ CLASS z2ui5_cl_cci_sample_12 IMPLEMENTATION.
 
     me->client = client.
 
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -62,9 +62,14 @@ CLASS z2ui5_cl_cci_sample_12 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA root TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA box TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(root) = view->ele( n  = `View`
+
+    root = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -78,7 +83,8 @@ CLASS z2ui5_cl_cci_sample_12 IMPLEMENTATION.
     " the whole integration on the view side - one namespace declaration
     z2ui5_cl_cci=>xmlns( root ).
 
-    DATA(page) = root->ele( `Page`
+
+    page = root->ele( `Page`
         )->a( n = `title`
               v = `abap2UI5 - Rich Text Editor` ).
 
@@ -133,7 +139,8 @@ CLASS z2ui5_cl_cci_sample_12 IMPLEMENTATION.
         )->a( n = `class`
               v = `sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiSmallMarginTop` ).
 
-    DATA(box) = page->ele( `VBox`
+
+    box = page->ele( `VBox`
         )->a( n = `class`
               v = `sapUiSmallMargin` ).
 

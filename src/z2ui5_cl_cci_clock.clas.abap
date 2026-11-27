@@ -57,22 +57,52 @@ ENDCLASS.
 CLASS z2ui5_cl_cci_clock IMPLEMENTATION.
 
   METHOD render.
+    DATA temp1 TYPE z2ui5_cl_cci=>ty_t_attr.
+    DATA temp2 LIKE LINE OF temp1.
+    DATA temp3 LIKE LINE OF temp1.
+    DATA temp4 LIKE LINE OF temp1.
+    DATA temp5 LIKE LINE OF temp1.
+    DATA temp6 LIKE LINE OF temp1.
+    DATA temp7 LIKE LINE OF temp1.
+    DATA temp8 LIKE LINE OF temp1.
+    DATA temp9 LIKE LINE OF temp1.
+    DATA clock TYPE REF TO z2ui5_cl_ui5_view_builder.
 
     result = view.
 
     " ele, not tag: the layout data below goes INTO the element, so the
     " builder has to hold on to it
-    DATA(clock) = z2ui5_cl_cci=>ele(
+
+    CLEAR temp1.
+
+    temp2 = |format={ format }|.
+    INSERT temp2 INTO TABLE temp1.
+
+    temp3 = |locale={ locale }|.
+    INSERT temp3 INTO TABLE temp1.
+
+    temp4 = |icon={ icon }|.
+    INSERT temp4 INTO TABLE temp1.
+
+    temp5 = |type={ type }|.
+    INSERT temp5 INTO TABLE temp1.
+
+    temp6 = |enabled={ enabled }|.
+    INSERT temp6 INTO TABLE temp1.
+
+    temp7 = |width={ width }|.
+    INSERT temp7 INTO TABLE temp1.
+
+    temp8 = |tooltip={ tooltip }|.
+    INSERT temp8 INTO TABLE temp1.
+
+    temp9 = |class={ class }|.
+    INSERT temp9 INTO TABLE temp1.
+
+    clock = z2ui5_cl_cci=>ele(
         view = view
         name = `Clock`
-        a    = VALUE #( ( |format={ format }| )
-                        ( |locale={ locale }| )
-                        ( |icon={ icon }| )
-                        ( |type={ type }| )
-                        ( |enabled={ enabled }| )
-                        ( |width={ width }| )
-                        ( |tooltip={ tooltip }| )
-                        ( |class={ class }| ) ) ).
+        a    = temp1 ).
 
     IF priority IS INITIAL.
       RETURN.

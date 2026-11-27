@@ -54,13 +54,13 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
 
     me->client = client.
 
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       message    = `Scan a code - eight digits.`.
       focus_code = abap_true.
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -68,9 +68,13 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA root TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA form TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(root) = view->ele( n  = `View`
+
+    root = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -81,7 +85,8 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
 
     z2ui5_cl_cci=>xmlns( root ).
 
-    DATA(form) = root->a( n = `displayBlock`
+
+    form = root->a( n = `displayBlock`
                           v = `true`
         )->a( n = `height`
               v = `100%`
@@ -179,9 +184,12 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
 
   METHOD popup_display.
 
-    DATA(popup) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA popup TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA dialog TYPE REF TO z2ui5_cl_ui5_view_builder.
+    popup = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(dialog) = popup->ele( n  = `FragmentDefinition`
+
+    dialog = popup->ele( n  = `FragmentDefinition`
                                ns = `core`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -209,6 +217,7 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD on_event.
+        DATA temp1 TYPE string.
 
     CASE client->get( )-event.
       WHEN `SCAN`.
@@ -216,7 +225,13 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
       WHEN `BATCH`.
         on_batch( ).
       WHEN `PING`.
-        message = |Roundtrip done - keyboard { COND #( WHEN keyboard = abap_true THEN `on` ELSE `off` ) }.|.
+
+        IF keyboard = abap_true.
+          temp1 = `on`.
+        ELSE.
+          temp1 = `off`.
+        ENDIF.
+        message = |Roundtrip done - keyboard { temp1 }.|.
       WHEN `POPUP`.
         popup_display( ).
     ENDCASE.
@@ -225,7 +240,9 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
 
   METHOD on_scan.
 
-    DATA(code) = condense( scan ).
+    DATA code TYPE string.
+    DATA temp2 TYPE string.
+    code = condense( scan ).
     " the field is emptied either way - the next scan starts fresh
     CLEAR scan.
 
@@ -237,7 +254,13 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
 
     has_error = abap_false.
     message   = |{ code } accepted - now the batch.|.
-    scanned   = COND #( WHEN scanned IS INITIAL THEN code ELSE |{ code }, { scanned }| ).
+
+    IF scanned IS INITIAL.
+      temp2 = code.
+    ELSE.
+      temp2 = |{ code }, { scanned }|.
+    ENDIF.
+    scanned   = temp2.
 
     " the next step: the batch field takes the focus
     focus_code  = abap_false.

@@ -40,12 +40,12 @@ CLASS z2ui5_cl_cci_sample_17 IMPLEMENTATION.
 
     me->client = client.
 
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -53,9 +53,15 @@ CLASS z2ui5_cl_cci_sample_17 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA root TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA box TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA bar TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(root) = view->ele( n  = `View`
+
+    root = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -64,7 +70,8 @@ CLASS z2ui5_cl_cci_sample_17 IMPLEMENTATION.
 
     z2ui5_cl_cci=>xmlns( root ).
 
-    DATA(page) = root->a( n = `displayBlock`
+
+    page = root->a( n = `displayBlock`
                           v = `true`
         )->a( n = `height`
               v = `100%`
@@ -73,11 +80,13 @@ CLASS z2ui5_cl_cci_sample_17 IMPLEMENTATION.
             )->a( n = `title`
                   v = `abap2UI5 - GridStack` ).
 
-    DATA(box) = page->ele( `VBox`
+
+    box = page->ele( `VBox`
         )->a( n = `class`
               v = `sapUiSmallMargin` ).
 
-    DATA(bar) = box->ele( `HBox`
+
+    bar = box->ele( `HBox`
         )->a( n = `alignItems`
               v = `Center`
         )->a( n = `class`
@@ -170,6 +179,9 @@ CLASS z2ui5_cl_cci_sample_17 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD on_event.
+        DATA lv_id TYPE string.
+        FIELD-SYMBOLS <item> LIKE LINE OF t_item.
+          DATA temp1 TYPE xsdboolean.
 
     CASE client->get( )-event.
 
@@ -178,9 +190,13 @@ CLASS z2ui5_cl_cci_sample_17 IMPLEMENTATION.
         info = |Moved: { client->get_event_arg( ) }|.
 
       WHEN `PRESSED`.
-        DATA(lv_id) = client->get_event_arg( ).
-        LOOP AT t_item ASSIGNING FIELD-SYMBOL(<item>).
-          <item>-selected = xsdbool( <item>-id = lv_id AND <item>-selected = abap_false ).
+
+        lv_id = client->get_event_arg( ).
+
+        LOOP AT t_item ASSIGNING <item>.
+
+          temp1 = boolc( <item>-id = lv_id AND <item>-selected = abap_false ).
+          <item>-selected = temp1.
         ENDLOOP.
         info = |Pressed: { lv_id }|.
 
@@ -193,19 +209,80 @@ CLASS z2ui5_cl_cci_sample_17 IMPLEMENTATION.
 
   METHOD model_init.
 
-    t_item = VALUE #(
-      ( id = `A1` x = 0 y = 0 w = 2 h = 1 text = `A1` info = `12 pcs`
-        state = z2ui5_cl_cci_gridstack=>cs_state-success )
-      ( id = `A2` x = 2 y = 0 w = 4 h = 1 text = `A2` info = `3 pcs`
-        state = z2ui5_cl_cci_gridstack=>cs_state-warning )
-      ( id = `A3` x = 6 y = 0 w = 6 h = 2 text = `A3` info = `empty` )
-      ( id = `B1` x = 0 y = 1 w = 3 h = 2 text = `B1` info = `40 pcs`
-        state = z2ui5_cl_cci_gridstack=>cs_state-success )
-      ( id = `B2` x = 3 y = 1 w = 3 h = 1 text = `B2` info = `blocked`
-        state = z2ui5_cl_cci_gridstack=>cs_state-error locked = abap_true )
-      ( id = `C1` x = 6 y = 2 w = 3 h = 2 text = `C1` info = `empty` )
-      ( id = `C2` x = 9 y = 2 w = 3 h = 2 text = `C2` info = `7 pcs`
-        state = z2ui5_cl_cci_gridstack=>cs_state-information ) ).
+    DATA temp1 TYPE z2ui5_cl_cci_gridstack=>ty_t_item.
+    DATA temp2 LIKE LINE OF temp1.
+    CLEAR temp1.
+
+    CLEAR temp2.
+    temp2-id = `A1`.
+    temp2-x = 0.
+    temp2-y = 0.
+    temp2-w = 2.
+    temp2-h = 1.
+    temp2-text = `A1`.
+    temp2-info = `12 pcs`.
+    temp2-state = z2ui5_cl_cci_gridstack=>cs_state-success.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-id = `A2`.
+    temp2-x = 2.
+    temp2-y = 0.
+    temp2-w = 4.
+    temp2-h = 1.
+    temp2-text = `A2`.
+    temp2-info = `3 pcs`.
+    temp2-state = z2ui5_cl_cci_gridstack=>cs_state-warning.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-id = `A3`.
+    temp2-x = 6.
+    temp2-y = 0.
+    temp2-w = 6.
+    temp2-h = 2.
+    temp2-text = `A3`.
+    temp2-info = `empty`.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-id = `B1`.
+    temp2-x = 0.
+    temp2-y = 1.
+    temp2-w = 3.
+    temp2-h = 2.
+    temp2-text = `B1`.
+    temp2-info = `40 pcs`.
+    temp2-state = z2ui5_cl_cci_gridstack=>cs_state-success.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-id = `B2`.
+    temp2-x = 3.
+    temp2-y = 1.
+    temp2-w = 3.
+    temp2-h = 1.
+    temp2-text = `B2`.
+    temp2-info = `blocked`.
+    temp2-state = z2ui5_cl_cci_gridstack=>cs_state-error.
+    temp2-locked = abap_true.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-id = `C1`.
+    temp2-x = 6.
+    temp2-y = 2.
+    temp2-w = 3.
+    temp2-h = 2.
+    temp2-text = `C1`.
+    temp2-info = `empty`.
+    INSERT temp2 INTO TABLE temp1.
+    CLEAR temp2.
+    temp2-id = `C2`.
+    temp2-x = 9.
+    temp2-y = 2.
+    temp2-w = 3.
+    temp2-h = 2.
+    temp2-text = `C2`.
+    temp2-info = `7 pcs`.
+    temp2-state = z2ui5_cl_cci_gridstack=>cs_state-information.
+    INSERT temp2 INTO TABLE temp1.
+    t_item = temp1.
 
     info = `Click a compartment to select it, or switch on Edit and drag one.`.
 

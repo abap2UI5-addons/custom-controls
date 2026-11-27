@@ -39,12 +39,12 @@ CLASS z2ui5_cl_cci_sample_16 IMPLEMENTATION.
 
     me->client = client.
 
-    IF client->check_on_init( ).
+    IF client->check_on_init( ) IS NOT INITIAL.
       model_init( ).
       view_display( ).
-    ELSEIF client->check_on_event( ).
+    ELSEIF client->check_on_event( ) IS NOT INITIAL.
       on_event( ).
-    ELSEIF client->check_on_navigated( ).
+    ELSEIF client->check_on_navigated( ) IS NOT INITIAL.
       view_display( ).
     ENDIF.
 
@@ -52,9 +52,15 @@ CLASS z2ui5_cl_cci_sample_16 IMPLEMENTATION.
 
   METHOD view_display.
 
-    DATA(view) = z2ui5_cl_ui5_view_builder=>factory( ).
+    DATA view TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA root TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA page TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA box TYPE REF TO z2ui5_cl_ui5_view_builder.
+    DATA row TYPE REF TO z2ui5_cl_ui5_view_builder.
+    view = z2ui5_cl_ui5_view_builder=>factory( ).
 
-    DATA(root) = view->ele( n  = `View`
+
+    root = view->ele( n  = `View`
                             ns = `mvc`
         )->a( n = `xmlns`
               v = `sap.m`
@@ -63,7 +69,8 @@ CLASS z2ui5_cl_cci_sample_16 IMPLEMENTATION.
 
     z2ui5_cl_cci=>xmlns( root ).
 
-    DATA(page) = root->a( n = `displayBlock`
+
+    page = root->a( n = `displayBlock`
                           v = `true`
         )->a( n = `height`
               v = `100%`
@@ -72,11 +79,13 @@ CLASS z2ui5_cl_cci_sample_16 IMPLEMENTATION.
             )->a( n = `title`
                   v = `abap2UI5 - Gauge` ).
 
-    DATA(box) = page->ele( `VBox`
+
+    box = page->ele( `VBox`
         )->a( n = `class`
               v = `sapUiSmallMargin` ).
 
-    DATA(row) = box->ele( `HBox`
+
+    row = box->ele( `HBox`
         )->a( n = `wrap`
               v = `Wrap` ).
 
@@ -136,12 +145,27 @@ CLASS z2ui5_cl_cci_sample_16 IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD model_init.
+    DATA temp1 TYPE z2ui5_cl_cci_gauge=>ty_t_highlight.
+    DATA temp2 LIKE LINE OF temp1.
 
     value = 73.
 
-    t_zone = VALUE #( ( low = 0  high = 60  color = `#2b7d2b` )
-                      ( low = 60 high = 80  color = `#e9730c` )
-                      ( low = 80 high = 100 color = `#bb0000` ) ).
+
+    CLEAR temp1.
+
+    temp2-low = 0.
+    temp2-high = 60.
+    temp2-color = `#2b7d2b`.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-low = 60.
+    temp2-high = 80.
+    temp2-color = `#e9730c`.
+    INSERT temp2 INTO TABLE temp1.
+    temp2-low = 80.
+    temp2-high = 100.
+    temp2-color = `#bb0000`.
+    INSERT temp2 INTO TABLE temp1.
+    t_zone = temp1.
 
   ENDMETHOD.
 
