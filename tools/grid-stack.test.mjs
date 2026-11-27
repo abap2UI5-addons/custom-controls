@@ -153,3 +153,81 @@ test("GridStack: sizes have a floor", () => {
   assert.equal(options.cellHeight, 10);
   assert.equal(options.margin, 0);
 });
+
+// The click that ends a drag or a resize - the browser raises one when the
+// button goes up over the box it went down on - is not a press. Driven through
+// the handlers the control registers on a stand-in grid.
+test("GridStack: the click that ends a drag or a resize is no itemPress", async () => {
+  const handlers = {};
+  const grid = {
+    on(names, fn) {
+      names.split(" ").forEach((name) => (handlers[name] = fn));
+      return grid;
+    },
+    load() {},
+    getGridItems: () => [],
+    offAll() {},
+    destroy() {},
+  };
+  const saved = { window: globalThis.window, document: globalThis.document };
+  globalThis.window = {
+    GridStack: { init: () => grid },
+    setTimeout: (fn, ms) => setTimeout(fn, ms),
+    clearTimeout: (t) => clearTimeout(t),
+  };
+  globalThis.document = {
+    getElementById: (id) => (id === "g-grid" ? {} : { id }),
+    createElement: () => ({}),
+    head: { appendChild() {} },
+  };
+  try {
+    const GridStack = amd("GridStack.js");
+    const pressed = [];
+    const control = Object.assign(Object.create(GridStack), {
+      getId: () => "g",
+      getItems: () => [{ ID: "A", W: 1, H: 1 }],
+      getColumns: () => 12,
+      getRows: () => 0,
+      getCellHeight: () => 60,
+      getMargin: () => 4,
+      getEditable: () => true,
+      getFloat: () => true,
+      fireItemPress: ({ id }) => pressed.push(id),
+    });
+    control._create();
+    for (const name of ["dragstart", "dragstop", "resizestart", "resizestop"]) {
+      assert.equal(typeof handlers[name], "function", `${name} is handled`);
+    }
+    const click = () =>
+      control.onclick({ target: { closest: () => ({ dataset: { z2ui5Id: "A" } }) } });
+    const nextTask = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    click();
+    assert.deepEqual(pressed, ["A"], "a plain click is a press");
+
+    for (const [start, stop] of [
+      ["dragstart", "dragstop"],
+      ["resizestart", "resizestop"],
+    ]) {
+      handlers[start]();
+      handlers[stop]();
+      click(); // dispatched with the mouseup that ended the gesture
+      assert.deepEqual(pressed, ["A"], `the click after ${stop} is swallowed`);
+      await nextTask();
+      click();
+      assert.equal(pressed.length, 2, `the next click after ${stop} counts again`);
+      pressed.pop();
+    }
+
+    // a gesture that ended away from its box raised no click - the next real
+    // click a task later is a press
+    handlers.dragstart();
+    handlers.dragstop();
+    await nextTask();
+    click();
+    assert.deepEqual(pressed, ["A", "A"]);
+  } finally {
+    globalThis.window = saved.window;
+    globalThis.document = saved.document;
+  }
+});

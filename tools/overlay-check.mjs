@@ -5,6 +5,9 @@
 // whether a click at a point in the picture lands on the region drawn there.
 // It found a real one already: the overlay's alignment depends on the image
 // being `width: 100%` inside the frame, which the renderer now says out loud.
+// The same page checks the SignaturePad on a real canvas (a clear blanks the
+// bitmap) and the RichTextEditor's code view against SunEditor from
+// node_modules (an edit there reaches the model).
 //
 // No npm package involved. Chromium is looked up in the usual places, and when
 // there is none the check reports that and exits 0 - a developer without a

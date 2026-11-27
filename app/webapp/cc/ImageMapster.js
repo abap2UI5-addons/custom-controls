@@ -350,8 +350,24 @@ sap.ui.define(
         return this;
       },
 
+      // The renderer (apiVersion 2) patches the <img> in place, so listeners
+      // of an earlier rendering that never fired are still on it - and would
+      // build a second overlay, or report an error, for a src that is gone.
+      _unwatchImage() {
+        const watch = this._imageWatch;
+        this._imageWatch = null;
+        if (!watch) return;
+        watch.image.removeEventListener("load", watch.load);
+        watch.image.removeEventListener("error", watch.error);
+      },
+
+      onBeforeRendering() {
+        this._unwatchImage();
+      },
+
       onAfterRendering() {
         this._hover = null;
+        this._unwatchImage();
 
         const image = this._image();
         if (!image || !this.getSrc()) return;
@@ -362,11 +378,39 @@ sap.ui.define(
           if (Util.isDestroyed(this)) return;
           this._build();
         };
-        if (image.complete && image.naturalWidth) start();
-        else image.addEventListener("load", start, { once: true });
+        // the id, not the src: that can be a data URL of any length
+        const fail = () =>
+          Util.logError(
+            `ImageMapster (${this.getId()}): the image could not be loaded or has no size - no areas`,
+          );
+        if (image.complete && image.naturalWidth) {
+          start();
+          return;
+        }
+        // complete without a size: the browser has given up on it already,
+        // and no event is coming
+        if (image.complete && image.getAttribute("src")) {
+          fail();
+          return;
+        }
+        const watch = {
+          image,
+          load: () => {
+            this._unwatchImage();
+            start();
+          },
+          error: () => {
+            this._unwatchImage();
+            if (!Util.isDestroyed(this)) fail();
+          },
+        };
+        this._imageWatch = watch;
+        image.addEventListener("load", watch.load, { once: true });
+        image.addEventListener("error", watch.error, { once: true });
       },
 
       exit() {
+        this._unwatchImage();
         this._destroyOverlay();
       },
 
