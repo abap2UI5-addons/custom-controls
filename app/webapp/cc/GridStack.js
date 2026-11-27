@@ -255,6 +255,8 @@ outline:3px solid var(--sapSelectedColor,#0854a0);outline-offset:-3px}
       },
 
       _destroyGrid() {
+        window.clearTimeout(this._gestureTimer);
+        this._gesture = false;
         if (!this._grid) return;
         try {
           this._grid.offAll();
@@ -306,6 +308,8 @@ outline:3px solid var(--sapSelectedColor,#0854a0);outline-offset:-3px}
             host,
           );
           this._grid.on("change", () => this._onChange());
+          this._grid.on("dragstart resizestart", () => this._onGestureStart());
+          this._grid.on("dragstop resizestop", () => this._onGestureStop());
           this._load();
         } catch (e) {
           Util.logError("GridStack: could not create the grid", e);
@@ -319,7 +323,31 @@ outline:3px solid var(--sapSelectedColor,#0854a0);outline-offset:-3px}
         return this;
       },
 
+      // A drag or a resize ends with a click on the box it moved - the browser
+      // raises one when the button goes up over the element it went down on,
+      // and gridstack's touch layer simulates one after a touch resize. That
+      // click is the end of the gesture, not a press: it is swallowed. The
+      // flag outlives the stop event by one task, which the click (dispatched
+      // with the mouseup or touchend that stopped the gesture) never does;
+      // a gesture that ends away from its box raises no click, and the next
+      // real one counts again.
+      _onGestureStart() {
+        window.clearTimeout(this._gestureTimer);
+        this._gesture = true;
+      },
+
+      _onGestureStop() {
+        window.clearTimeout(this._gestureTimer);
+        this._gestureTimer = window.setTimeout(() => {
+          this._gesture = false;
+        }, 0);
+      },
+
       onclick(event) {
+        if (this._gesture) {
+          this._gesture = false;
+          return;
+        }
         const el = event.target?.closest?.(".grid-stack-item");
         const id = el?.dataset?.z2ui5Id;
         if (id) this.fireItemPress({ id });
