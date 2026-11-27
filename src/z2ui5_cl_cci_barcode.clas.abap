@@ -37,6 +37,10 @@ CLASS z2ui5_cl_cci_barcode DEFINITION
 
     "! Emit &lt;z2ui5_cci:Barcode/&gt; into an existing view.
     "!
+    "! Boolean parameters take `true` / `false` - pass an ABAP flag through
+    "! z2ui5_cl_cci=>bool( ): abap_true arrives as X, and abap_false turns into
+    "! an empty string, which drops the attribute, so the default stays.
+    "!
     "! @parameter view            | the builder positioned at the parent element
     "! @parameter bcid            | symbology, e.g. `qrcode`, `ean13`
     "! @parameter text            | the value to encode
@@ -52,6 +56,9 @@ CLASS z2ui5_cl_cci_barcode DEFINITION
     "! @parameter liburl          | overrides where bwip-js is loaded from
     "! @parameter error           | client->_event( ... ) fired when the
     "!                              symbology rejected the input
+    "! @parameter barwidth        | width of the symbol in millimetres (bwip-js
+    "!                              `width`) - linear symbologies; empty keeps
+    "!                              the width scale gives
     "! @parameter result          | the unchanged view builder, for chaining
     CLASS-METHODS render
       IMPORTING
@@ -69,6 +76,7 @@ CLASS z2ui5_cl_cci_barcode DEFINITION
         renderas        TYPE string OPTIONAL
         liburl          TYPE string OPTIONAL
         error           TYPE string OPTIONAL
+        barwidth        TYPE string OPTIONAL
       RETURNING
         VALUE(result)   TYPE REF TO z2ui5_cl_ui5_view_builder.
 
@@ -123,7 +131,8 @@ CLASS z2ui5_cl_cci_barcode IMPLEMENTATION.
                         ( |options={ options }| )
                         ( |renderAs={ renderas }| )
                         ( |libUrl={ liburl }| )
-                        ( |error={ error }| ) ) ).
+                        ( |error={ error }| )
+                        ( |barWidth={ barwidth }| ) ) ).
 
   ENDMETHOD.
 

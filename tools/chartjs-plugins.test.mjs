@@ -19,6 +19,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import assert from "node:assert/strict";
 import test from "node:test";
+import { loadUtil } from "./util-module.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const LIBS = JSON.parse(readFileSync(join(ROOT, "tools", "libs.json"), "utf8"));
@@ -35,7 +36,7 @@ test("every named Chart.js plugin reaches the chart, not the page", async () => 
   const run = (file) => vm.runInContext(readFileSync(file, "utf8"), sandbox, { filename: file });
   const errors = [];
 
-  const Util = {
+  const Util = loadUtil({
     toList: (val) => String(val || "").split(",").map((s) => s.trim()).filter(Boolean),
     logError: (message) => errors.push(message),
     loadScript: async (url, isReady) => {
@@ -43,7 +44,7 @@ test("every named Chart.js plugin reaches the chart, not the page", async () => 
     },
     loadScripts: async (urls) => urls.forEach(run),
     isDestroyed: () => false,
-  };
+  });
 
   const source = readFileSync(join(ROOT, "app", "webapp", "cc", "ChartJs.js"), "utf8");
   let definition;

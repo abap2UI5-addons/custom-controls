@@ -9,6 +9,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import test from "node:test";
+import { loadUtil } from "./util-module.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -20,7 +21,7 @@ function loadDefinition() {
       define(names, factory) {
         const deps = {
           "sap/ui/core/Control": { extend: (name, def) => def },
-          "z2ui5_cci/cc/Util": {},
+          "z2ui5_cci/cc/Util": loadUtil(),
           "z2ui5_cci/cc/LibUrls": {},
         };
         definition = factory(...names.map((name) => deps[name]));

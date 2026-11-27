@@ -25,6 +25,10 @@ CLASS z2ui5_cl_cci_markdown DEFINITION
 
     "! Emit &lt;z2ui5_cci:Markdown/&gt; into an existing view.
     "!
+    "! Boolean parameters take `true` / `false` - pass an ABAP flag through
+    "! z2ui5_cl_cci=>bool( ): abap_true arrives as X, and abap_false turns into
+    "! an empty string, which drops the attribute, so the default stays.
+    "!
     "! @parameter view      | the builder positioned at the parent element
     "! @parameter value     | the Markdown source, usually client->_bind( ... )
     "! @parameter sanitize  | `false` renders the HTML unchecked - see above

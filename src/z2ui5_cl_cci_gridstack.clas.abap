@@ -68,7 +68,8 @@ CLASS z2ui5_cl_cci_gridstack DEFINITION
     "! @parameter cellheight | height of one grid cell in px, default 60
     "! @parameter margin     | gap around a box in px, default 4
     "! @parameter editable   | `true` lets the user drag and resize; bind it to switch at
-    "!                         run time. Never abap_true, it serializes as X
+    "!                         run time. Never abap_true (X) or abap_false (dropped:
+    "!                         the default stays) - pass z2ui5_cl_cci=>bool( flag )
     "! @parameter float      | `false` lets the boxes move up to close a gap
     "! @parameter width      | CSS width of the grid, default 100%
     "! @parameter liburl     | where to load gridstack.js from; default: see LibUrls

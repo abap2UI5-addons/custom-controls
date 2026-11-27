@@ -60,6 +60,35 @@ sap.ui.define(
 
     const STYLE_ID = "z2ui5_cci-driverjs-custom";
 
+    // driver.js options whose default is true travel as text (ty_flag in
+    // ABAP: `false` switches them off - an abap_false is dropped by
+    // omit_initial); the others are abap_bool and arrive as booleans, which
+    // Util.toFlag leaves alone. The numbers travel as text so that 0 (no
+    // padding, square corners, no offset) survives omit_initial.
+    const FLAGS = [
+      "animate",
+      "allowClose",
+      "allowKeyboardControl",
+      "smoothScroll",
+      "disableActiveInteraction",
+      "showProgress",
+    ];
+    const NUMBERS = ["overlayOpacity", "stagePadding", "stageRadius", "popoverOffset"];
+
+    // The bound structure as driver.js reads it: ABAP field names (STEPS,
+    // SHOW_PROGRESS) in camelCase - the obsolete camelCase mapper is not
+    // needed, and still works - and the flags and numbers above converted.
+    // A copy; the model's object is not modified.
+    function normalize(config) {
+      if (!config || typeof config !== "object") return config;
+      const out = Util.coerce(Util.camelKeys(config), FLAGS, NUMBERS);
+      const popover = (step) =>
+        step && step.popover ? { ...step, popover: Util.coerce(step.popover, ["showProgress"]) } : step;
+      if (Array.isArray(out.steps)) out.steps = out.steps.map(popover);
+      if (out.popover) return popover(out);
+      return out;
+    }
+
     return Control.extend("z2ui5_cci.cc.DriverJs", {
       metadata: {
         properties: {
@@ -89,6 +118,9 @@ sap.ui.define(
           done: {},
         },
       },
+
+      // see normalize; on the control for the tests in tools/
+      _normalize: normalize,
 
       // A step points at a UI5 control id; driver.js wants a CSS selector.
       // A value that already looks like a selector (# . [ ) is passed through,
@@ -174,7 +206,7 @@ sap.ui.define(
           return;
         }
 
-        const base = this._resolveSteps(this.getConfig()) || {};
+        const base = this._resolveSteps(normalize(this.getConfig())) || {};
         const config = {
           // Spelled out rather than left to driver.js' default: a tour with no
           // navigation traps the user on step one, so the buttons must not
@@ -203,7 +235,7 @@ sap.ui.define(
             Util.logError("DriverJs: mode is `highlight` but no step was given");
             return;
           }
-          instance.highlight(this._resolveStep(step));
+          instance.highlight(this._resolveStep(normalize(step)));
           return;
         }
 

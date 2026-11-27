@@ -58,6 +58,8 @@ sap.ui.define(
           // height=10 comes out 150x75 rather than 150x150. Leave it empty and
           // each symbology uses its own correct proportions.
           height: { type: "string", defaultValue: "" },
+          // width of the symbol in millimetres, bwip-js' `width` - like
+          // height a LINEAR symbology's setting; empty leaves it to `scale`
           barWidth: { type: "string", defaultValue: "" },
           includeText: { type: "boolean", defaultValue: true },
           textAlign: { type: "string", defaultValue: "center" },

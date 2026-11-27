@@ -44,7 +44,39 @@ sap.ui.define(
     const SVG_NS = "http://www.w3.org/2000/svg";
     const { shapeOf, paintAttributes } = MapShapes;
 
+    // The options whose default is true travel as text (ty_flag in ABAP:
+    // `false` switches them off - omit_initial drops an abap_false); the
+    // others are abap_bool and arrive as booleans, which Util.toFlag leaves
+    // alone. `fill`, `stroke` and `fade` can be overridden per state.
+    const FLAGS = [
+      "fill",
+      "stroke",
+      "fade",
+      "highlight",
+      "singleSelect",
+      "isSelectable",
+      "isDeselectable",
+      "staticState",
+    ];
+    const RENDER_FLAGS = ["fill", "stroke", "fade"];
+
+    // The bound config as this control reads it: the ABAP field names
+    // (FILL_COLOR, RENDER_SELECT) in camelCase - the obsolete camelCase mapper
+    // is not needed, and still works - and the flags above as booleans. A copy;
+    // the model's object is not modified.
+    function normalize(config) {
+      if (!config || typeof config !== "object") return {};
+      const out = Util.coerce(Util.camelKeys(config), FLAGS);
+      ["renderHighlight", "renderSelect"].forEach((layer) => {
+        if (out[layer]) out[layer] = Util.coerce(out[layer], RENDER_FLAGS);
+      });
+      return out;
+    }
+
     return Control.extend("z2ui5_cci.cc.ImageMapster", {
+      // for the tests in tools/
+      _normalize: normalize,
+
       metadata: {
         properties: {
           // the image the map sits on - URL or data: URI
@@ -70,6 +102,16 @@ sap.ui.define(
         },
       },
 
+      // see normalize; computed once per bound object
+      _config() {
+        const raw = this.getConfig();
+        if (raw !== this._rawConfig || !this._normalized) {
+          this._rawConfig = raw;
+          this._normalized = normalize(raw);
+        }
+        return this._normalized;
+      },
+
       _image() {
         return document.getElementById(`${this.getId()}-image`);
       },
@@ -89,16 +131,17 @@ sap.ui.define(
         if (this._hover === key) return "highlight";
         // `staticState` means "drawn whatever the user does" - at the map
         // level or for one area
-        const config = this.getConfig() || {};
+        const config = this._config();
         if (area.STATICSTATE || config.staticState) return "select";
         return "hidden";
       },
 
       _selectable(area) {
-        const config = this.getConfig() || {};
-        if (area.ISSELECTABLE !== undefined && area.ISSELECTABLE !== "") {
-          return Boolean(area.ISSELECTABLE);
-        }
+        const config = this._config();
+        // ty_flag: `false` makes this one area unselectable, `true` or
+        // abap_true selectable, empty leaves it to the map-wide option
+        const own = Util.toFlag(area.ISSELECTABLE);
+        if (own !== undefined) return Boolean(own);
         return config.isSelectable !== false;
       },
 
@@ -106,7 +149,7 @@ sap.ui.define(
       // the presentation attributes change. This is the path a hover and a
       // click take, so it must not touch the DOM structure.
       _paint() {
-        const config = this.getConfig() || {};
+        const config = this._config();
         (this._shapes || []).forEach(({ node, area }) => {
           const state = this._stateOf(area);
           const attributes = paintAttributes(config, area, state);
@@ -137,7 +180,7 @@ sap.ui.define(
 
       _press(area) {
         const key = area.KEY;
-        const config = this.getConfig() || {};
+        const config = this._config();
 
         if (!this._selectable(area)) {
           this.fireAreaPress({ key, selected: false, keys: this.getSelectedKeys() });
@@ -178,7 +221,7 @@ sap.ui.define(
 
         this._destroyOverlay();
 
-        const config = this.getConfig() || {};
+        const config = this._config();
         const svg = document.createElementNS(SVG_NS, "svg");
         svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
         // `none` rather than a meet/slice rule: the overlay is stretched onto
@@ -221,7 +264,7 @@ sap.ui.define(
           this._seeded = true;
           const start = (this.getAreas() || []).filter((area) => area && area.SELECTED).map((area) => area.KEY);
           if (start.length && !this._selection().length) {
-            const list = this.getConfig()?.singleSelect ? start.slice(0, 1) : start;
+            const list = this._config().singleSelect ? start.slice(0, 1) : start;
             this.setProperty("selectedKeys", list.join(","), true);
           }
         }
@@ -258,7 +301,7 @@ sap.ui.define(
       },
 
       _wire(node, area) {
-        const config = this.getConfig() || {};
+        const config = this._config();
         const highlight = config.highlight !== false;
         const delay = Number(config.mouseoutDelay) || 0;
 
@@ -330,7 +373,7 @@ sap.ui.define(
       renderer: {
         apiVersion: 2,
         render(rm, control) {
-          const config = control.getConfig() || {};
+          const config = control._config();
 
           rm.openStart("div", control);
           rm.style("width", Util.toCssSize(control.getWidth()));

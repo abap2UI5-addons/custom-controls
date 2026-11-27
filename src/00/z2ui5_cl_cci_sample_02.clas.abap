@@ -119,11 +119,8 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
         sheetname = `Stock`
         status    = client->_bind( status )
         exported  = client->_event( `EXPORTED` )
-        columns   = client->_bind(
-                        val           = t_column
-                        omit_initial  = abap_true
-                        custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                                            iv_first_json_upper = abap_false ) ) ).
+        columns   = client->_bind( val          = t_column
+                                   omit_initial = abap_true ) ).
 
     " Eight columns without widths make sap.m.Table as wide as their content
     " wants, which pushes the toolbar's Export button off the right edge. Fixed
@@ -229,7 +226,8 @@ CLASS z2ui5_cl_cci_sample_02 IMPLEMENTATION.
       ( label = `Quantity` property = `QUANTITY` type = `Number` delimiter = abap_true )
       ( label = `Unit`     property = `UNIT`     type = `String` )
       ( label = `Price`    property = `PRICE`    type = `Currency`
-        unit_property = `CURRENCY` width = 14 scale = 2 ) ).
+        unit_property = `CURRENCY` width = 14 scale = `2`
+        display_unit  = z2ui5_cl_cci_spreadsheet=>cs_flag-true ) ).
 
   ENDMETHOD.
 

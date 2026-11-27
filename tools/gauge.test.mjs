@@ -12,6 +12,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import test from "node:test";
+import { loadUtil } from "./util-module.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -22,7 +23,7 @@ function amd(file) {
   const sap = {
     ui: {
       define(names, factory) {
-        result = factory(...names.map(() => stub));
+        result = factory(...names.map((name) => (name === "z2ui5_cci/cc/Util" ? loadUtil() : stub)));
       },
     },
   };

@@ -64,7 +64,7 @@ CLASS z2ui5_cl_cci_barcode_scan DEFINITION
     "! @parameter text       | button text
     "! @parameter icon       | button icon, sap-icon://bar-code by default
     "! @parameter type       | button type, e.g. `Emphasized`
-    "! @parameter enabled    | `true` / `false` - never abap_true, it serializes as X
+    "! @parameter enabled    | `true` / `false` - never abap_true (X) or abap_false (dropped: the default stays) - pass z2ui5_cl_cci=>bool( flag )
     "! @parameter title      | dialog title
     "! @parameter facingmode | `environment` (the back camera, the default) or `user`
     "! @parameter deviceid   | one specific camera, by the id the browser reports

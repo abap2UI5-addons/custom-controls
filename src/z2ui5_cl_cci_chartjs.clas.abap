@@ -19,7 +19,9 @@
 "! borderWidth), so no mapper is needed - the camelCase mapper of older apps
 "! still works. An option whose Chart.js default is true is a ty_flag, set to
 "! cs_flag-false to switch it off; an abap_bool field can only switch an
-"! option ON, because omit_initial drops abap_false.
+"! option ON, because omit_initial drops abap_false. For the same reason a
+"! number where 0 or a fraction counts (ticks-step_size, scale-suggested_min,
+"! the tension animation's from and to) is a ty_number text.
 "!
 "! Ported from abap2UI5-addons/js-libraries (z2ui5_cl_cc_chartjs). The type
 "! tree is carried over unchanged, the JavaScript is now a real module in this
@@ -43,6 +45,10 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
     "! A dash pattern - Chart.js takes an array of segment lengths, e.g.
     "! VALUE #( ( 5 ) ( 5 ) ) for `[5, 5]`
     TYPES ty_dash TYPE STANDARD TABLE OF i WITH EMPTY KEY.
+    "! A number where 0 or a fraction means something, as text: `0.5`, `0`,
+    "! or empty for the Chart.js default. Not a number type, because
+    "! omit_initial drops a 0 - the initial value. The control sends a number.
+    TYPES ty_number TYPE string.
 
     " Data
     TYPES:
@@ -382,7 +388,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
 
     TYPES:
       BEGIN OF ty_ticks,
-        step_size           TYPE i,
+        step_size           TYPE ty_number,
         count               TYPE i,
         color               TYPE string,
         align               TYPE string,
@@ -463,8 +469,8 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         type             TYPE string,
         title            TYPE ty_title,
         weight           TYPE i,
-        suggested_min    TYPE i,
-        suggested_max    TYPE i,
+        suggested_min    TYPE ty_number,
+        suggested_max    TYPE ty_number,
         stack_weight     TYPE i,
         stack            TYPE string,
         position         TYPE string,
@@ -497,8 +503,8 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
       BEGIN OF ty_tension,
         duration TYPE i,
         easing   TYPE string,
-        from     TYPE i,
-        to       TYPE i,
+        from     TYPE ty_number,
+        to       TYPE ty_number,
         loop     TYPE abap_bool,
       END OF ty_tension .
 

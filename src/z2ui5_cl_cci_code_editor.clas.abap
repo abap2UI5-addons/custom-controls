@@ -42,6 +42,10 @@ CLASS z2ui5_cl_cci_code_editor DEFINITION
 
     "! Emit &lt;z2ui5_cci:CodeEditor/&gt; into an existing view.
     "!
+    "! Boolean parameters take `true` / `false` - pass an ABAP flag through
+    "! z2ui5_cl_cci=>bool( ): abap_true arrives as X, and abap_false turns into
+    "! an empty string, which drops the attribute, so the default stays.
+    "!
     "! @parameter view        | the builder positioned at the parent element
     "! @parameter value       | the text, usually client->_bind( ... )
     "! @parameter type        | syntax highlighting, see cs_type

@@ -20,6 +20,18 @@ CLASS z2ui5_cl_cci_spreadsheet DEFINITION
 
   PUBLIC SECTION.
 
+    "! A column setting whose sap.ui.export default is TRUE: `false`, `true`
+    "! (abap_true works as well) or empty for the default. Not abap_bool,
+    "! because omit_initial drops an abap_false - the initial value - and the
+    "! exporter would fall back to true. Use cs_flag.
+    TYPES ty_flag TYPE string.
+
+    CONSTANTS:
+      BEGIN OF cs_flag,
+        true  TYPE ty_flag VALUE `true`,
+        false TYPE ty_flag VALUE `false`,
+      END OF cs_flag.
+
     TYPES:
       "! One workbook column. `property` is the name of the field in the bound
       "! ABAP table, in upper case - that is how abap2UI5 puts it into the model.
@@ -32,34 +44,38 @@ CLASS z2ui5_cl_cci_spreadsheet DEFINITION
         type              TYPE string,
         width             TYPE i,
         text_align        TYPE string,
-        scale             TYPE i,
+        "! decimal places, a number as text: empty keeps the exporter's
+        "! default, `0` shows none
+        scale             TYPE string,
         delimiter         TYPE abap_bool,
         unit              TYPE string,
         unit_property     TYPE string,
-        display_unit      TYPE abap_bool,
+        display_unit      TYPE ty_flag,
         true_value        TYPE string,
         false_value       TYPE string,
         template          TYPE string,
         input_format      TYPE string,
         wrap              TYPE abap_bool,
-        auto_scale        TYPE abap_bool,
+        auto_scale        TYPE ty_flag,
         timezone          TYPE string,
         timezone_property TYPE string,
-        display_timezone  TYPE abap_bool,
-        utc               TYPE abap_bool,
+        display_timezone  TYPE ty_flag,
+        utc               TYPE ty_flag,
       END OF ty_s_column.
     TYPES ty_t_column TYPE STANDARD TABLE OF ty_s_column WITH EMPTY KEY.
 
     "! Emit &lt;z2ui5_cci:ExportSpreadsheet/&gt; into an existing view.
     "!
-    "! Bind `columns` with omit_initial and the camelCase mapper, or the
-    "! exporter sees ABAP field names and a wall of initial values:
+    "! Bind `columns` with omit_initial, or the exporter sees a wall of
+    "! initial values:
     "!
-    "!   columns = client->_bind(
-    "!       val           = mt_columns
-    "!       omit_initial  = abap_true
-    "!       custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-    "!                           iv_first_json_upper = abap_false ) )
+    "!   columns = client->_bind( val          = mt_columns
+    "!                            omit_initial = abap_true )
+    "!
+    "! The control turns the ABAP field names into the camelCase names the
+    "! exporter reads (unit_property -&gt; unitProperty), so no mapper is needed -
+    "! the camelCase mapper of older apps still works. display_unit, auto_scale,
+    "! display_timezone and utc are ty_flag: cs_flag-false switches them off.
     "!
     "! @parameter view      | the builder positioned at the parent element
     "! @parameter tableid   | id of the table to export, as written in the view
@@ -70,7 +86,7 @@ CLASS z2ui5_cl_cci_spreadsheet DEFINITION
     "! @parameter icon      | button icon
     "! @parameter type      | button type, e.g. Emphasized
     "! @parameter tooltip   | button tooltip
-    "! @parameter enabled   | `true` / `false` - never abap_true, it serializes as X
+    "! @parameter enabled   | `true` / `false` - never abap_true (X) or abap_false (dropped: the default stays) - pass z2ui5_cl_cci=>bool( flag )
     "! @parameter status    | bind two-way to receive `success` / `error: ...`
     "! @parameter exported  | client->_event( ... ) fired after every export
     "! @parameter result    | the unchanged view builder, for chaining

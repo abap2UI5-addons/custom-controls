@@ -260,7 +260,69 @@ sap.ui.define(["sap/ui/core/Element", "z2ui5_cci/cc/LibUrls"], (Element, LibUrls
       .map((entry) => entry.trim())
       .filter(Boolean);
 
+  // An ABAP field arrives under its upper-case name (FONT_SIZE) unless the
+  // app bound it with the obsolete camelCase mapper (fontSize); the libraries
+  // read the second. A key without a lower-case letter is converted, one that
+  // has one is taken as it is - so both bindings work.
+  function camelCase(key) {
+    if (!/^[A-Z][A-Z0-9_]*$/.test(key)) return key;
+    return key.toLowerCase().replace(/_([a-z0-9])/g, (all, char) => char.toUpperCase());
+  }
+
+  // A copy of a bound structure or table with every key through camelCase,
+  // depth-first. Values are not touched.
+  function camelKeys(value) {
+    if (Array.isArray(value)) return value.map(camelKeys);
+    if (value === null || typeof value !== "object") return value;
+    const out = {};
+    Object.entries(value).forEach(([key, entry]) => {
+      out[camelCase(key)] = camelKeys(entry);
+    });
+    return out;
+  }
+
+  // An option whose library default is true travels as text (an ABAP ty_flag
+  // field), because omit_initial drops an abap_false: `true` and `X`
+  // (abap_true) -> true, `false` -> false, empty -> undefined (the library's
+  // default). A boolean stays one; any other value is handed on as it is.
+  const FLAG_VALUES = new Map([["true", true], ["X", true], ["false", false]]);
+  function toFlag(value) {
+    if (value === undefined || value === null || value === "") return undefined;
+    if (typeof value !== "string") return value;
+    return FLAG_VALUES.has(value) ? FLAG_VALUES.get(value) : value;
+  }
+
+  // A number that travels as text, so that 0 survives omit_initial: a
+  // numeric string -> its number, empty -> undefined, anything else as it is.
+  function toNumber(value) {
+    if (value === undefined || value === null || value === "") return undefined;
+    if (typeof value !== "string" || !value.trim()) return value;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : value;
+  }
+
+  // A copy of `object` with toFlag applied to `flags` and toNumber to
+  // `numbers`; a key that comes out undefined is dropped, so the library
+  // default applies.
+  function coerce(object, flags = [], numbers = []) {
+    if (object === null || typeof object !== "object" || Array.isArray(object)) return object;
+    const out = { ...object };
+    const apply = (keys, fn) =>
+      keys.forEach((key) => {
+        if (!(key in out)) return;
+        const next = fn(out[key]);
+        if (next === undefined) delete out[key];
+        else out[key] = next;
+      });
+    apply(flags, toFlag);
+    apply(numbers, toNumber);
+    return out;
+  }
+
   return {
+    camelCase,
+    camelKeys,
+    coerce,
     integrityOf,
     isDestroyed,
     loadScript,
@@ -272,7 +334,9 @@ sap.ui.define(["sap/ui/core/Element", "z2ui5_cci/cc/LibUrls"], (Element, LibUrls
     purify,
     resolveControl,
     toCssSize,
+    toFlag,
     toList,
+    toNumber,
     triggerFired,
   };
 });

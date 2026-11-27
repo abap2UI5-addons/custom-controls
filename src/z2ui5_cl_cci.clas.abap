@@ -94,12 +94,42 @@ CLASS z2ui5_cl_cci DEFINITION
       RETURNING
         VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
 
+    "! An ABAP boolean as the text a boolean attribute of a control takes:
+    "! `true` or `false`.
+    "!
+    "! The boolean parameters of the render( ) methods are text, so that a
+    "! binding fits too. Neither ABAP boolean fits as it is: abap_true arrives
+    "! as `X`, and abap_false - a space - turns into an empty string, which
+    "! drops the attribute, so the control keeps its default and
+    "! editable = abap_false leaves a field editable. Pass the flag through
+    "! here instead:
+    "!
+    "!   editable = z2ui5_cl_cci=&gt;bool( mv_editable )
+    "!
+    "! @parameter val    | abap_true or abap_false
+    "! @parameter result | `true` or `false`
+    CLASS-METHODS bool
+      IMPORTING
+        val           TYPE abap_bool
+      RETURNING
+        VALUE(result) TYPE string.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
 
 CLASS z2ui5_cl_cci IMPLEMENTATION.
+
+  METHOD bool.
+
+    IF val = abap_true.
+      result = `true`.
+    ELSE.
+      result = `false`.
+    ENDIF.
+
+  ENDMETHOD.
 
   METHOD xmlns.
 

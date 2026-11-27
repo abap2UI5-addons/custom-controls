@@ -27,7 +27,7 @@ CLASS z2ui5_cl_cci_clock DEFINITION
     "! @parameter locale   | BCP 47 tag such as de-DE; default: the UI5 language
     "! @parameter icon     | e.g. sap-icon://history
     "! @parameter type     | button type, default Transparent
-    "! @parameter enabled  | `true` / `false` - never abap_true, it serializes as X
+    "! @parameter enabled  | `true` / `false` - never abap_true (X) or abap_false (dropped: the default stays) - pass z2ui5_cl_cci=>bool( flag )
     "! @parameter width    | CSS width
     "! @parameter tooltip  | tooltip text
     "! @parameter class    | CSS classes
@@ -79,10 +79,14 @@ CLASS z2ui5_cl_cci_clock IMPLEMENTATION.
     ENDIF.
 
     " the aggregation tag takes the namespace of its own control -
-    " <z2ui5_cci:layoutData>, never <layoutData>
+    " <z2ui5_cci:layoutData>, never <layoutData>. The layout data is a sap.m
+    " control, and the view's default namespace need not be sap.m (a view
+    " written with an m: prefix), so the element declares it itself
     clock->ele( n  = `layoutData`
                 ns = z2ui5_cl_cci=>c_ns
         )->tag( `OverflowToolbarLayoutData`
+            )->a( n = `xmlns`
+                  v = `sap.m`
             )->a( n = `priority`
                   v = priority ).
 

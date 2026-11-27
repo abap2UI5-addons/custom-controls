@@ -19,6 +19,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import test from "node:test";
+import { loadUtil } from "./util-module.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -43,16 +44,11 @@ const MapShapes = amd("MapShapes.js");
 // The control, with just enough of UI5 stubbed to get its definition object.
 const ImageMapster = amd("ImageMapster.js", {
   "sap/ui/core/Control": { extend: (name, definition) => definition },
-  "z2ui5_cci/cc/Util": {
-    toList: (value) =>
-      String(value || "")
-        .split(",")
-        .map((entry) => entry.trim())
-        .filter(Boolean),
+  "z2ui5_cci/cc/Util": loadUtil({
     logError: () => {},
     isDestroyed: () => false,
     toCssSize: (value) => String(value ?? ""),
-  },
+  }),
   "z2ui5_cci/cc/MapShapes": MapShapes,
 });
 

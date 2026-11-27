@@ -20,6 +20,11 @@ CLASS z2ui5_cl_cci_font_awesome DEFINITION
 
   PUBLIC SECTION.
 
+    "! For cssurl: load no stylesheet - the app ships its own or uses the
+    "! icons only. A text with one space; a character literal ' ' would not
+    "! do, it turns into an empty string and the default stylesheet loads.
+    CONSTANTS c_no_css TYPE string VALUE ` ` ##NEEDED.
+
     CONSTANTS:
       "! The icon collections the control can register. Use them as the
       "! collection part of an icon URI: <em>sap-icon://fa-solid/heart</em>.
@@ -43,7 +48,7 @@ CLASS z2ui5_cl_cci_font_awesome DEFINITION
     "! @parameter collections | comma separated cs_collection values; empty
     "!                          registers all of them
     "! @parameter cssurl      | Font Awesome stylesheet for the class names;
-    "!                          pass a space to skip it
+    "!                          pass c_no_css to load none
     "! @parameter result      | the unchanged view builder, for chaining
     CLASS-METHODS render
       IMPORTING

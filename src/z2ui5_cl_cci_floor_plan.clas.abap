@@ -113,6 +113,10 @@ CLASS z2ui5_cl_cci_floor_plan DEFINITION
 
     "! Emit &lt;z2ui5_cci:FloorPlan/&gt; into an existing view.
     "!
+    "! Boolean parameters take `true` / `false` - pass an ABAP flag through
+    "! z2ui5_cl_cci=>bool( ): abap_true arrives as X, and abap_false turns into
+    "! an empty string, which drops the attribute, so the default stays.
+    "!
     "! @parameter view          | the builder positioned at the parent element
     "! @parameter items         | bind of a ty_t_item table
     "! @parameter areas         | bind of a ty_t_area table
