@@ -3,8 +3,6 @@
   "findings": {
     "src/00/z2ui5_cl_cci_sample_02.clas.abap|non-released-api||src/00/01|z2ui5_cl_ajson_mapping": 1,
     "src/00/z2ui5_cl_cci_sample_02.clas.abap|obsolete-bind-argument||custom_mapper|": 1,
-    "src/00/z2ui5_cl_cci_sample_04.clas.abap|non-released-api||src/00/01|z2ui5_cl_ajson_mapping": 1,
-    "src/00/z2ui5_cl_cci_sample_04.clas.abap|obsolete-bind-argument||custom_mapper|": 1,
     "src/00/z2ui5_cl_cci_sample_05.clas.abap|binding-type-mismatch|sap.m.StepInput|value|/HEIGHT": 1,
     "src/00/z2ui5_cl_cci_sample_05.clas.abap|binding-type-mismatch|sap.m.StepInput|value|/SCALE": 1,
     "src/00/z2ui5_cl_cci_sample_06.clas.abap|non-released-api||src/00/01|z2ui5_cl_ajson_mapping": 1,

@@ -132,28 +132,20 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
                            v = `Wrap` ).
     chart( view   = row1
            title  = `bar`
-           config = client->_bind( val           = s_bar
-                                   omit_initial  = abap_true
-                                   custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                                                       iv_first_json_upper = abap_false ) ) ).
+           config = client->_bind( val          = s_bar
+                                   omit_initial = abap_true ) ).
     chart( view   = row1
            title  = `line`
-           config = client->_bind( val           = s_line
-                                   omit_initial  = abap_true
-                                   custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                                                       iv_first_json_upper = abap_false ) ) ).
+           config = client->_bind( val          = s_line
+                                   omit_initial = abap_true ) ).
     chart( view   = row1
            title  = `pie`
-           config = client->_bind( val           = s_pie
-                                   omit_initial  = abap_true
-                                   custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                                                       iv_first_json_upper = abap_false ) ) ).
+           config = client->_bind( val          = s_pie
+                                   omit_initial = abap_true ) ).
     chart( view   = row1
            title  = `doughnut`
-           config = client->_bind( val           = s_doughnut
-                                   omit_initial  = abap_true
-                                   custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                                                       iv_first_json_upper = abap_false ) ) ).
+           config = client->_bind( val          = s_doughnut
+                                   omit_initial = abap_true ) ).
 
     " page 2 - the types that need a plugin
     DATA(second) = carousel->ele( `VBox` ).
@@ -162,24 +154,18 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
                            v = `Wrap` ).
     chart( view   = row2
            title  = `bubble`
-           config = client->_bind( val           = s_bubble
-                                   omit_initial  = abap_true
-                                   custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                                                       iv_first_json_upper = abap_false ) ) ).
+           config = client->_bind( val          = s_bubble
+                                   omit_initial = abap_true ) ).
     chart( view    = row2
            title   = `venn (plugin)`
            plugins = z2ui5_cl_cci_chartjs=>cs_plugin-venn
-           config  = client->_bind( val           = s_venn
-                                    omit_initial  = abap_true
-                                    custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                                                        iv_first_json_upper = abap_false ) ) ).
+           config  = client->_bind( val          = s_venn
+                                    omit_initial = abap_true ) ).
     chart( view    = row2
            title   = `word cloud (plugin)`
            plugins = z2ui5_cl_cci_chartjs=>cs_plugin-wordcloud
-           config  = client->_bind( val           = s_wordcloud
-                                    omit_initial  = abap_true
-                                    custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                                                        iv_first_json_upper = abap_false ) ) ).
+           config  = client->_bind( val          = s_wordcloud
+                                    omit_initial = abap_true ) ).
 
     client->view_display( view->stringify( ) ).
 
@@ -232,7 +218,7 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
     ls_dataset-data = VALUE #( ( `100` ) ( `33` ) ( `22` ) ( `19` )
                                ( `11` ) ( `49` ) ( `30` ) ).
     INSERT ls_dataset INTO TABLE s_line-data-datasets.
-    s_line-options-responsive = abap_true.
+    s_line-options-responsive = z2ui5_cl_cci_chartjs=>cs_flag-true.
 
     " pie
     CLEAR ls_dataset.
@@ -258,7 +244,9 @@ CLASS z2ui5_cl_cci_sample_04 IMPLEMENTATION.
                                       ( x = `47` y = `36` r = `8.4` )
                                       ( x = `77` y = `65` r = `9.5` ) ).
     INSERT ls_dataset INTO TABLE s_bubble-data-datasets.
-    s_bubble-options-responsive = abap_true.
+    " one dataset needs no legend - a true-default option switched off,
+    " which an abap_bool field could not send (omit_initial drops abap_false)
+    s_bubble-options-plugins-legend-display = z2ui5_cl_cci_chartjs=>cs_flag-false.
 
     " venn - one set list per point, which is why ty_dataset has data_venn
     CLEAR ls_dataset.

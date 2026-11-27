@@ -1,5 +1,9 @@
 "! <p class="shorttext synchronized" lang="en">abap2UI5 custom controls - JSON filter</p>
 "!
+"! DEPRECATED - no control or sample of this library uses it any more, and
+"! _bind( omit_initial = abap_true ) replaces it. It stays for apps that
+"! already pass it as custom_filter and will be removed in a later release.
+"!
 "! Drops the initial values of an ABAP structure on the way into a bound
 "! configuration object.
 "!

@@ -49,7 +49,7 @@ With [abapGit](https://abapgit.org), from [the repository](https://github.com/ab
 - Branch main: the sources with libraries from jsDelivr (default); branch local: the same with every library vendored into the BSP, for browsers without internet access
 - Brings the ABAP classes, the BSP application Z2UI5_CCI and the two ICF nodes it is served from
 - Start ?app_start=z2ui5_cl_cci_sample_00; if it says ICF Node NOT found, activate the node z2ui5_cci in SICF
-- Bind configuration structures with omit_initial = abap_true and the camelCase mapper where the library expects it
+- Bind configuration structures with omit_initial = abap_true; ChartJs turns the field names into camelCase itself, the other controls take the camelCase mapper where the library expects it
 
 The [Guide](/guide) has every step.
 
