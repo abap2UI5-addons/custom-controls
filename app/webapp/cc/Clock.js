@@ -19,7 +19,7 @@
 // It replaces the usual way to show a clock: a global script, injected with
 // the view, that searches every control on the page for a CSS class once a
 // second.
-sap.ui.define(["sap/m/Button", "sap/m/ButtonRenderer"], (Button, ButtonRenderer) => {
+sap.ui.define(["sap/m/Button", "sap/m/ButtonRenderer", "z2ui5_cci/cc/Util"], (Button, ButtonRenderer, Util) => {
   "use strict";
 
   const OPTIONS = {
@@ -83,7 +83,9 @@ sap.ui.define(["sap/m/Button", "sap/m/ButtonRenderer"], (Button, ButtonRenderer)
     },
 
     _tick() {
-      if (this.isDestroyed && this.isDestroyed()) return;
+      // Util.isDestroyed, not this.isDestroyed(): that method only exists
+      // from UI5 1.93 on, and the guard was always false on 1.71
+      if (Util.isDestroyed(this)) return;
       const node =
         document.getElementById(`${this.getId()}-BDI-content`) ||
         this.getDomRef()?.querySelector(".sapMBtnContent");
