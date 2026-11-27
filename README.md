@@ -748,9 +748,10 @@ this way; `omit_initial_paths` limits the omission to the fields it lists, and
 the types of ChartJs (`ty_flag`) and Validator (`minimum`, `maximum`) carry
 such values as text, where only the empty string is initial.
 
-`z2ui5_cl_cci_json_filter`, which the samples used before, still works, but
-`custom_filter` is obsolete on `_bind( )` and the abap2UI5-linter reports it
-(`obsolete-bind-argument`).
+`z2ui5_cl_cci_json_filter`, which the samples used before, still works but is
+deprecated and will be removed in a later release: `custom_filter` is obsolete
+on `_bind( )` and the abap2UI5-linter reports it (`obsolete-bind-argument`).
+Replace it with `omit_initial = abap_true`.
 
 ### Third-party libraries
 
