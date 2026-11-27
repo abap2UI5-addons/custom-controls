@@ -370,6 +370,34 @@
       "cdn": "https://cdn.jsdelivr.net/npm/suneditor@{version}/src/langs/zh_cn.js"
     },
     {
+      "key": "canvasGauges",
+      "package": "canvas-gauges",
+      "file": "gauge.min.js",
+      "target": "canvas_gauges.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/canvas-gauges@{version}/gauge.min.js"
+    },
+    {
+      "_comment": [
+        "gridstack-all.js is the bundle with drag and resize built in; the plain",
+        "gridstack.js is an ES module a script tag cannot load."
+      ],
+      "key": "gridStack",
+      "package": "gridstack",
+      "file": "dist/gridstack-all.js",
+      "target": "gridstack_all.js",
+      "kind": "js",
+      "cdn": "https://cdn.jsdelivr.net/npm/gridstack@{version}/dist/gridstack-all.js"
+    },
+    {
+      "key": "gridStackCss",
+      "package": "gridstack",
+      "file": "dist/gridstack.min.css",
+      "target": "gridstack.css",
+      "kind": "css",
+      "cdn": "https://cdn.jsdelivr.net/npm/gridstack@{version}/dist/gridstack.min.css"
+    },
+    {
       "key": "fontAwesomeCss",
       "package": "@fortawesome/fontawesome-free",
       "file": "css/all.min.css",
