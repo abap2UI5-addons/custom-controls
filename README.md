@@ -10,12 +10,13 @@
 [![check-abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fcheck-abap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/ci.yaml)
 [![abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fabap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/ci.yaml)
 
-**Sixteen ready-to-use custom controls for
+**Eighteen ready-to-use custom controls for
 [abap2UI5](https://github.com/abap2UI5/abap2UI5)** — signature pad, charts,
 barcodes, a scanner that reads several barcodes at once, Excel export, form
 validation, product tours, Font Awesome, animations, clickable image maps,
 Markdown, a code editor, a rich text editor, a network status display, a
-clock and a scan field. Each one is a builder class
+clock, a scan field, a gauge with a needle and a grid of boxes the user can
+rearrange. Each one is a builder class
 with one `render( )` method, for abap2UI5 developers who need a control UI5
 does not bring along.
 
@@ -129,6 +130,8 @@ and events arrive in `on_event` like for any built-in control.
 | NetworkStatus | online, offline or server not reachable — icon, signal bars, latency, measured in the browser | `z2ui5_cl_cci_net_status` | `..._sample_13` |
 | Clock | date and time ticking in the browser, fits an overflow menu | `z2ui5_cl_cci_clock` | `..._sample_14` |
 | ScanInput | a scan field that keeps the focus, selects on focus, beeps and vibrates on Error, soft keyboard on and off | `z2ui5_cl_cci_scan_input` | `..._sample_15` |
+| Gauge | a round gauge with a scale, coloured zones and a needle on the bound value, with [canvas-gauges](https://canvas-gauges.com) | `z2ui5_cl_cci_gauge` | `..._sample_16` |
+| GridStack | boxes on a grid, shown or dragged and resized by the user, positions written back into the ABAP table, with [gridstack.js](https://gridstackjs.com) | `z2ui5_cl_cci_gridstack` | `..._sample_17` |
 
 Sample classes are `z2ui5_cl_cci_sample_NN` — start any of them directly with
 `?app_start=…`, or browse them from `z2ui5_cl_cci_sample_00`, which lists one
@@ -527,6 +530,83 @@ The control decides nothing: whether a scan is wrong is the app's
 `z2ui5.cc.InputExt`, so it does not depend on the abap2UI5 frontend release
 installed next to it; the HTML inputmode is implemented the same way.
 
+### Gauge
+
+`value` (bind), `minvalue`, `maxvalue`, `title`, `units`, `width`, `height`
+(px), `startangle`, `ticksangle`, `tickinterval`, `minorticks`, `highlights`
+(bind of a `ty_t_highlight` table), `valuebox`, `decimals`, `animation`,
+`options`, `liburl`.
+
+A dial with a needle. Bind `value` and the needle travels to every new value —
+one set in ABAP, or one another control on the page writes into the same
+variable, without a roundtrip and without the gauge being drawn again:
+
+```abap
+t_zone = VALUE #( ( low = 0  high = 60  color = `#2b7d2b` )
+                  ( low = 60 high = 80  color = `#e9730c` )
+                  ( low = 80 high = 100 color = `#bb0000` ) ).
+
+z2ui5_cl_cci_gauge=>render(
+    view         = page
+    value        = client->_bind( value )
+    title        = `Utilization`
+    units        = `%`
+    tickinterval = `10`
+    highlights   = client->_bind( t_zone ) ).
+```
+
+The scale is `minvalue` to `maxvalue` with a labelled tick every
+`tickinterval`. The library spreads the labels evenly, so an interval that
+does not divide the range is rounded to the nearest number of steps. A zone is
+cut to the scale. `startangle` and `ticksangle` shape the dial: `90` and `180`
+give a half dial.
+
+Whatever else canvas-gauges can draw — needle shape, plate colours, borders —
+goes into `options`, a structure bound with the camelCase mapper; its fields
+win over the parameters above. canvas-gauges is small, has no dependencies and
+is no longer developed: the version is pinned like every other library here,
+and the `local` branch carries it in the BSP.
+
+### GridStack
+
+`items` (bind of a `ty_t_item` table), `columns`, `rows`, `cellheight`,
+`margin`, `editable`, `float`, `width`, `liburl`, `cssurl` · events `change`
+(`$parameters>/ids`), `itempress` (`$parameters>/id`).
+
+Boxes on a grid. Every row of the table is one box: `id`, `x`, `y`, `w`, `h`
+in grid cells, `text`, `info`, `state` (a value of `cs_state`: the semantic
+colours of the theme), `color`, `selected`, `locked`.
+
+```abap
+z2ui5_cl_cci_gridstack=>render(
+    view      = page
+    items     = client->_bind( t_item )
+    columns   = `12`
+    rows      = `4`
+    editable  = client->_bind( editable )
+    change    = client->_event( val = `MOVED`   arg = `${$parameters>/ids}` )
+    itempress = client->_event( val = `PRESSED` arg = `${$parameters>/id}` ) ).
+```
+
+- **`editable` off** (the default) - a picture. A click on a box raises
+  `itempress` with its id; what a click means is the app's decision, e.g.
+  setting `selected` on that row.
+- **`editable` on** - the user drags and resizes the boxes. They snap to the
+  grid, do not overlap and, with `rows` set, stay inside it; a `locked` box
+  stays where it is. After every move the control writes the new `x`, `y`, `w`
+  and `h` into the bound table and raises `change` with the ids of the boxes
+  that moved - the handler reads its own table. A box the library only pushed
+  aside and put back is not reported.
+
+A change of the table in ABAP updates the boxes in place. A row without an id,
+or with an id another row has, is not shown and named in the browser console.
+The texts are written as text, never as markup.
+
+The width of a cell follows the width of the control, its height is
+`cellheight`. With `float` switched off the boxes move up to close a gap, the
+way a dashboard arranges itself; for a layout in which the position is the
+message, leave it on.
+
 
 ## Two things to know
 
@@ -558,9 +638,10 @@ this way; `omit_initial_paths` limits the omission to the fields it lists.
 
 ### Third-party libraries
 
-Eight controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
+Ten controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
 driver.js 1, Font Awesome 7, animate.css 4, marked 18 and SunEditor 3 (each
-together with DOMPurify 3), and zxing-wasm 3. Each control loads its library on
+together with DOMPurify 3), zxing-wasm 3, canvas-gauges 2 and gridstack.js 14.
+Each control loads its library on
 first use, cached per URL, so ten charts on a page fetch Chart.js once.
 
 The other five need nothing: SignaturePad and Validator are self-contained,

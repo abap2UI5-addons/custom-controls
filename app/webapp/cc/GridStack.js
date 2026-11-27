@@ -1,0 +1,373 @@
+// z2ui5_cci.cc.GridStack - boxes on a grid, shown or rearranged by the user,
+// with gridstack.js.
+//
+// Every row of `items` is one box: a column, a row, a width and a height in
+// grid cells, a text, a state. With `editable` off the grid is a picture that
+// reports the box that was clicked. With it on, the boxes can be dragged and
+// resized; they snap to the grid, never overlap and never leave it, and the
+// new positions are written back into the bound table before `change` is
+// raised - the ABAP handler reads its own table and finds the layout the
+// user made.
+//
+// What it is for: anything laid out in cells - the compartments of a shelf
+// or a drawer, seats, slots of a rack, a dashboard a user arranges.
+//
+// The control knows nothing about what a box means. `state` selects one of
+// the UI5 semantic colours, `color` overrides it with any CSS colour.
+sap.ui.define(
+  ["sap/ui/core/Control", "z2ui5_cci/cc/Util", "z2ui5_cci/cc/LibUrls"],
+  (Control, Util, LibUrls) => {
+    "use strict";
+
+    const STYLE_ID = "z2ui5-cci-gridstack-style";
+
+    // UI5 theme parameters with a fallback, so the boxes follow the theme and
+    // still have a colour on a page that defines none of them
+    const CSS = `
+.z2ui5CciGrid{background:var(--sapGroup_ContentBackground,#fff);
+border:1px solid var(--sapGroup_TitleBorderColor,#d9d9d9);box-sizing:border-box}
+.z2ui5CciGrid .grid-stack-item-content{display:flex;flex-direction:column;
+align-items:center;justify-content:center;text-align:center;overflow:hidden;
+box-sizing:border-box;border:1px solid var(--sapNeutralBorderColor,#6a6d70);
+background:var(--sapNeutralBackground,#f4f4f4);color:var(--sapTextColor,#32363a);
+font-family:var(--sapFontFamily,Arial,Helvetica,sans-serif);
+font-size:var(--sapFontSize,.875rem);user-select:none}
+.z2ui5CciGridPress .grid-stack-item-content{cursor:pointer}
+.z2ui5CciGrid .z2ui5CciGridText{font-weight:bold}
+.z2ui5CciGrid .z2ui5CciGridInfo{font-size:var(--sapFontSmallSize,.75rem)}
+.z2ui5CciGrid .z2ui5CciGridSuccess>.grid-stack-item-content{
+background:var(--sapSuccessBackground,#f1fdf6);border-color:var(--sapSuccessBorderColor,#107e3e)}
+.z2ui5CciGrid .z2ui5CciGridWarning>.grid-stack-item-content{
+background:var(--sapWarningBackground,#fef7f1);border-color:var(--sapWarningBorderColor,#e9730c)}
+.z2ui5CciGrid .z2ui5CciGridError>.grid-stack-item-content{
+background:var(--sapErrorBackground,#ffebeb);border-color:var(--sapErrorBorderColor,#bb0000)}
+.z2ui5CciGrid .z2ui5CciGridInformation>.grid-stack-item-content{
+background:var(--sapInformationBackground,#f5faff);border-color:var(--sapInformationBorderColor,#0a6ed1)}
+.z2ui5CciGrid .z2ui5CciGridSelected>.grid-stack-item-content{
+outline:3px solid var(--sapSelectedColor,#0854a0);outline-offset:-3px}
+`;
+
+    const STATES = ["Success", "Warning", "Error", "Information"];
+
+    const int = (val, fallback) => {
+      if (val === "" || val === null || val === undefined) return fallback;
+      const n = Math.round(Number(val));
+      return Number.isFinite(n) ? n : fallback;
+    };
+
+    // ABAP booleans arrive as true/false, as "X"/"" or not at all
+    const bool = (val) => val === true || val === "X" || val === "true";
+
+    // A table bound without a mapper has upper-case keys (ID, X), one bound
+    // with the camelCase mapper lower-case ones. `keys` remembers how the
+    // app spelled each of them, so the positions go back under the same names.
+    function readItem(row) {
+      const keys = {};
+      const low = {};
+      Object.entries(row || {}).forEach(([key, val]) => {
+        const name = String(key).toLowerCase();
+        keys[name] = key;
+        low[name] = val;
+      });
+      const state = STATES.find((s) => s.toLowerCase() === String(low.state ?? "").toLowerCase());
+      return {
+        id: String(low.id ?? ""),
+        x: Math.max(int(low.x, 0), 0),
+        y: Math.max(int(low.y, 0), 0),
+        w: Math.max(int(low.w, 1), 1),
+        h: Math.max(int(low.h, 1), 1),
+        text: String(low.text ?? ""),
+        info: String(low.info ?? ""),
+        state: state || "",
+        color: String(low.color ?? "").trim(),
+        selected: bool(low.selected),
+        locked: bool(low.locked),
+        keys,
+      };
+    }
+
+    // Rows of the bound table in, boxes out. A row without an id cannot be
+    // found again after a move, and a second row with the same id would be
+    // the same box twice - both are dropped and named.
+    function readItems(rows) {
+      const seen = new Set();
+      const items = [];
+      const dropped = [];
+      (Array.isArray(rows) ? rows : []).forEach((row, index) => {
+        const item = readItem(row);
+        if (!item.id || seen.has(item.id)) {
+          dropped.push(item.id ? `duplicate id '${item.id}'` : `row ${index + 1} without id`);
+          return;
+        }
+        seen.add(item.id);
+        items.push(item);
+      });
+      return { items, dropped };
+    }
+
+    // The bound rows with the positions the grid reports, every other field
+    // untouched and every key spelled as the app sent it. `ids` names the
+    // boxes that really moved - the library also reports the ones it only
+    // pushed aside and put back. Returns null when nothing moved, so an
+    // unchanged layout is not written back.
+    function mergeLayout(rows, layout) {
+      const byId = new Map((layout || []).map((node) => [String(node.id), node]));
+      const ids = [];
+      const next = (Array.isArray(rows) ? rows : []).map((row) => {
+        const item = readItem(row);
+        const node = byId.get(item.id);
+        if (!node) return row;
+        const copy = { ...row };
+        let moved = false;
+        ["x", "y", "w", "h"].forEach((field) => {
+          const value = int(node[field], item[field]);
+          if (value === item[field]) return;
+          moved = true;
+          // a field the app left out (initial values are filtered) is added
+          // in the spelling of the id
+          const upper = item.keys.id === item.keys.id.toUpperCase();
+          copy[item.keys[field] || (upper ? field.toUpperCase() : field)] = value;
+        });
+        if (moved) ids.push(item.id);
+        return moved ? copy : row;
+      });
+      return ids.length ? { rows: next, ids } : null;
+    }
+
+    // Options of GridStack.init( ) from the properties of the control.
+    function toOptions(props) {
+      const editable = props.editable === true;
+      const rows = Math.max(int(props.rows, 0), 0);
+      return {
+        column: Math.max(int(props.columns, 12), 1),
+        cellHeight: Math.max(int(props.cellHeight, 60), 10),
+        margin: Math.max(int(props.margin, 4), 0),
+        // boxes stay where they are put instead of floating up to close a gap
+        float: props.float !== false,
+        staticGrid: !editable,
+        // a fixed number of rows makes the grid a board with an edge
+        minRow: rows,
+        maxRow: rows,
+        // one column on a narrow screen would destroy the picture
+        columnOpts: undefined,
+        animate: editable,
+      };
+    }
+
+    function ensureStyle() {
+      if (document.getElementById(STYLE_ID)) return;
+      const tag = document.createElement("style");
+      tag.id = STYLE_ID;
+      tag.textContent = CSS;
+      document.head.appendChild(tag);
+    }
+
+    // the library is the namespace object in the bundled build and the class
+    // itself in the plain one
+    const library = () => {
+      const lib = window.GridStack;
+      if (!lib) return null;
+      return typeof lib.init === "function" ? lib : lib.GridStack || null;
+    };
+
+    return Control.extend("z2ui5_cci.cc.GridStack", {
+      metadata: {
+        properties: {
+          // rows of { id, x, y, w, h, text, info, state, color, selected, locked }
+          items: { type: "object", defaultValue: null },
+          columns: { type: "int", defaultValue: 12 },
+          // 0 = as many rows as the boxes need
+          rows: { type: "int", defaultValue: 0 },
+          // height of one grid cell in px; the width follows the control's
+          cellHeight: { type: "int", defaultValue: 60 },
+          margin: { type: "int", defaultValue: 4 },
+          editable: { type: "boolean", defaultValue: false },
+          float: { type: "boolean", defaultValue: true },
+          width: { type: "string", defaultValue: "100%" },
+          libUrl: { type: "string", defaultValue: LibUrls.gridStack },
+          cssUrl: { type: "string", defaultValue: LibUrls.gridStackCss },
+        },
+        events: {
+          // the user moved or resized boxes; `items` holds the new positions
+          change: {
+            parameters: {
+              // comma separated ids of the boxes that changed
+              ids: { type: "string" },
+            },
+          },
+          itemPress: {
+            parameters: {
+              id: { type: "string" },
+            },
+          },
+        },
+      },
+
+      _host() {
+        return document.getElementById(`${this.getId()}-grid`);
+      },
+
+      _widgets() {
+        const { items, dropped } = readItems(this.getItems());
+        if (dropped.length) Util.logError(`GridStack: ${dropped.join(", ")} - not shown`);
+        this._itemsById = new Map(items.map((item) => [item.id, item]));
+        return items.map((item) => ({
+          id: item.id,
+          x: item.x,
+          y: item.y,
+          w: item.w,
+          h: item.h,
+          noMove: item.locked,
+          noResize: item.locked,
+          locked: item.locked,
+        }));
+      },
+
+      // Text and state of every box. The library creates the elements, this
+      // fills them - with textContent, so a text from the model is never
+      // read as markup.
+      _decorate() {
+        if (!this._grid) return;
+        this._grid.getGridItems().forEach((el) => {
+          const id = String(el.gridstackNode?.id ?? el.getAttribute("gs-id") ?? "");
+          const item = this._itemsById.get(id);
+          const content = el.querySelector(".grid-stack-item-content");
+          if (!item || !content) return;
+
+          STATES.forEach((s) => el.classList.toggle(`z2ui5CciGrid${s}`, item.state === s));
+          el.classList.toggle("z2ui5CciGridSelected", item.selected);
+          el.dataset.z2ui5Id = id;
+
+          content.textContent = "";
+          content.style.background = item.color || "";
+          content.setAttribute("title", item.info ? `${item.text} - ${item.info}` : item.text);
+          [
+            ["z2ui5CciGridText", item.text],
+            ["z2ui5CciGridInfo", item.info],
+          ].forEach(([cls, text]) => {
+            if (!text) return;
+            const line = document.createElement("div");
+            line.className = cls;
+            line.textContent = text;
+            content.appendChild(line);
+          });
+        });
+      },
+
+      _destroyGrid() {
+        if (!this._grid) return;
+        try {
+          this._grid.offAll();
+          // false: the DOM belongs to the UI5 renderer
+          this._grid.destroy(false);
+        } catch (e) {
+          Util.logError("GridStack: could not destroy the grid", e);
+        }
+        this._grid = null;
+      },
+
+      _onChange() {
+        // load( ) reports the boxes it placed as well; only a change the
+        // user made is written back
+        if (this._loading) return;
+        const merged = mergeLayout(this.getItems(), this._grid.save(false));
+        if (!merged) return;
+        this.setProperty("items", merged.rows, true);
+        this.fireChange({ ids: merged.ids.join(",") });
+      },
+
+      _load() {
+        this._loading = true;
+        try {
+          this._grid.load(this._widgets());
+        } finally {
+          this._loading = false;
+        }
+        this._decorate();
+      },
+
+      _create() {
+        const host = this._host();
+        const lib = library();
+        if (!host || !lib) return;
+        this._destroyGrid();
+        ensureStyle();
+        try {
+          const editable = this.getEditable();
+          this._grid = lib.init(
+            toOptions({
+              columns: this.getColumns(),
+              rows: this.getRows(),
+              cellHeight: this.getCellHeight(),
+              margin: this.getMargin(),
+              editable,
+              float: this.getFloat(),
+            }),
+            host,
+          );
+          this._grid.on("change", () => this._onChange());
+          this._load();
+        } catch (e) {
+          Util.logError("GridStack: could not create the grid", e);
+        }
+      },
+
+      setItems(value) {
+        this.setProperty("items", value, true);
+        // update the live grid: a re-render would rebuild every box
+        if (this._grid) this._load();
+        return this;
+      },
+
+      onclick(event) {
+        const el = event.target?.closest?.(".grid-stack-item");
+        const id = el?.dataset?.z2ui5Id;
+        if (id) this.fireItemPress({ id });
+      },
+
+      onAfterRendering() {
+        this._destroyGrid();
+        Promise.all([
+          Util.loadScript(this.getLibUrl(), () => Boolean(library())),
+          // without its stylesheet the grid is a pile of boxes - worth
+          // waiting for, not worth failing on
+          Util.loadStyle(this.getCssUrl()).catch((e) =>
+            Util.logError("GridStack: stylesheet not available", e),
+          ),
+        ])
+          .then(() => {
+            if (Util.isDestroyed(this)) return;
+            this._create();
+          })
+          .catch((e) => Util.logError("GridStack: library not available", e));
+      },
+
+      exit() {
+        this._destroyGrid();
+      },
+
+      renderer: {
+        apiVersion: 2,
+        render(rm, control) {
+          rm.openStart("div", control);
+          rm.class("z2ui5CciGrid");
+          if (control.hasListeners("itemPress")) rm.class("z2ui5CciGridPress");
+          rm.style("width", Util.toCssSize(control.getWidth()));
+          rm.openEnd();
+
+          rm.openStart("div", `${control.getId()}-grid`);
+          rm.class("grid-stack");
+          rm.openEnd();
+          rm.close("div");
+
+          rm.close("div");
+        },
+      },
+
+      // for tools/grid-stack.test.mjs
+      readItems,
+      mergeLayout,
+      toOptions,
+    });
+  },
+);

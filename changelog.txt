@@ -11,4 +11,6 @@ Legend
 
 unreleased
 ----------
++ Gauge (z2ui5_cl_cci_gauge, sample 16): a round gauge with a scale, coloured zones and a needle that follows the bound value, drawn by canvas-gauges 2.1.7
++ GridStack (z2ui5_cl_cci_gridstack, sample 17): boxes on a grid from an ABAP table, shown or dragged and resized by the user with gridstack.js 14.1.1; the new positions are written back into the table before the event "change" is raised
 ! BREAKING: four classes renamed so that every class name has at most 25 characters and the namespace rename takes a name of the full 10 characters (it was capped at 6): z2ui5_cl_cci_rich_text_editor -> z2ui5_cl_cci_rich_text, z2ui5_cl_cci_barcode_scanner -> z2ui5_cl_cci_barcode_scan, z2ui5_cl_cci_network_status -> z2ui5_cl_cci_net_status, z2ui5_cl_cci_signature_pad -> z2ui5_cl_cci_signature. Methods, parameters, types and constants are unchanged, and so are the controls in the BSP (z2ui5_cci.cc.RichTextEditor, ...). An app changes the class name it calls; after the abapGit pull the four old classes are still on the system - abapGit does not delete them - and must be deleted by hand (SE24 or ADT) once no app uses them
