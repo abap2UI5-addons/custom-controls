@@ -104,18 +104,15 @@ sap.ui.define(
       "fullSize", "includeBounds", "intersect", "offset", "propagate",
       "responsive", "showLabelBackdrop", "showLine",
     ]);
-    const FLAG_VALUES = new Map([["true", true], ["X", true], ["false", false]]);
 
-    // An ABAP field arrives under its upper-case name (FONT_SIZE) unless the
-    // app bound it with the camelCase mapper (fontSize); Chart.js only reads
-    // the second. A key without a lower-case letter is converted, one that
-    // has one is taken as it is - so both bindings work.
-    function camelCase(key) {
-      if (!/^[A-Z][A-Z0-9_]*$/.test(key)) return key;
-      return key.toLowerCase().replace(/_([a-z0-9])/g, (all, char) => char.toUpperCase());
-    }
+    // Numbers ABAP sends as text, so that 0 and fractions survive
+    // omit_initial: a tick step of 0.5, a suggested minimum of 0, the tension
+    // animation from 0.4 to 0. Chart.js computes with them (an animation
+    // picks its interpolator by typeof), so they are turned into numbers.
+    const NUMBERS = new Set(["stepSize", "suggestedMin", "suggestedMax", "from", "to"]);
 
-    // Depth-first rename. The original did a string replace over the whole
+    // Depth-first rename - the ABAP field names become camelCase, see
+    // Util.camelCase. The original did a string replace over the whole
     // serialized config, which renamed the first hit only and happily
     // rewrote a matching data VALUE too.
     function normalize(value) {
@@ -123,10 +120,10 @@ sap.ui.define(
       if (value === null || typeof value !== "object") return value;
       const out = {};
       for (const [rawKey, entry] of Object.entries(value)) {
-        const key = camelCase(rawKey);
-        if (FLAGS.has(key) && typeof entry === "string") {
-          if (entry === "") continue;
-          out[key] = FLAG_VALUES.has(entry) ? FLAG_VALUES.get(entry) : entry;
+        const key = Util.camelCase(rawKey);
+        if ((FLAGS.has(key) || NUMBERS.has(key)) && typeof entry === "string") {
+          const next = FLAGS.has(key) ? Util.toFlag(entry) : Util.toNumber(entry);
+          if (next !== undefined) out[key] = next;
           continue;
         }
         out[RENAME[key] || key] = normalize(entry);

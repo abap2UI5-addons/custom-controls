@@ -12,15 +12,15 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import test from "node:test";
+import { loadUtil } from "./util-module.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-const Util = {
+const Util = loadUtil({
   // Util.purify, minus the options - see purify.test.mjs
   purify: (html) => `[clean]${html}`,
-  toList: (val) => String(val || "").split(",").map((s) => s.trim()).filter(Boolean),
   resolveControl: () => null,
-};
+});
 
 function load() {
   const source = readFileSync(join(ROOT, "app", "webapp", "cc", "DriverJs.js"), "utf8");

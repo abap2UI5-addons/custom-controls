@@ -158,7 +158,10 @@ the bound variable to empty.
 `icon`, `type`, `tooltip`, `enabled`, `status` · event `exported`.
 
 Reads the bound table in the browser, so the data makes no second trip to the
-backend. Needs SAPUI5 — under OpenUI5 `sap.ui.export` is missing and the button
+backend. Bind `columns` with `omit_initial = abap_true`; the control turns the
+field names into camelCase itself. `display_unit`, `auto_scale`,
+`display_timezone` and `utc` are `ty_flag` (`cs_flag-false` switches them
+off), `scale` is text so that `0` decimals is sent. Needs SAPUI5 — under OpenUI5 `sap.ui.export` is missing and the button
 renders disabled.
 
 <img width="1252" height="459" alt="The ExportSpreadsheet sample" src="https://github.com/user-attachments/assets/d56be5d4-f43c-4812-94f8-083e38d0fcc2" />
@@ -210,7 +213,9 @@ drop an `abap_false`, and Chart.js would fall back to true), `cs_flag-true` or
 `abap_true` to switch it on, leave it empty for the default. Fractions
 (`line-tension`, `datalabels-opacity`) are `ty_fraction`, dash patterns
 (`border_dash`, `tick_border_dash`, `dash`) a `ty_dash` table of segment
-lengths.
+lengths, and the numbers where `0` or a fraction counts (`ticks-step_size`,
+`suggested_min`, `suggested_max`, the tension animation's `from` and `to`) a
+`ty_number` text.
 
 <img width="1248" height="630" alt="The ChartJs sample" src="https://github.com/user-attachments/assets/7b20eb12-1823-4b25-a3ad-0dfcab95077a" />
 
@@ -335,6 +340,12 @@ second screen and point a phone at it, in either mode.
 `customcss`, `allowhtml`, `liburl`, `cssurl`, `purifyurl` · events
 `highlighted`, `done`.
 
+Bind `config` and `highlight` with `omit_initial = abap_true` and nothing
+else: the control turns the field names into camelCase itself. `animate`,
+`allow_close` and `allow_keyboard_control` default to true in driver.js and
+are `ty_flag` (`cs_flag-false` switches them off); `stage_padding`,
+`stage_radius` and `popover_offset` are text, so that `0` is sent.
+
 A step's `element` is the **control id from your view**, not a CSS selector; it
 is resolved in the frontend, so a step may point into a nested view or a dialog.
 
@@ -384,6 +395,12 @@ the page's own values (or animate.css' defaults) do.
 Turns a floor plan or a machine drawing into an input control: regions highlight,
 the selection is written back into the model and a click raises a backend event
 carrying the region key. Colours are hex **without** a leading `#`.
+
+Bind `areas` and `config` with `omit_initial = abap_true`; the control turns
+the field names of `config` into camelCase itself. The options that default to
+true — `fill`, `fade`, `highlight`, `is_selectable`, `is_deselectable`, the
+`fill`/`stroke`/`fade` of a render state and an area's `isselectable` — are
+`ty_flag`: `cs_flag-false` switches them off.
 
 The regions are an **SVG overlay** whose `viewBox` is the image's natural pixel
 space — the same space the HTML image map `coords` are written in — so the
@@ -641,8 +658,10 @@ cut to the scale. `startangle` and `ticksangle` shape the dial: `90` and `180`
 give a half dial.
 
 Whatever else canvas-gauges can draw — needle shape, plate colours, borders —
-goes into `options`, a structure bound with the camelCase mapper; its fields
-win over the parameters above. canvas-gauges is small, has no dependencies and
+goes into `options`, a structure bound with `omit_initial = abap_true` — the
+control turns its field names into camelCase — whose fields win over the
+parameters above. An option that defaults to true is switched off by a string
+field set to `false`. canvas-gauges is small, has no dependencies and
 is no longer developed: the version is pinned like every other library here,
 and the `local` branch carries it in the BSP.
 
@@ -767,11 +786,11 @@ config = client->_bind( val          = ms_chart
                         omit_initial = abap_true )
 ```
 
-ChartJs turns the ABAP field names into camelCase itself. The other controls
-that hand a structure to a library expecting camelCase names still take the
-camelCase mapper (`custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-iv_first_json_upper = abap_false )`), which `_bind( )` marks obsolete - see
-their sections.
+The controls turn the ABAP field names into the camelCase names the libraries
+read (`border_width` → `borderWidth`), so no mapper is needed. The camelCase
+mapper of older apps (`custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
+iv_first_json_upper = abap_false )`) still works, but `_bind( )` marks it
+obsolete and the abap2UI5-linter reports it.
 
 ABAP has no "unset" for a structure component: fields you never touched still
 serialize as `""`, `0` or `false`, and `borderWidth: 0` draws no border.
@@ -780,7 +799,9 @@ the entries of an array - a `0` in a dataset, a row of a table - are kept. The
 flip side: a field that *is* meaningfully zero, empty or false cannot be sent
 this way; `omit_initial_paths` limits the omission to the fields it lists, and
 the types of ChartJs (`ty_flag`) and Validator (`minimum`, `maximum`) carry
-such values as text, where only the empty string is initial.
+such values as text, where only the empty string is initial. The `ty_flag`
+of ChartJs, DriverJs, ImageMapster and ExportSpreadsheet takes `cs_flag-false`,
+`cs_flag-true` (or `abap_true`) or stays empty for the library's default.
 
 `z2ui5_cl_cci_json_filter`, which the samples used before, still works but is
 deprecated and will be removed in a later release: `custom_filter` is obsolete

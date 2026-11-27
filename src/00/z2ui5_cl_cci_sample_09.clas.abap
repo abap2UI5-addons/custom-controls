@@ -113,9 +113,7 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
         areas        = client->_bind( val           = t_area
                                       omit_initial  = abap_true )
         config       = client->_bind( val           = s_config
-                                      omit_initial  = abap_true
-                                      custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                                                          iv_first_json_upper = abap_false ) ) ).
+                                      omit_initial  = abap_true ) ).
 
     map->tag( `Text`
            )->a( n = `text`
@@ -205,8 +203,9 @@ CLASS z2ui5_cl_cci_sample_09 IMPLEMENTATION.
     s_config-stroke_color    = `0a6ed1`.
     s_config-stroke_width    = 3.
     s_config-scale_map       = abap_true.
-    s_config-is_selectable   = abap_true.
-    s_config-is_deselectable = abap_true.
+    " ty_flag fields: cs_flag-false would switch the option off
+    s_config-is_selectable   = z2ui5_cl_cci_imagemapster=>cs_flag-true.
+    s_config-is_deselectable = z2ui5_cl_cci_imagemapster=>cs_flag-true.
 
     s_config-render_select-fill         = abap_true.
     s_config-render_select-fill_color   = `107e3e`.

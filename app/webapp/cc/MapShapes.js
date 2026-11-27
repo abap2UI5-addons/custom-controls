@@ -16,10 +16,11 @@ sap.ui.define([], () => {
   // ImageMapster's own defaults, kept so a view written against the previous
   // canvas-based control looks the same.
   //
-  // They also have to carry the weight of a missing value: the JSON filter
-  // this library binds structures with drops initial ABAP values, so `false`
-  // and "never set" arrive identically - as nothing. Every boolean here
-  // therefore defaults to what the majority of views want.
+  // They also carry the weight of a missing value: omit_initial drops initial
+  // ABAP values, so an abap_bool `false` and "never set" arrive identically -
+  // as nothing. Every boolean here therefore defaults to what the majority of
+  // views want; the ones that default to true (fill, fade) are ty_flag text
+  // in ABAP, and ImageMapster turns a `false` into false before it gets here.
   const DEFAULTS = {
     fill: true,
     fillColor: "000000",

@@ -83,14 +83,10 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
         customcss   = client->_bind( css )
         highlighted = client->_event( `STEP` )
         done        = client->_event( `DONE` )
-        config      = client->_bind( val           = s_tour
-                                     omit_initial  = abap_true
-                                     custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                                                         iv_first_json_upper = abap_false ) )
-        highlight   = client->_bind( val           = s_highlight
-                                     omit_initial  = abap_true
-                                     custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                                                         iv_first_json_upper = abap_false ) ) ).
+        config      = client->_bind( val          = s_tour
+                                     omit_initial = abap_true )
+        highlight   = client->_bind( val          = s_highlight
+                                     omit_initial = abap_true ) ).
 
     page->ele( `headerContent`
         )->tag( `Button`
@@ -201,7 +197,8 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
     s_tour-show_progress = abap_true.
     s_tour-progress_text = `{{current}} of {{total}}`.
     s_tour-popover_class = `driverjs-theme`.
-    s_tour-allow_close   = abap_true.
+    " a ty_flag - cs_flag-false would keep the user in the tour until its end
+    s_tour-allow_close   = z2ui5_cl_cci_driverjs=>cs_flag-true.
 
     " element is the control id from the view above, nothing else; the
     " texts are plain text - render( allowhtml = `true` ) would take HTML

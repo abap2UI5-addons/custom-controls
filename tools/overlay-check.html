@@ -22,12 +22,8 @@
 const modules = {};
 window.sap = { ui: { define(deps, factory) { window.__factory = { deps, factory }; } } };
 
-const Util = {
-  toList: (v) => String(v || "").split(",").map((s) => s.trim()).filter(Boolean),
-  logError: (...a) => log("logError: " + a.join(" ")),
-  isDestroyed: () => false,
-  toCssSize: (v) => (v === undefined || v === null || v === "" ? "" : /^-?\d+(\.\d+)?$/.test(String(v)) ? v + "px" : String(v)),
-};
+// the real Util.js, loaded below; a logError becomes a FAIL line
+let Util;
 
 const lines = [];
 function log(msg) { lines.push(msg); }
@@ -41,6 +37,11 @@ async function load(path, name, deps) {
 function assert(ok, what) { log((ok ? "PASS  " : "FAIL  ") + what); }
 
 (async () => {
+  await load("../app/webapp/cc/Util.js", "Util", {
+    "sap/ui/core/Element": {},
+    "z2ui5_cci/cc/LibUrls": { integrity: {} },
+  });
+  Util = { ...modules.Util, logError: (...a) => log("logError: " + a.join(" ")), isDestroyed: () => false };
   await load("../app/webapp/cc/MapShapes.js", "MapShapes", {});
   await load("../app/webapp/cc/ImageMapster.js", "ImageMapster", {
     "sap/ui/core/Control": { extend: (n, def) => def },

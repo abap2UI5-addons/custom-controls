@@ -21,9 +21,20 @@
 "! <em>allowhtml</em> to `true` for simple markup - it is then sanitized with
 "! DOMPurify, never inserted as it stands.
 "!
-"! Bind config and highlight with the camelCase mapper and this library's JSON
-"! filter - see z2ui5_cl_cci_chartjs for the same pattern and why both are
-"! needed.
+"! Bind config and highlight with omit_initial:
+"!
+"!   config = client->_bind( val          = ms_tour
+"!                           omit_initial = abap_true )
+"!
+"! Without omit_initial every field the app left alone would arrive as 0 or
+"! `` and override the driver.js default. The control turns the ABAP field
+"! names into the camelCase names driver.js reads (allow_close -&gt;
+"! allowClose), so no mapper is needed - the camelCase mapper of older apps
+"! still works. An option whose driver.js default is true is a ty_flag, set
+"! to cs_flag-false to switch it off; an abap_bool field can only switch an
+"! option ON, because omit_initial drops abap_false. The numbers where 0 means
+"! something (stage_padding, stage_radius, popover_offset) are text for the
+"! same reason: empty keeps the default, `0` is sent.
 "!
 "! Ported from abap2UI5-addons/js-libraries (z2ui5_cl_cc_driver_js). The
 "! original pasted the whole library and its stylesheet into the view as ABAP
@@ -36,6 +47,18 @@ CLASS z2ui5_cl_cci_driverjs DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+
+    "! A driver.js option whose default is TRUE: `false`, `true` (abap_true
+    "! works as well) or empty for the driver.js default. Not abap_bool,
+    "! because omit_initial drops an abap_false - the initial value - and
+    "! driver.js would fall back to true. Use cs_flag.
+    TYPES ty_flag TYPE string.
+
+    CONSTANTS:
+      BEGIN OF cs_flag,
+        true  TYPE ty_flag VALUE `true`,
+        false TYPE ty_flag VALUE `false`,
+      END OF cs_flag.
 
     CONSTANTS:
       "! Which buttons a popover shows, as a comma separated list.
@@ -113,17 +136,20 @@ CLASS z2ui5_cl_cci_driverjs DEFINITION
     TYPES:
       BEGIN OF ty_s_config,
         steps                      TYPE ty_t_step,
-        animate                    TYPE abap_bool,
+        animate                    TYPE ty_flag,
         overlay_color              TYPE string,
         overlay_opacity            TYPE string,
         smooth_scroll              TYPE abap_bool,
-        allow_close                TYPE abap_bool,
-        allow_keyboard_control     TYPE abap_bool,
+        allow_close                TYPE ty_flag,
+        allow_keyboard_control     TYPE ty_flag,
         disable_active_interaction TYPE abap_bool,
-        stage_padding              TYPE i,
-        stage_radius               TYPE i,
+        "! a number as text: empty keeps the default (10), `0` is no padding
+        stage_padding              TYPE string,
+        "! a number as text: empty keeps the default (5), `0` square corners
+        stage_radius               TYPE string,
         popover_class              TYPE string,
-        popover_offset             TYPE i,
+        "! a number as text: empty keeps the default (10), `0` no gap
+        popover_offset             TYPE string,
         show_buttons               TYPE string,
         disable_buttons            TYPE string,
         show_progress              TYPE abap_bool,

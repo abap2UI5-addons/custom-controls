@@ -53,7 +53,11 @@ CLASS z2ui5_cl_cci_gauge DEFINITION
     "! @parameter decimals     | decimal places of the number in the box, default 0
     "! @parameter animation    | `false` lets the needle jump instead of travel
     "! @parameter options      | bind of a structure with options of the library; they win
-    "!                           over the parameters above. Bind with the camelCase mapper
+    "!                           over the parameters above. Bind with omit_initial - the
+    "!                           control turns the field names into camelCase
+    "!                           (color_plate -&gt; colorPlate), no mapper needed. To switch off
+    "!                           an option whose default is true, use a string field set to
+    "!                           `false`: omit_initial drops an abap_false
     "! @parameter liburl       | where to load canvas-gauges from; default: see LibUrls
     "! @parameter result       | the unchanged view builder, for chaining
     CLASS-METHODS render
