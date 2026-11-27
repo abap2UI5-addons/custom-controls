@@ -803,6 +803,13 @@ such values as text, where only the empty string is initial. The `ty_flag`
 of ChartJs, DriverJs, ImageMapster and ExportSpreadsheet takes `cs_flag-false`,
 `cs_flag-true` (or `abap_true`) or stays empty for the library's default.
 
+The boolean parameters of the `render( )` methods are text too, so that a
+binding fits: `true` or `false`. Neither ABAP boolean fits as it is —
+`abap_true` arrives as `X`, and `abap_false` turns into an empty string, which
+drops the attribute, so the control keeps its default (`editable =
+abap_false` leaves a field editable). Pass an ABAP flag through
+`z2ui5_cl_cci=>bool( )`.
+
 `z2ui5_cl_cci_json_filter`, which the samples used before, still works but is
 deprecated and will be removed in a later release: `custom_filter` is obsolete
 on `_bind( )` and the abap2UI5-linter reports it (`obsolete-bind-argument`).

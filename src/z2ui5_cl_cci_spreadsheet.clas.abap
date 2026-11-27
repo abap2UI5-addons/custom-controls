@@ -86,7 +86,7 @@ CLASS z2ui5_cl_cci_spreadsheet DEFINITION
     "! @parameter icon      | button icon
     "! @parameter type      | button type, e.g. Emphasized
     "! @parameter tooltip   | button tooltip
-    "! @parameter enabled   | `true` / `false` - never abap_true, it serializes as X
+    "! @parameter enabled   | `true` / `false` - never abap_true (X) or abap_false (dropped: the default stays) - pass z2ui5_cl_cci=>bool( flag )
     "! @parameter status    | bind two-way to receive `success` / `error: ...`
     "! @parameter exported  | client->_event( ... ) fired after every export
     "! @parameter result    | the unchanged view builder, for chaining

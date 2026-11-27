@@ -37,6 +37,10 @@ CLASS z2ui5_cl_cci_barcode DEFINITION
 
     "! Emit &lt;z2ui5_cci:Barcode/&gt; into an existing view.
     "!
+    "! Boolean parameters take `true` / `false` - pass an ABAP flag through
+    "! z2ui5_cl_cci=>bool( ): abap_true arrives as X, and abap_false turns into
+    "! an empty string, which drops the attribute, so the default stays.
+    "!
     "! @parameter view            | the builder positioned at the parent element
     "! @parameter bcid            | symbology, e.g. `qrcode`, `ean13`
     "! @parameter text            | the value to encode

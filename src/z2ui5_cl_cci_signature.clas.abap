@@ -30,7 +30,7 @@ CLASS z2ui5_cl_cci_signature DEFINITION
     "! @parameter height    | CSS size; a bare number is treated as px
     "! @parameter linewidth | stroke width in CSS pixels
     "! @parameter linecolor | stroke colour, any CSS colour
-    "! @parameter editable  | `true` / `false` - never abap_true, it serializes as X
+    "! @parameter editable  | `true` / `false` - never abap_true (X) or abap_false (dropped: the default stays) - pass z2ui5_cl_cci=>bool( flag )
     "! @parameter change    | client->_event( ... ) fired when a stroke ends
     "! @parameter result    | the unchanged view builder, for chaining
     CLASS-METHODS render

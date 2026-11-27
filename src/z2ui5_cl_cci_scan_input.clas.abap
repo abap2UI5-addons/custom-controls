@@ -28,7 +28,10 @@ CLASS z2ui5_cl_cci_scan_input DEFINITION
     "! cursor stays on the current node, so the caller can keep chaining.
     "!
     "! Boolean parameters take `true` / `false` or a binding - never
-    "! abap_true, it serializes as X.
+    "! abap_true, it serializes as X, and never abap_false, which turns into an
+    "! empty string: the attribute is dropped and the default stays
+    "! (editable = abap_false leaves the field editable). Pass an ABAP flag
+    "! through z2ui5_cl_cci=>bool( ).
     "!
     "! @parameter view                  | the builder positioned at the parent element
     "! @parameter id                    | control id, e.g. for SET_FOCUS

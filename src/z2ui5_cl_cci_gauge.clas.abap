@@ -36,6 +36,10 @@ CLASS z2ui5_cl_cci_gauge DEFINITION
     "! Mirrors z2ui5_cl_ui5_view_builder=>tag: the element is added as a child and the
     "! cursor stays on the current node, so the caller can keep chaining.
     "!
+    "! Boolean parameters take `true` / `false` - pass an ABAP flag through
+    "! z2ui5_cl_cci=>bool( ): abap_true arrives as X, and abap_false turns into
+    "! an empty string, which drops the attribute, so the default stays.
+    "!
     "! @parameter view         | the builder positioned at the parent element
     "! @parameter value        | the value the needle points at; bind it
     "! @parameter minvalue     | start of the scale, default 0
@@ -49,7 +53,7 @@ CLASS z2ui5_cl_cci_gauge DEFINITION
     "! @parameter tickinterval | distance between two labelled ticks; empty: ten steps
     "! @parameter minorticks   | small ticks between two labelled ones, default 2
     "! @parameter highlights   | bind of a ty_t_highlight table
-    "! @parameter valuebox     | `false` hides the box with the number; never abap_true, it serializes as X
+    "! @parameter valuebox     | `false` hides the box with the number; never abap_true (X) or abap_false (dropped: the default stays) - pass z2ui5_cl_cci=>bool( flag )
     "! @parameter decimals     | decimal places of the number in the box, default 0
     "! @parameter animation    | `false` lets the needle jump instead of travel
     "! @parameter options      | bind of a structure with options of the library; they win

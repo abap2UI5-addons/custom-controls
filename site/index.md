@@ -51,7 +51,7 @@ With [abapGit](https://abapgit.org), from [the repository](https://github.com/ab
 - Branch main: the sources with libraries from jsDelivr (default); branch local: the same with every library vendored into the BSP, for browsers without internet access
 - Brings the ABAP classes, the BSP application Z2UI5_CCI and the two ICF nodes it is served from
 - Start ?app_start=z2ui5_cl_cci_sample_00; if it says ICF Node NOT found, activate the node z2ui5_cci in SICF
-- Bind configuration structures with omit_initial = abap_true; the controls turn the field names into camelCase themselves, no mapper needed; a true-default option is a ty_flag set to cs_flag-false
+- Bind configuration structures with omit_initial = abap_true; the controls turn the field names into camelCase themselves, no mapper needed; a true-default option is a ty_flag set to cs_flag-false, a boolean render( ) parameter takes `true`/`false` (z2ui5_cl_cci=>bool( ))
 
 The [Guide](/guide) has every step.
 

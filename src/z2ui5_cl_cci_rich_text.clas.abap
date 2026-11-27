@@ -41,8 +41,9 @@ CLASS z2ui5_cl_cci_rich_text DEFINITION
     "!
     "! @parameter view        | the builder positioned at the parent element
     "! @parameter value       | the HTML, bound two-way: client->_bind( ... )
-    "! @parameter editable    | `false` shows the text read-only - never abap_true,
-    "!                          it serializes as X
+    "! @parameter editable    | `false` shows the text read-only - never abap_true
+    "!                          (X) or abap_false (dropped: stays editable) -
+    "!                          pass z2ui5_cl_cci=>bool( flag )
     "! @parameter width       | CSS width, default 100%
     "! @parameter height      | CSS height of the editing area below the toolbar;
     "!                          empty grows with the text

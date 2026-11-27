@@ -27,7 +27,7 @@ CLASS z2ui5_cl_cci_clock DEFINITION
     "! @parameter locale   | BCP 47 tag such as de-DE; default: the UI5 language
     "! @parameter icon     | e.g. sap-icon://history
     "! @parameter type     | button type, default Transparent
-    "! @parameter enabled  | `true` / `false` - never abap_true, it serializes as X
+    "! @parameter enabled  | `true` / `false` - never abap_true (X) or abap_false (dropped: the default stays) - pass z2ui5_cl_cci=>bool( flag )
     "! @parameter width    | CSS width
     "! @parameter tooltip  | tooltip text
     "! @parameter class    | CSS classes

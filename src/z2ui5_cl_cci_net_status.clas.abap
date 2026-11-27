@@ -26,7 +26,9 @@ CLASS z2ui5_cl_cci_net_status DEFINITION
     "! cursor stays on the current node, so the caller can keep chaining.
     "!
     "! Boolean parameters take `true` / `false` - never abap_true, it
-    "! serializes as X.
+    "! serializes as X, and never abap_false, which turns into an empty string:
+    "! the attribute is dropped and the default stays. Pass an ABAP flag
+    "! through z2ui5_cl_cci=>bool( ).
     "!
     "! @parameter view            | the builder positioned at the parent element
     "! @parameter status          | bind to receive online / unreachable / offline
