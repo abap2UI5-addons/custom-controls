@@ -59,6 +59,13 @@ CLASS z2ui5_cl_cci DEFINITION
     "! Mirrors z2ui5_cl_ui5_view_builder=>tag: the element is added as a child and the
     "! cursor stays on the current node, so the caller can keep chaining.
     "!
+    "! Every value is written as it is, like a( v = ) of the view builder: a
+    "! binding or an event stays one. A value that is LITERAL text from user
+    "! input or external data has to be escaped by the caller, or a `{` in it
+    "! is read as a binding:
+    "!
+    "!   text = z2ui5_cl_ui5_view_builder=&gt;escape_literal( lv_input )
+    "!
     "! @parameter view   | the builder positioned at the parent element
     "! @parameter name   | element name, without the namespace prefix
     "! @parameter a      | attributes as `key=value`; empty values are dropped

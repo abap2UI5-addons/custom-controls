@@ -868,7 +868,12 @@ which look identical from inside the app.
    on `local` without a second code path. A WebAssembly module the library
    compiles gets an entry of `"kind": "wasm"` of its own (see `zxingWasmBinary`)
 3. run `npm run app2bsp` — regenerates the BSP artefacts under `src/01`
-4. add a builder class `z2ui5_cl_cci_<name>` next to the others
+4. add a builder class `z2ui5_cl_cci_<name>` next to the others; its
+   `render( )` hands the parameters to `z2ui5_cl_cci=>tag( )` as `key=value`
+   strings, which drops the empty ones (`z2ui5_cl_cci=>ele( )` for a control
+   with children such as layoutData). The values are written as they are, so
+   a binding stays a binding - literal text from user input is escaped by the
+   app with `z2ui5_cl_ui5_view_builder=>escape_literal( )`
 5. add a sample and a row in `z2ui5_cl_cci_sample_00=>model_init( )`
 
 File names under `app/webapp` become BSP page names and SAP validates them: at
