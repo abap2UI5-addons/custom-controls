@@ -72,6 +72,10 @@ JavaScript checks are this repository's own jobs in the same workflow:
   * `check / abap2ui5lint` - the app classes and their views, render gate off
     (the UI5 metadata snapshot cannot know `z2ui5_cci.cc.SignaturePad`); on
     `main` the two README badges are published to the branch `badges`
+  * `check / npm run check:702` - `.github/scripts/check-702.sh`, the same
+    file as in admin-cockpit: a scratch copy of `src/` in `build/702`
+    downported and linted with `abap_702.jsonc`, `src/` is never rewritten -
+    the 7.02 gate of a pull request
   * `app2bsp`, `vendor` (with `npm run build:local`) and `js` (`node --check`,
     `npm test`, `npm run check:browser`)
 * `ci-702` - on every push to `main` `npm run auto_downport` (against

@@ -9,6 +9,10 @@ name: ci
 #                         (.github/abaplint/abap_cloud.jsonc)
 #   check / abap2ui5lint  the app classes and their views (abap2ui5lint.jsonc),
 #                         on main the README badges, published to `badges`
+#   check / npm run check:702
+#                         a scratch copy of src/ downported and linted with
+#                         .github/abaplint/abap_702.jsonc - the 7.02 gate of
+#                         a pull request; ci-702 publishes the branch 702
 #   app2bsp               src/01 matches npm run app2bsp
 #   vendor                LibUrls.js matches npm run vendor, and the local
 #                         build succeeds
@@ -50,6 +54,7 @@ jobs:
     uses: abap2UI5-addons/rap-ext/.github/workflows/addon-check.yaml@c81dfd461f69e42bb3678f51f80804066e2c9f96 # ci-v1.0.0
     with:
       abaplint: '["./abaplint.jsonc", ".github/abaplint/abap_cloud.jsonc"]'
+      npm-scripts: '["check:702"]'
       abap2ui5lint-render: false
       rename: true
       canary: ${{ github.event_name == 'schedule' }}
