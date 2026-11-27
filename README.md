@@ -222,8 +222,8 @@ lengths, and the numbers where `0` or a fraction counts (`ticks-step_size`,
 ### Barcode
 
 `bcid`, `text`, `alttext`, `scale`, `height`, `includetext`, `textalign`,
-`rotate`, `backgroundcolor`, `options`, `renderas` (`canvas`/`svg`), `liburl`,
-`barwidth` (width of a linear symbol in millimetres) · event `error`.
+`rotate`, `backgroundcolor`, `options`, `renderas` (`canvas`/`svg`), `liburl` ·
+event `error`.
 
 `z2ui5_cl_cci_barcode=>get_types( )` returns a handful of symbologies with
 values that encode cleanly. Leave `height` empty for 2D codes — a fixed height
