@@ -253,7 +253,7 @@ sap.ui.define(
         if (!value || !this.getSanitize()) return value;
         // sanitizing was asked for and is not possible: nothing, rather than
         // the value unchecked
-        return window.DOMPurify ? window.DOMPurify.sanitize(value) : "";
+        return window.DOMPurify ? Util.purify(value) : "";
       },
 
       // What the editor holds, as the model would get it.

@@ -410,9 +410,11 @@ follows every keystroke without a roundtrip.
 The rendered HTML goes through [DOMPurify](https://github.com/cure53/DOMPurify)
 unless `sanitize` is set to `false`. Leave it on for anything a user typed or a
 model produced: Markdown carries raw HTML through, and unsanitized that HTML
-runs with the user's session. A link whose href starts with `#` does not
-navigate — it raises `linkpress` with the href, which is how a help text links
-into the app it documents. Every other link opens in a new tab.
+runs with the user's session. Besides scripts, the sanitizer drops forms,
+buttons, `select`/`textarea` and `<style>` - a fake logon form or a stylesheet
+that restyles the whole page has no business in a rendered text. A link whose
+href starts with `#` does not navigate — it raises `linkpress` with the href,
+which is how a help text links into the app it documents. Every other link opens in a new tab.
 
 <img width="900" height="508" alt="The Markdown sample" src="https://github.com/user-attachments/assets/3dd6fed0-2014-4eed-af9f-45d91bfc8e37" />
 
@@ -446,7 +448,8 @@ actually edits it.
   [DOMPurify](https://github.com/cure53/DOMPurify) on its way into the editor
   and on its way back, unless `sanitize` is `false`. Leave it on: the text ends
   up in some other page one day, and what comes in may have been typed by
-  somebody else.
+  somebody else. Forms, buttons, `select`/`textarea` and `<style>` are dropped
+  as well, as in Markdown.
 - **Toolbar.** Button groups separated by `|`, buttons by `,`, named as
   SunEditor names them: `undo,redo|bold,italic|link`. Empty is the full toolbar
   — formats, fonts, colours, alignment, lists, table, link, image, full screen

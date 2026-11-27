@@ -16,6 +16,8 @@ import test from "node:test";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const Util = {
+  // Util.purify, minus the options - see purify.test.mjs
+  purify: (html) => `[clean]${html}`,
   toList: (val) => String(val || "").split(",").map((s) => s.trim()).filter(Boolean),
   resolveControl: () => null,
 };
@@ -35,9 +37,8 @@ function load() {
       },
     },
   };
-  const window = { DOMPurify: { sanitize: (html) => `[clean]${html}` } };
   // eslint-disable-next-line no-new-func
-  new Function("sap", "window", source)(sap, window);
+  new Function("sap", source)(sap);
   return result;
 }
 
