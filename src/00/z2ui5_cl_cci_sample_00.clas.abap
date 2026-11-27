@@ -345,7 +345,12 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
         module      = `z2ui5_cci/cc/GridStack`
         description = `Boxes on a grid, shown or dragged and resized; positions go back into the table`
         library     = `gridstack.js`
-        app         = |{ demo }17| ) ).
+        app         = |{ demo }17| )
+      ( name        = `FloorPlan`
+        module      = `z2ui5_cci/cc/FloorPlan`
+        description = `Zoomable plan of boxes with a fill level; the closer the view, the more each one shows`
+        library     = `none`
+        app         = |{ demo }18| ) ).
 
   ENDMETHOD.
 
