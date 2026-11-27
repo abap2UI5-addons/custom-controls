@@ -202,7 +202,7 @@ CLASS z2ui5_cl_cci_sample_03 IMPLEMENTATION.
 
     t_rule = VALUE #(
       ( field = `email`    required = abap_true format = `email` )
-      ( field = `quantity` required = abap_true type = `integer` minimum = 1 maximum = 999 )
+      ( field = `quantity` required = abap_true type = `integer` minimum = `1` maximum = `999` )
       ( field = `zipcode`  pattern  = `^[0-9]{5}$`
         message = `Enter five digits, e.g. 69190` )
       ( field = `comment`  maxlength = 40 ) ).

@@ -167,7 +167,9 @@ renders disabled.
 
 Rule fields: `field`, `type` (`number`/`integer`), `format` (`email`/`date`),
 `pattern`, `required`, `minlength`, `maxlength`, `minimum`, `maximum`,
-`message`. No external library — works without internet access.
+`message`. No external library — works without internet access. `minimum` and
+`maximum` are text: empty means no limit, so a limit of `0` is checked too
+(bind the rules with `omit_initial = abap_true`).
 
 <img width="1246" height="636" alt="The Validator sample" src="https://github.com/user-attachments/assets/c47560cc-503e-439e-a907-f2ff76790b70" />
 
@@ -743,8 +745,8 @@ serialize as `""`, `0` or `false`, and `borderWidth: 0` draws no border.
 the entries of an array - a `0` in a dataset, a row of a table - are kept. The
 flip side: a field that *is* meaningfully zero, empty or false cannot be sent
 this way; `omit_initial_paths` limits the omission to the fields it lists, and
-the `ty_flag` fields of ChartJs carry such values as text, where only the empty
-string is initial.
+the types of ChartJs (`ty_flag`) and Validator (`minimum`, `maximum`) carry
+such values as text, where only the empty string is initial.
 
 `z2ui5_cl_cci_json_filter`, which the samples used before, still works, but
 `custom_filter` is obsolete on `_bind( )` and the abap2UI5-linter reports it

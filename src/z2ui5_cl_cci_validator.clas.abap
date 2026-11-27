@@ -38,8 +38,11 @@ CLASS z2ui5_cl_cci_validator DEFINITION
         required  TYPE abap_bool,
         minlength TYPE i,
         maxlength TYPE i,
-        minimum   TYPE i,
-        maximum   TYPE i,
+        "! lowest number allowed - text, so that a limit of 0 survives
+        "! omit_initial: empty means no limit. `0`, `-5` or `2.5`
+        minimum   TYPE string,
+        "! highest number allowed, like minimum
+        maximum   TYPE string,
         "! overrides the generated text, e.g. for a translated message
         message   TYPE string,
       END OF ty_s_rule.
