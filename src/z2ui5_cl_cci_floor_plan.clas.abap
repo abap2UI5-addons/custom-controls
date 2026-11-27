@@ -68,30 +68,33 @@ CLASS z2ui5_cl_cci_floor_plan DEFINITION
       BEGIN OF ty_s_item,
         "! unique in the table; what itempress, selectedkeys, highlightkeys
         "! and fitkeys name the item by
-        key     TYPE string,
+        key      TYPE string,
         "! left edge
-        x       TYPE ty_number,
+        x        TYPE ty_number,
         "! top edge
-        y       TYPE ty_number,
-        width   TYPE ty_number,
-        height  TYPE ty_number,
+        y        TYPE ty_number,
+        width    TYPE ty_number,
+        height   TYPE ty_number,
         "! the filled share, 0 to 1 - drawn as a bar in the colour of the
         "! state
-        fill    TYPE ty_number,
+        fill     TYPE ty_number,
         "! a value of cs_dir
-        dir     TYPE string,
+        dir      TYPE string,
         "! a value of cs_state
-        state   TYPE string,
+        state    TYPE string,
         "! any CSS colour; overrides the colour of the state
-        color   TYPE string,
+        color    TYPE string,
         "! drawn hatched: locked, out of use
-        blocked TYPE abap_bool,
+        blocked  TYPE abap_bool,
+        "! takes no click: no itempress and no selection. It is drawn as
+        "! every other item - combine it with blocked or a colour to show it
+        disabled TYPE abap_bool,
         "! first line, bold - shown first when the user zooms in
-        title   TYPE string,
+        title    TYPE string,
         "! second line
-        text    TYPE string,
+        text     TYPE string,
         "! third line
-        info    TYPE string,
+        info     TYPE string,
       END OF ty_s_item.
     TYPES ty_t_item TYPE STANDARD TABLE OF ty_s_item WITH EMPTY KEY.
 

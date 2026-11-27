@@ -11,6 +11,7 @@ Legend
 
 unreleased
 ----------
++ FloorPlan: an item with disabled = abap_true takes no click - no itempress, no selection, no pointer cursor
 + ScanInput: beeponsuccess = `true` plays a short, high tone when valuestate turns to Success - the scan was taken
 + FloorPlan: zoomable = `false` makes the plan a fixed picture of the whole - no wheel, drag, pinch, keys or buttons, the page scrolls as usual, a click still selects
 + FloorPlan (z2ui5_cl_cci_floor_plan, sample 18): a plan of boxes from an ABAP table, each with a position, a state and a fill level, that the user zooms and pans with the wheel, a drag or two fingers; the closer the view, the more text a box shows, a click raises "itemPress" with its key, and "fitkeys" flies the viewport to items from ABAP. Plain SVG, no library

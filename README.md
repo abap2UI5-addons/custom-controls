@@ -639,7 +639,8 @@ message, leave it on.
 A plan seen from above that the user zooms and pans. Every row of the table is
 one box at a fixed place: `key`, `x`, `y`, `width`, `height` in plan units,
 `fill` (the filled share, 0 to 1), `dir`, `state` (a value of `cs_state`: the
-semantic colours of the theme), `color`, `blocked`, and three lines of text -
+semantic colours of the theme), `color`, `blocked`, `disabled`, and three lines
+of text -
 `title`, `text`, `info`. An area is an outline behind the boxes with its
 `title` in the corner: a hall, a zone.
 
@@ -676,6 +677,9 @@ right and `y` downwards. The plan has no height of its own, so give it one.
 - **Selection** - a click selects a box, writes `selectedkeys` and raises
   `itempress`. `selectionmode` is `Single` (the default), `Multi` or `None`,
   which only reports the click.
+- **Not every box** - an item with `disabled` takes no click: no `itempress`
+  and no selection, and no pointer cursor. It is drawn like the others, so say
+  it with `blocked` or a colour.
 - **From ABAP** - `highlightkeys` dims every box it does not name. `fitkeys`
   flies the viewport to the boxes it names whenever its value changes, and
   back to the whole plan when it is cleared.

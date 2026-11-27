@@ -81,7 +81,7 @@ sap.ui.define(
       metadata: {
         properties: {
           // [{ KEY, X, Y, WIDTH, HEIGHT, FILL, DIR, STATE, COLOR, BLOCKED,
-          //    TITLE, TEXT, INFO }] - the boxes, in plan units
+          //    DISABLED, TITLE, TEXT, INFO }] - the boxes, in plan units
           items: { type: "object[]", defaultValue: [] },
           // [{ KEY, X, Y, WIDTH, HEIGHT, TITLE }] - outlines behind the
           // boxes: a hall, a zone. Not clickable
@@ -306,7 +306,8 @@ sap.ui.define(
           }
 
           const group = svgNode("g", { "data-index": index });
-          group.style.cursor = "pointer";
+          // an item that takes no click does not look as if it did
+          if (!item.DISABLED) group.style.cursor = "pointer";
 
           const frame = svgNode("rect", { "vector-effect": "non-scaling-stroke" });
           setBox(frame, b);
@@ -502,6 +503,8 @@ sap.ui.define(
       // ------------------------------------------------------------------
 
       _press(item) {
+        // drawn, but not to be clicked: no event and no selection
+        if (item.DISABLED) return;
         const key = String(item.KEY ?? "");
         const mode = String(this.getSelectionMode() || "").toLowerCase();
 
