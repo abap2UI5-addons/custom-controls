@@ -477,6 +477,7 @@ an open overflow menu every second.
 
 `keepfocus`, `selectonfocus`, `beeponerror`, `vibrateonerror`, `keyboard`
 (bind two-way), `inputmode`, `showkeyboardtoggle`, `keyboardtoggletooltip`,
+`uppercase`,
 and of `sap.m.Input`: `id`, `value`, `valuestate`, `valuestatetext`,
 `showvaluestatemessage`, `placeholder`, `enabled`, `editable`, `visible`,
 `width`, `maxlength`, `type`, `class` · events `submit` (Enter - the suffix
@@ -491,8 +492,22 @@ An `sap.m.Input` for scanning, everything in the browser:
   focus from another text field, an iframe or an open popup, never while text
   is selected on the page, and never goes into a hidden, disabled or read-only
   field.
+- **A focus sequence over several fields** - bind `keepfocus` of every field
+  to a flag of its own and switch the flags in ABAP: the field whose flag
+  turns on while it is on screen takes the focus, also from the field the
+  scan was just made in. That is the one case in which the focus is taken
+  from another text field - the backend moved on to the next step. An open
+  popup, a hidden or a disabled field still make it wait. A field that is
+  created with `keepfocus` on claims nothing and gets the focus the polite
+  way.
 - **`selectonfocus`** - the content is selected when the field gets the
   focus, so the next scan replaces it.
+- **`uppercase`** - what is typed, scanned or pasted becomes capital letters
+  in the field itself, so `value`, `submit` and `change` carry them. One
+  character for one: a letter whose capital form is two characters (the
+  German sharp s) is kept, as ABAP's `TRANSLATE ... TO UPPER CASE` keeps it.
+  A value the model writes is shown as it is, and a password field is left
+  alone.
 - **`beeponerror`**, **`vibrateonerror`** - when `valuestate` turns to
   `Error`: a short beep (WebAudio, no audio file) and `navigator.vibrate`. A
   second wrong scan leaves the state at `Error`, so the first model update

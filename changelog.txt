@@ -11,4 +11,6 @@ Legend
 
 unreleased
 ----------
++ ScanInput: a focus sequence over several scan fields - bind keepfocus of each field to a flag; the field whose flag turns on while it is on screen takes the focus, also from another text field (a popup, a hidden or a disabled field still make it wait)
++ ScanInput: uppercase = `true` turns what is typed, scanned or pasted into capital letters in the field, so value, submit and change carry them
 ! BREAKING: four classes renamed so that every class name has at most 25 characters and the namespace rename takes a name of the full 10 characters (it was capped at 6): z2ui5_cl_cci_rich_text_editor -> z2ui5_cl_cci_rich_text, z2ui5_cl_cci_barcode_scanner -> z2ui5_cl_cci_barcode_scan, z2ui5_cl_cci_network_status -> z2ui5_cl_cci_net_status, z2ui5_cl_cci_signature_pad -> z2ui5_cl_cci_signature. Methods, parameters, types and constants are unchanged, and so are the controls in the BSP (z2ui5_cci.cc.RichTextEditor, ...). An app changes the class name it calls; after the abapGit pull the four old classes are still on the system - abapGit does not delete them - and must be deleted by hand (SE24 or ADT) once no app uses them

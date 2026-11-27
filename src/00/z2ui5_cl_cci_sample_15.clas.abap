@@ -10,6 +10,12 @@
 "! without a roundtrip. Type into the note field and it stays there. The
 "! keyboard icon in the field switches the soft keyboard; ABAP reads the
 "! switch with the next roundtrip.
+"!
+"! Two fields make a focus sequence: an accepted code moves the focus on to
+"! the batch field, an entered batch moves it back. ABAP only switches two
+"! flags - each field keeps the focus while its flag is on, and the field
+"! whose flag turns on takes it from the other one. The batch field turns
+"! what is typed into capital letters.
 CLASS z2ui5_cl_cci_sample_15 DEFINITION
   PUBLIC
   FINAL
@@ -19,12 +25,15 @@ CLASS z2ui5_cl_cci_sample_15 DEFINITION
     INTERFACES z2ui5_if_app.
 
     " ONLY bound data here - PUBLIC attributes are serialized every roundtrip
-    DATA scan      TYPE string.
-    DATA has_error TYPE abap_bool.
-    DATA message   TYPE string.
-    DATA keyboard  TYPE abap_bool.
-    DATA note      TYPE string.
-    DATA scanned   TYPE string.
+    DATA scan        TYPE string.
+    DATA has_error   TYPE abap_bool.
+    DATA message     TYPE string.
+    DATA keyboard    TYPE abap_bool.
+    DATA note        TYPE string.
+    DATA scanned     TYPE string.
+    DATA batch       TYPE string.
+    DATA focus_code  TYPE abap_bool.
+    DATA focus_batch TYPE abap_bool.
 
   PROTECTED SECTION.
     DATA client TYPE REF TO z2ui5_if_client.
@@ -33,6 +42,7 @@ CLASS z2ui5_cl_cci_sample_15 DEFINITION
     METHODS popup_display.
     METHODS on_event.
     METHODS on_scan.
+    METHODS on_batch.
 
   PRIVATE SECTION.
 ENDCLASS.
@@ -45,7 +55,8 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
     me->client = client.
 
     IF client->check_on_init( ).
-      message = `Scan a code - eight digits.`.
+      message    = `Scan a code - eight digits.`.
+      focus_code = abap_true.
       view_display( ).
     ELSEIF client->check_on_event( ).
       on_event( ).
@@ -101,11 +112,27 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
         inputmode             = `numeric`
         keyboard              = client->_bind( keyboard )
         showkeyboardtoggle    = `true`
-        keepfocus             = `true`
+        keepfocus             = client->_bind( focus_code )
         selectonfocus         = `true`
         beeponerror           = `true`
         vibrateonerror        = `true`
         submit                = client->_event( `SCAN` ) ).
+
+    form->tag( `Label`
+        )->a( n = `text`
+              v = `Batch` ).
+
+    " the second step of the sequence: it takes the focus when its flag
+    " turns on, and writes capital letters
+    form = z2ui5_cl_cci_scan_input=>render(
+        view          = form
+        id            = `BATCH`
+        value         = client->_bind( batch )
+        placeholder   = `After a code: batch, then Enter`
+        uppercase     = `true`
+        keepfocus     = client->_bind( focus_batch )
+        selectonfocus = `true`
+        submit        = client->_event( `BATCH` ) ).
 
     form->tag( `Label`
         )->a( n = `text`
@@ -185,6 +212,8 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
     CASE client->get( )-event.
       WHEN `SCAN`.
         on_scan( ).
+      WHEN `BATCH`.
+        on_batch( ).
       WHEN `PING`.
         message = |Roundtrip done - keyboard { COND #( WHEN keyboard = abap_true THEN `on` ELSE `off` ) }.|.
       WHEN `POPUP`.
@@ -206,8 +235,24 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
     ENDIF.
 
     has_error = abap_false.
-    message   = |{ code } accepted.|.
+    message   = |{ code } accepted - now the batch.|.
     scanned   = COND #( WHEN scanned IS INITIAL THEN code ELSE |{ code }, { scanned }| ).
+
+    " the next step: the batch field takes the focus
+    focus_code  = abap_false.
+    focus_batch = abap_true.
+
+  ENDMETHOD.
+
+  METHOD on_batch.
+
+    " upper case already - the field wrote capital letters
+    message = |Batch { condense( batch ) } entered - next code.|.
+    CLEAR batch.
+
+    " and back to the first step
+    focus_batch = abap_false.
+    focus_code  = abap_true.
 
   ENDMETHOD.
 

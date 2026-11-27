@@ -43,7 +43,9 @@ CLASS z2ui5_cl_cci_scan_input DEFINITION
     "! @parameter width                 | CSS width
     "! @parameter maxlength             | maximum number of characters
     "! @parameter type                  | sap.m.InputType - Text, Number, ...
-    "! @parameter keepfocus             | `true`: the focus returns into the field
+    "! @parameter keepfocus             | `true`: the focus returns into the field. Bound to a flag
+    "!                                    per field it is a focus sequence: the field whose flag
+    "!                                    turns on takes the focus, also from another field
     "! @parameter selectonfocus         | `true`: the content is selected on focus
     "! @parameter beeponerror           | `true`: a short beep when valuestate turns to Error
     "! @parameter vibrateonerror        | `true`: a vibration when valuestate turns to Error
@@ -51,6 +53,8 @@ CLASS z2ui5_cl_cci_scan_input DEFINITION
     "! @parameter inputmode             | HTML inputmode while the keyboard is on (numeric, text, ...)
     "! @parameter showkeyboardtoggle    | `true`: a keyboard icon in the field switches `keyboard`
     "! @parameter keyboardtoggletooltip | tooltip of that icon, default Keyboard
+    "! @parameter uppercase             | `true`: what is typed, scanned or pasted becomes capital
+    "!                                    letters in the field; not for a password
     "! @parameter class                 | CSS classes
     "! @parameter submit                | client->_event( ... ) on Enter - a scanner's suffix
     "! @parameter change                | client->_event( ... ) when the value was changed
@@ -79,6 +83,7 @@ CLASS z2ui5_cl_cci_scan_input DEFINITION
         inputmode             TYPE string OPTIONAL
         showkeyboardtoggle    TYPE string OPTIONAL
         keyboardtoggletooltip TYPE string OPTIONAL
+        uppercase             TYPE string OPTIONAL
         class                 TYPE string OPTIONAL
         submit                TYPE string OPTIONAL
         change                TYPE string OPTIONAL
@@ -118,6 +123,7 @@ CLASS z2ui5_cl_cci_scan_input IMPLEMENTATION.
                         ( |inputMode={ inputmode }| )
                         ( |showKeyboardToggle={ showkeyboardtoggle }| )
                         ( |keyboardToggleTooltip={ keyboardtoggletooltip }| )
+                        ( |upperCase={ uppercase }| )
                         ( |class={ class }| )
                         ( |submit={ submit }| )
                         ( |change={ change }| )
