@@ -30,9 +30,9 @@
 // sap.m.IOverflowToolbarContent and names these three as unrelated to its
 // size; the toolbar then leaves its layout - and its menu - alone.
 //
-// Ported from the S5S apps (/KRO/UI501_CL_APP_VIEW=>get_net_status_js and
-// /KRO/UI508_CL_APP_003), which injected the same logic as a global script
-// and polled every control on the page once a second for a CSS class.
+// It replaces the usual way to show the network status: the same logic as a
+// global script, injected with the view, that polls every control on the
+// page once a second for a CSS class.
 sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon"], (Control, Icon) => {
   "use strict";
 

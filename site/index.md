@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: "Custom Controls"
-  text: "Sixteen ready-to-use custom controls, one builder class each."
+  text: "Eighteen ready-to-use custom controls, one builder class each."
   image:
     src: /logo.svg
     alt: abap2UI5 addons
@@ -20,7 +20,9 @@ hero:
 
 features:
   - title: "SignaturePad, Validator, ExportSpreadsheet, CodeEditor, NetworkStatus, Clock, ScanInput without external libraries"
-  - title: "ChartJs, Barcode, DriverJs, FontAwesome, AnimateCss, Markdown wrap well-known JS libraries"
+  - title: "ChartJs, Barcode, DriverJs, FontAwesome, AnimateCss, Markdown, Gauge wrap well-known JS libraries"
+  - title: "GridStack shows boxes on a grid or lets the user drag and resize them, positions go back into the ABAP table"
+  - title: "FloorPlan draws a zoomable plan of boxes with a fill level, more detail the closer the view, no library"
   - title: "BarcodeScanner reads every barcode in the picture at once, or counts identical labels"
   - title: "RichTextEditor (SunEditor) works on OpenUI5 too, with DOMPurify sanitizing"
   - title: "Branch main loads libraries from jsDelivr, branch local vendors them for offline systems"
@@ -29,7 +31,7 @@ features:
 
 ## What it does
 
-A library of sixteen custom controls for abap2UI5: signature pad, Chart.js charts, barcodes, a camera scanner that reads several barcodes at once, Excel export, form validation, product tours, Font Awesome, animations, clickable image maps, Markdown, a code editor, a rich text editor, a network status display, a clock and a scan field. The controls ship in their own BSP Z2UI5_CCI, so nothing in abap2UI5 or its frontend has to change. Each control is used from ABAP through a builder class with one render( ) method; properties bind, values come back into ABAP variables and events arrive in the app like for any built-in control. The overview app z2ui5_cl_cci_sample_00 lists every control with its sample.
+A library of nineteen custom controls for abap2UI5: signature pad, Chart.js charts, barcodes, a camera scanner that reads several barcodes at once, Excel export, form validation, product tours, Font Awesome, animations, clickable image maps, Markdown, a code editor, a rich text editor, a network status display, a clock, a scan field, a gauge with a needle, a grid of boxes the user can rearrange and a zoomable floor plan. The controls ship in their own BSP Z2UI5_CCI, so nothing in abap2UI5 or its frontend has to change. Each control is used from ABAP through a builder class with one render( ) method; properties bind, values come back into ABAP variables and events arrive in the app like for any built-in control. The overview app z2ui5_cl_cci_sample_00 lists every control with its sample.
 
 ## Requirements
 

@@ -1,0 +1,241 @@
+// z2ui5_cci.cc.Gauge - a round gauge with a needle, drawn by canvas-gauges.
+//
+// A dial with a scale, coloured zones and a needle that travels to the bound
+// value: the picture for "how full", "how fast", "how far from the limit".
+// UI5 has progress bars and micro charts, but nothing with a needle.
+//
+// The scale is described the way an ABAP developer thinks about it - minimum,
+// maximum, an interval between two labelled ticks and a table of zones - and
+// options( ) turns that into what the library wants. Everything else the
+// library can do is reachable through `options`, which is merged in verbatim
+// and wins.
+//
+// A changed `value` moves the needle of the live gauge. Every other property
+// rebuilds it, because the scale is part of the picture.
+sap.ui.define(
+  ["sap/ui/core/Control", "z2ui5_cci/cc/Util", "z2ui5_cci/cc/LibUrls"],
+  (Control, Util, LibUrls) => {
+    "use strict";
+
+    // more labels than this cannot be read on a dial; an interval that would
+    // produce them is treated as "not set"
+    const MAX_TICKS = 50;
+    const DEFAULT_STEPS = 10;
+
+    const num = (val, fallback) => {
+      if (val === "" || val === null || val === undefined) return fallback;
+      const n = Number(val);
+      return Number.isFinite(n) ? n : fallback;
+    };
+
+    // A table bound without a mapper arrives with upper-case keys (LOW), one
+    // bound with the camelCase mapper with lower-case ones (low). Both read
+    // the same here.
+    const lower = (row) => {
+      const out = {};
+      Object.entries(row || {}).forEach(([key, val]) => {
+        out[String(key).toLowerCase()] = val;
+      });
+      return out;
+    };
+
+    // 0.1 + 0.2 must not label a tick 0.30000000000000004
+    const label = (n) => String(Number(n.toFixed(6)));
+
+    // The labelled ticks from min to max. The library spreads the labels it
+    // is given evenly over the scale, so an interval that does not divide the
+    // range cannot be drawn truthfully - the nearest number of steps is used.
+    function majorTicks(min, max, interval) {
+      const range = max - min;
+      if (!(range > 0)) return [label(min)];
+      let steps = interval > 0 ? Math.round(range / interval) : DEFAULT_STEPS;
+      if (steps < 1 || steps > MAX_TICKS) steps = DEFAULT_STEPS;
+      const ticks = [];
+      for (let i = 0; i <= steps; i += 1) ticks.push(label(min + (range * i) / steps));
+      return ticks;
+    }
+
+    // Zones as { from, to, color }. A row without a colour or with an empty
+    // or reversed range is dropped, and every zone is cut to the scale: the
+    // library paints what it is given, also outside the dial.
+    function highlights(rows, min, max) {
+      return (Array.isArray(rows) ? rows : [])
+        .map(lower)
+        .map((row) => ({
+          from: Math.max(num(row.low ?? row.from, NaN), min),
+          to: Math.min(num(row.high ?? row.to, NaN), max),
+          color: String(row.color ?? "").trim(),
+        }))
+        .filter((zone) => zone.color && zone.to > zone.from);
+    }
+
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+    // Properties of the control in, options of a RadialGauge out. Pure, so
+    // tools/gauge.test.mjs can check it without a browser.
+    function options(props) {
+      const min = num(props.minValue, 0);
+      let max = num(props.maxValue, 100);
+      if (!(max > min)) max = min + 100;
+
+      const animation = props.animation !== false;
+      const base = {
+        width: Math.max(num(props.width, 250), 50),
+        height: Math.max(num(props.height, 250), 50),
+        minValue: min,
+        maxValue: max,
+        value: clamp(num(props.value, min), min, max),
+        title: String(props.title ?? "") || false,
+        units: String(props.units ?? "") || false,
+        startAngle: num(props.startAngle, 45),
+        ticksAngle: num(props.ticksAngle, 270),
+        majorTicks: majorTicks(min, max, num(props.tickInterval, 0)),
+        minorTicks: Math.max(Math.round(num(props.minorTicks, 2)), 1),
+        strokeTicks: true,
+        highlights: highlights(props.highlights, min, max),
+        valueBox: props.valueBox !== false,
+        // the library pads to three digits and two decimals by default
+        valueInt: 1,
+        valueDec: Math.min(Math.max(Math.round(num(props.decimals, 0)), 0), 6),
+        animation,
+        animationDuration: animation ? 500 : 0,
+        animationRule: "linear",
+        borderShadowWidth: 0,
+      };
+      return { ...base, ...(props.options && typeof props.options === "object" ? props.options : {}) };
+    }
+
+    return Control.extend("z2ui5_cci.cc.Gauge", {
+      metadata: {
+        properties: {
+          value: { type: "float", defaultValue: 0 },
+          minValue: { type: "float", defaultValue: 0 },
+          maxValue: { type: "float", defaultValue: 100 },
+          title: { type: "string", defaultValue: "" },
+          units: { type: "string", defaultValue: "" },
+          // the canvas is a bitmap: its size is a number of pixels
+          width: { type: "int", defaultValue: 250 },
+          height: { type: "int", defaultValue: 250 },
+          // where the scale starts, in degrees from the bottom, and how far
+          // round it runs
+          startAngle: { type: "int", defaultValue: 45 },
+          ticksAngle: { type: "int", defaultValue: 270 },
+          // distance between two labelled ticks; 0 = ten steps
+          tickInterval: { type: "float", defaultValue: 0 },
+          minorTicks: { type: "int", defaultValue: 2 },
+          // rows of { low, high, color }
+          highlights: { type: "object", defaultValue: null },
+          valueBox: { type: "boolean", defaultValue: true },
+          // decimal places of the number in the value box
+          decimals: { type: "int", defaultValue: 0 },
+          animation: { type: "boolean", defaultValue: true },
+          // options of the library, merged over the ones above
+          options: { type: "object", defaultValue: null },
+          libUrl: { type: "string", defaultValue: LibUrls.canvasGauges },
+        },
+      },
+
+      _props() {
+        return {
+          value: this.getValue(),
+          minValue: this.getMinValue(),
+          maxValue: this.getMaxValue(),
+          title: this.getTitle(),
+          units: this.getUnits(),
+          width: this.getWidth(),
+          height: this.getHeight(),
+          startAngle: this.getStartAngle(),
+          ticksAngle: this.getTicksAngle(),
+          tickInterval: this.getTickInterval(),
+          minorTicks: this.getMinorTicks(),
+          highlights: this.getHighlights(),
+          valueBox: this.getValueBox(),
+          decimals: this.getDecimals(),
+          animation: this.getAnimation(),
+          options: this.getOptions(),
+        };
+      },
+
+      _label() {
+        return [this.getTitle(), `${this.getValue()} ${this.getUnits()}`.trim()]
+          .filter(Boolean)
+          .join(": ");
+      },
+
+      _destroyGauge() {
+        if (!this._gauge) return;
+        try {
+          this._gauge.destroy();
+        } catch (e) {
+          Util.logError("Gauge: could not destroy the gauge", e);
+        }
+        this._gauge = null;
+      },
+
+      _draw() {
+        const canvas = document.getElementById(`${this.getId()}-canvas`);
+        if (!canvas) return;
+        this._destroyGauge();
+        try {
+          this._gauge = new window.RadialGauge({ ...options(this._props()), renderTo: canvas });
+          this._gauge.draw();
+        } catch (e) {
+          Util.logError("Gauge: could not create the gauge", e);
+        }
+      },
+
+      setValue(value) {
+        this.setProperty("value", value, true);
+        const dom = this.getDomRef();
+        if (dom) dom.setAttribute("aria-label", this._label());
+        if (this._gauge) {
+          const current = options(this._props());
+          // the setter of the library animates from the old value
+          this._gauge.value = current.value;
+        }
+        return this;
+      },
+
+      onAfterRendering() {
+        // a re-render replaced the canvas - the old gauge points at a
+        // detached node
+        this._destroyGauge();
+        Util.loadScript(this.getLibUrl(), () => typeof window.RadialGauge !== "undefined")
+          .then(() => {
+            if (Util.isDestroyed(this)) return;
+            this._draw();
+          })
+          .catch((e) => Util.logError("Gauge: library not available", e));
+      },
+
+      exit() {
+        this._destroyGauge();
+      },
+
+      renderer: {
+        apiVersion: 2,
+        render(rm, control) {
+          rm.openStart("div", control);
+          rm.attr("role", "img");
+          rm.attr("aria-label", control._label());
+          rm.style("display", "inline-block");
+          rm.style("line-height", "0");
+          rm.openEnd();
+
+          rm.openStart("canvas", `${control.getId()}-canvas`);
+          rm.attr("width", String(control.getWidth()));
+          rm.attr("height", String(control.getHeight()));
+          rm.openEnd();
+          rm.close("canvas");
+
+          rm.close("div");
+        },
+      },
+
+      // for tools/gauge.test.mjs
+      toOptions: options,
+      toMajorTicks: majorTicks,
+      toHighlights: highlights,
+    });
+  },
+);

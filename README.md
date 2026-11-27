@@ -10,12 +10,13 @@
 [![check-abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fcheck-abap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/ci.yaml)
 [![abap2UI5](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fabap2UI5-addons%2Fcustom-controls%2Fbadges%2Fabap2ui5.json)](https://github.com/abap2UI5-addons/custom-controls/actions/workflows/ci.yaml)
 
-**Sixteen ready-to-use custom controls for
+**Nineteen ready-to-use custom controls for
 [abap2UI5](https://github.com/abap2UI5/abap2UI5)** — signature pad, charts,
 barcodes, a scanner that reads several barcodes at once, Excel export, form
 validation, product tours, Font Awesome, animations, clickable image maps,
 Markdown, a code editor, a rich text editor, a network status display, a
-clock and a scan field. Each one is a builder class
+clock, a scan field, a gauge with a needle, a grid of boxes the user can
+rearrange and a zoomable floor plan. Each one is a builder class
 with one `render( )` method, for abap2UI5 developers who need a control UI5
 does not bring along.
 
@@ -129,6 +130,9 @@ and events arrive in `on_event` like for any built-in control.
 | NetworkStatus | online, offline or server not reachable — icon, signal bars, latency, measured in the browser | `z2ui5_cl_cci_net_status` | `..._sample_13` |
 | Clock | date and time ticking in the browser, fits an overflow menu | `z2ui5_cl_cci_clock` | `..._sample_14` |
 | ScanInput | a scan field that keeps the focus, selects on focus, beeps and vibrates on Error, soft keyboard on and off | `z2ui5_cl_cci_scan_input` | `..._sample_15` |
+| Gauge | a round gauge with a scale, coloured zones and a needle on the bound value, with [canvas-gauges](https://canvas-gauges.com) | `z2ui5_cl_cci_gauge` | `..._sample_16` |
+| GridStack | boxes on a grid, shown or dragged and resized by the user, positions written back into the ABAP table, with [gridstack.js](https://gridstackjs.com) | `z2ui5_cl_cci_gridstack` | `..._sample_17` |
+| FloorPlan | a zoomable plan of boxes with a state and a fill level — a storage hall, a shop floor — that shows more of each box the closer the view | `z2ui5_cl_cci_floor_plan` | `..._sample_18` |
 
 Sample classes are `z2ui5_cl_cci_sample_NN` — start any of them directly with
 `?app_start=…`, or browse them from `z2ui5_cl_cci_sample_00`, which lists one
@@ -542,6 +546,136 @@ The control decides nothing: whether a scan is wrong is the app's
 `z2ui5.cc.InputExt`, so it does not depend on the abap2UI5 frontend release
 installed next to it; the HTML inputmode is implemented the same way.
 
+### Gauge
+
+`value` (bind), `minvalue`, `maxvalue`, `title`, `units`, `width`, `height`
+(px), `startangle`, `ticksangle`, `tickinterval`, `minorticks`, `highlights`
+(bind of a `ty_t_highlight` table), `valuebox`, `decimals`, `animation`,
+`options`, `liburl`.
+
+A dial with a needle. Bind `value` and the needle travels to every new value —
+one set in ABAP, or one another control on the page writes into the same
+variable, without a roundtrip and without the gauge being drawn again:
+
+```abap
+t_zone = VALUE #( ( low = 0  high = 60  color = `#2b7d2b` )
+                  ( low = 60 high = 80  color = `#e9730c` )
+                  ( low = 80 high = 100 color = `#bb0000` ) ).
+
+z2ui5_cl_cci_gauge=>render(
+    view         = page
+    value        = client->_bind( value )
+    title        = `Utilization`
+    units        = `%`
+    tickinterval = `10`
+    highlights   = client->_bind( t_zone ) ).
+```
+
+The scale is `minvalue` to `maxvalue` with a labelled tick every
+`tickinterval`. The library spreads the labels evenly, so an interval that
+does not divide the range is rounded to the nearest number of steps. A zone is
+cut to the scale. `startangle` and `ticksangle` shape the dial: `90` and `180`
+give a half dial.
+
+Whatever else canvas-gauges can draw — needle shape, plate colours, borders —
+goes into `options`, a structure bound with the camelCase mapper; its fields
+win over the parameters above. canvas-gauges is small, has no dependencies and
+is no longer developed: the version is pinned like every other library here,
+and the `local` branch carries it in the BSP.
+
+### GridStack
+
+`items` (bind of a `ty_t_item` table), `columns`, `rows`, `cellheight`,
+`margin`, `editable`, `float`, `width`, `liburl`, `cssurl` · events `change`
+(`$parameters>/ids`), `itempress` (`$parameters>/id`).
+
+Boxes on a grid. Every row of the table is one box: `id`, `x`, `y`, `w`, `h`
+in grid cells, `text`, `info`, `state` (a value of `cs_state`: the semantic
+colours of the theme), `color`, `selected`, `locked`.
+
+```abap
+z2ui5_cl_cci_gridstack=>render(
+    view      = page
+    items     = client->_bind( t_item )
+    columns   = `12`
+    rows      = `4`
+    editable  = client->_bind( editable )
+    change    = client->_event( val = `MOVED`   arg = `${$parameters>/ids}` )
+    itempress = client->_event( val = `PRESSED` arg = `${$parameters>/id}` ) ).
+```
+
+- **`editable` off** (the default) - a picture. A click on a box raises
+  `itempress` with its id; what a click means is the app's decision, e.g.
+  setting `selected` on that row.
+- **`editable` on** - the user drags and resizes the boxes. They snap to the
+  grid, do not overlap and, with `rows` set, stay inside it; a `locked` box
+  stays where it is. After every move the control writes the new `x`, `y`, `w`
+  and `h` into the bound table and raises `change` with the ids of the boxes
+  that moved - the handler reads its own table. A box the library only pushed
+  aside and put back is not reported.
+
+A change of the table in ABAP updates the boxes in place. A row without an id,
+or with an id another row has, is not shown and named in the browser console.
+The texts are written as text, never as markup.
+
+The width of a cell follows the width of the control, its height is
+`cellheight`. With `float` switched off the boxes move up to close a gap, the
+way a dashboard arranges itself; for a layout in which the position is the
+message, leave it on.
+
+### FloorPlan
+
+`items` (bind of a `ty_t_item` table), `areas` (bind of a `ty_t_area` table),
+`selectedkeys` (bind), `highlightkeys`, `fitkeys`, `selectionmode`,
+`showcontrols`, `width`, `height` · event `itempress` (`$parameters>/key`,
+`/selected`, `/keys`).
+
+A plan seen from above that the user zooms and pans. Every row of the table is
+one box at a fixed place: `key`, `x`, `y`, `width`, `height` in plan units,
+`fill` (the filled share, 0 to 1), `dir`, `state` (a value of `cs_state`: the
+semantic colours of the theme), `color`, `blocked`, and three lines of text -
+`title`, `text`, `info`. An area is an outline behind the boxes with its
+`title` in the corner: a hall, a zone.
+
+```abap
+z2ui5_cl_cci_floor_plan=>render(
+    view          = page
+    items         = client->_bind( t_item )
+    areas         = client->_bind( t_area )
+    selectedkeys  = client->_bind( selected )
+    highlightkeys = client->_bind( highlight )
+    fitkeys       = client->_bind( fit )
+    height        = `70vh`
+    itempress     = client->_event( val = `LANE` arg = `${$parameters>/key}` ) ).
+```
+
+The plan units are yours - metres, millimetres, grid cells; `x` grows to the
+right and `y` downwards. The plan has no height of its own, so give it one.
+
+- **Zoom and pan** - the wheel zooms at the pointer, a drag pans, two fingers
+  pinch; the buttons in the corner and `+`, `-`, `0` and the arrow keys do the
+  same. The view cannot leave the plan.
+- **Level of detail** - how much text a box shows depends on how many pixels it
+  has: zoomed out none, closer the `title`, closer still `text` and `info`. A
+  tall, narrow box turns its text. Send all three lines once; hovering a box
+  shows them at any zoom.
+- **Fill level** - a bar in the colour of the state. It fills along the longer
+  side, from the bottom or from the left, unless `dir` (a value of `cs_dir`)
+  names the direction - a lane that is filled from the back wall, for instance.
+- **Selection** - a click selects a box, writes `selectedkeys` and raises
+  `itempress`. `selectionmode` is `Single` (the default), `Multi` or `None`,
+  which only reports the click.
+- **From ABAP** - `highlightkeys` dims every box it does not name. `fitkeys`
+  flies the viewport to the boxes it names whenever its value changes, and
+  back to the whole plan when it is cleared.
+
+A change of the table draws the plan again and leaves zoom and position where
+the user put them - a refresh every minute does not throw anybody back to the
+overview. Items are reached with the pointer; the keyboard moves the view, so
+put a list next to the plan when the selection has to work without a mouse.
+A few hundred boxes are what it is made for: each one is an SVG element, so
+draw lanes or bins, not every pallet in them.
+
 
 ## Two things to know
 
@@ -573,14 +707,15 @@ this way; `omit_initial_paths` limits the omission to the fields it lists.
 
 ### Third-party libraries
 
-Eight controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
+Ten controls wrap a library that is not part of UI5 — Chart.js 4, bwip-js 4,
 driver.js 1, Font Awesome 7, animate.css 4, marked 18 and SunEditor 3 (each
-together with DOMPurify 3), and zxing-wasm 3. Each control loads its library on
+together with DOMPurify 3), zxing-wasm 3, canvas-gauges 2 and gridstack.js 14.
+Each control loads its library on
 first use, cached per URL, so ten charts on a page fetch Chart.js once.
 
-The other five need nothing: SignaturePad and Validator are self-contained,
+The other six need nothing: SignaturePad and Validator are self-contained,
 ExportSpreadsheet and CodeEditor use libraries the UI5 distribution already
-carries, and ImageMapster draws its own SVG overlay.
+carries, and ImageMapster and FloorPlan draw their own SVG.
 
 Where it loads it from is what separates the two branches: on `main` from
 jsDelivr, on `local` from this BSP. Nothing in the repository spells a URL out

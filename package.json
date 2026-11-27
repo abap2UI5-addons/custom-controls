@@ -45,6 +45,7 @@
     "acorn": "^8.19.0",
     "animate.css": "4.1.1",
     "bwip-js": "4.11.4",
+    "canvas-gauges": "2.1.7",
     "chart.js": "4.6.1",
     "chartjs-chart-venn": "4.3.7",
     "chartjs-chart-wordcloud": "4.4.5",
@@ -54,6 +55,7 @@
     "chartjs-plugin-deferred": "2.0.0",
     "dompurify": "3.4.17",
     "driver.js": "1.10.2",
+    "gridstack": "14.1.1",
     "marked": "18.0.13",
     "suneditor": "3.4.1",
     "zxing-wasm": "3.1.6"

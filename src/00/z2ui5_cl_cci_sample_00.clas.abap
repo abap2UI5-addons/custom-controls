@@ -251,7 +251,7 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
     " CodeEditor has no row of its own - it has no demo of its own either. It
     " is the editor on the left of the Markdown demo, which is where it is
     " shown; a second row launching the very same app was noise.
-    " The demo apps are this class's siblings, Z2UI5_CL_CCI_SAMPLE_01 to _15.
+    " The demo apps are this class's siblings, Z2UI5_CL_CCI_SAMPLE_01 to _17.
     " Their names are derived from this class's own rather than written out,
     " so an installation renamed into another namespace launches its own demos
     " and not the original names (the rename rewrites no literal).
@@ -335,7 +335,22 @@ CLASS z2ui5_cl_cci_sample_00 IMPLEMENTATION.
         module      = `z2ui5_cci/cc/ScanInput`
         description = `Scan field that keeps the focus, selects on focus, beeps on Error, soft keyboard on and off`
         library     = `none`
-        app         = |{ demo }15| ) ).
+        app         = |{ demo }15| )
+      ( name        = `Gauge`
+        module      = `z2ui5_cci/cc/Gauge`
+        description = `Round gauge with a scale, coloured zones and a needle on the bound value`
+        library     = `canvas-gauges`
+        app         = |{ demo }16| )
+      ( name        = `GridStack`
+        module      = `z2ui5_cci/cc/GridStack`
+        description = `Boxes on a grid, shown or dragged and resized; positions go back into the table`
+        library     = `gridstack.js`
+        app         = |{ demo }17| )
+      ( name        = `FloorPlan`
+        module      = `z2ui5_cci/cc/FloorPlan`
+        description = `Zoomable plan of boxes with a fill level; the closer the view, the more each one shows`
+        library     = `none`
+        app         = |{ demo }18| ) ).
 
   ENDMETHOD.
 
