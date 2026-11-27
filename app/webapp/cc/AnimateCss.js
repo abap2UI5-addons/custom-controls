@@ -24,10 +24,36 @@ sap.ui.define(
 
     // animate.css reads these off :root; setting them retunes every animation
     // on the page at once.
+    //
+    // They have to stay on :root - the animated controls are not children of
+    // this (invisible) control, and a dialog is not even inside the view - so
+    // they are shared by every AnimateCss instance on the page. `active` holds
+    // the live instances in the order they last applied their settings: the
+    // most recent one wins, and when it goes the next one's settings come back
+    // instead of animate.css' defaults. The inline values :root had before the
+    // first instance (`original`) are restored when the last one goes, so
+    // neither a second app's control nor the page's own styles are wiped out
+    // by an exit( ).
     const VARIABLES = {
       duration: "--animate-duration",
       delay: "--animate-delay",
       repeat: "--animate-repeat",
+    };
+
+    const active = [];
+    let original = null;
+
+    const writeRoot = () => {
+      const root = document.documentElement;
+      const owner = active[active.length - 1];
+      Object.entries(VARIABLES).forEach(([property, variable]) => {
+        const value = owner ? owner._variables[property] : original[variable];
+        // Removing rather than setting an empty string, so animate.css'
+        // own default comes back when the app clears the field.
+        if (value) root.style.setProperty(variable, value);
+        else root.style.removeProperty(variable);
+      });
+      if (!owner) original = null;
     };
 
     return Control.extend("z2ui5_cci.cc.AnimateCss", {
@@ -44,15 +70,22 @@ sap.ui.define(
       },
 
       _applyVariables() {
-        const root = document.documentElement;
-        Object.entries(VARIABLES).forEach(([property, variable]) => {
+        if (!original) {
+          const root = document.documentElement;
+          original = {};
+          Object.values(VARIABLES).forEach((variable) => {
+            original[variable] = root.style.getPropertyValue(variable);
+          });
+        }
+        this._variables = {};
+        Object.keys(VARIABLES).forEach((property) => {
           const getter = `get${property.charAt(0).toUpperCase()}${property.slice(1)}`;
-          const value = this[getter]();
-          // Removing rather than setting an empty string, so animate.css'
-          // own default comes back when the app clears the field.
-          if (value) root.style.setProperty(variable, value);
-          else root.style.removeProperty(variable);
+          this._variables[property] = this[getter]();
         });
+        const index = active.indexOf(this);
+        if (index !== -1) active.splice(index, 1);
+        active.push(this);
+        writeRoot();
       },
 
       onAfterRendering() {
@@ -64,11 +97,12 @@ sap.ui.define(
       },
 
       exit() {
-        // the variables are global - do not leave this app's timing behind
-        const root = document.documentElement;
-        Object.values(VARIABLES).forEach((variable) =>
-          root.style.removeProperty(variable),
-        );
+        // the variables are global - do not leave this app's timing behind,
+        // and do not take another live instance's with it
+        const index = active.indexOf(this);
+        if (index === -1) return;
+        active.splice(index, 1);
+        writeRoot();
       },
 
       // Nothing visible - the animations live on other controls' class names.

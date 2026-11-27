@@ -591,7 +591,8 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
     CONSTANTS:
       "! Plugin names the control knows, for the `plugins` parameter of
       "! render( ). Pass them comma separated - they are loaded in that order,
-      "! after Chart.js itself, and registered with it.
+      "! after Chart.js itself, and handed to this one chart; a chart that
+      "! names no plugin is not touched by another chart's.
       BEGIN OF cs_plugin,
         "! value labels on the data points
         datalabels TYPE string VALUE `datalabels`,

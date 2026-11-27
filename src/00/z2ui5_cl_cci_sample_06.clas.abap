@@ -203,27 +203,29 @@ CLASS z2ui5_cl_cci_sample_06 IMPLEMENTATION.
     s_tour-popover_class = `driverjs-theme`.
     s_tour-allow_close   = abap_true.
 
-    " element is the control id from the view above, nothing else
+    " element is the control id from the view above, nothing else; the
+    " texts are plain text - render( allowhtml = `true` ) would take HTML
+    " (sanitized), driver.js sets the title in bold either way
     s_tour-steps = VALUE #(
       ( element = `product`
-        popover-title       = `<strong>What to order</strong>`
+        popover-title       = `What to order`
         popover-description = `The material. Type at least three characters ` &&
                               `to get a value help.`
         popover-side        = z2ui5_cl_cci_driverjs=>cs_side-right
         popover-align       = z2ui5_cl_cci_driverjs=>cs_align-start )
       ( element = `quantity`
-        popover-title       = `<strong>How many</strong>`
+        popover-title       = `How many`
         popover-description = `Whole pieces. The unit comes from the material master.`
         popover-side        = z2ui5_cl_cci_driverjs=>cs_side-right
         popover-align       = z2ui5_cl_cci_driverjs=>cs_align-start )
       ( element = `post`
-        popover-title       = `<strong>Post it</strong>`
+        popover-title       = `Post it`
         popover-description = `This sends the order to the backend.`
         popover-side        = z2ui5_cl_cci_driverjs=>cs_side-bottom
         popover-align       = z2ui5_cl_cci_driverjs=>cs_align-start ) ).
 
     s_highlight-element             = `orderPanel`.
-    s_highlight-popover-title       = `<strong>The whole form</strong>`.
+    s_highlight-popover-title       = `The whole form`.
     s_highlight-popover-description = `A highlight spotlights one element and ` &&
                                       `has no next/previous buttons.`.
 

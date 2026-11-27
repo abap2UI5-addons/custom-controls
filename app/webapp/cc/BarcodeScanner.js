@@ -106,9 +106,13 @@ sap.ui.define(
     // is a script carrying the module as base64 - what the local build ships,
     // because a BSP page cannot carry a binary - which registers it on
     // window.z2ui5_cci_wasm.
+    //
+    // The pinned CDN file is fetched with its Subresource Integrity hash, like
+    // every script and stylesheet Util loads - fetch( ) rejects other bytes.
     function loadModule(url) {
       if (/\.wasm([?#]|$)/i.test(url)) {
-        return fetch(url).then((response) => {
+        const integrity = Util.integrityOf ? Util.integrityOf(url) : "";
+        return fetch(url, integrity ? { integrity } : undefined).then((response) => {
           if (!response.ok) throw new Error(`could not load ${url} (HTTP ${response.status})`);
           return response.arrayBuffer();
         });

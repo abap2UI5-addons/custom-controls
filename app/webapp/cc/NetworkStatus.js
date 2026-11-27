@@ -16,9 +16,11 @@
 //
 // Every instance with the same ping settings shares one monitor: one listener
 // set and one ping loop, however many status icons a page shows. The monitor
-// stops with its last instance and keeps its last result, so the control a
-// new view_display renders shows the known state at once instead of starting
-// from nothing.
+// stops with its last instance; it is kept for one ping interval more, so the
+// control a new view_display renders - the old view is torn down around the
+// same time - shows the known state at once instead of starting from nothing.
+// After that it is dropped, and a result older than one interval is never
+// shown as current.
 //
 // The state is written into the DOM, never by re-rendering this control.
 // status, latency and quality are still properties - bind them and the
@@ -33,7 +35,7 @@
 // It replaces the usual way to show the network status: the same logic as a
 // global script, injected with the view, that polls every control on the
 // page once a second for a CSS class.
-sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon"], (Control, Icon) => {
+sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon", "z2ui5_cci/cc/Util"], (Control, Icon, Util) => {
   "use strict";
 
   const ICON = {
@@ -90,9 +92,6 @@ sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon"], (Control, Icon) => {
     return result;
   };
 
-  const logError = (message, error) =>
-    console.error(error === undefined ? message : `${message}:`, error ?? "");
-
   // --- the shared monitor ---------------------------------------------------
 
   const monitors = new Map();
@@ -109,7 +108,7 @@ sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon"], (Control, Icon) => {
       try {
         listener(state);
       } catch (e) {
-        logError("NetworkStatus: listener failed", e);
+        Util.logError("NetworkStatus: listener failed", e);
       }
     });
   };
@@ -131,6 +130,7 @@ sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon"], (Control, Icon) => {
       clearTimeout(timer);
       monitor.pending = false;
       monitor.ping = ping;
+      monitor.pingAt = Date.now();
       notify(monitor);
     };
     const timer = setTimeout(() => {
@@ -157,6 +157,10 @@ sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon"], (Control, Icon) => {
   };
 
   const start = (monitor) => {
+    // a result from before the monitor stopped says nothing about now
+    if (monitor.ping && Date.now() - monitor.pingAt > monitor.every) {
+      monitor.ping = null;
+    }
     monitor.onOnline = () => {
       // the old result says nothing about the new connection
       monitor.ping = null;
@@ -188,6 +192,14 @@ sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon"], (Control, Icon) => {
     }
     clearInterval(monitor.interval);
     monitor.interval = null;
+    // drop it after one interval unless a new instance subscribed meanwhile -
+    // a map that only grows would keep every ping setting a session ever used
+    monitor.reap = setTimeout(() => {
+      monitor.reap = null;
+      if (monitor.listeners.size === 0 && monitors.get(monitor.key) === monitor) {
+        monitors.delete(monitor.key);
+      }
+    }, monitor.every);
   };
 
   // Returns the unsubscribe function.
@@ -195,8 +207,12 @@ sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon"], (Control, Icon) => {
     const key = `${url}|${every}|${timeout}`;
     let monitor = monitors.get(key);
     if (!monitor) {
-      monitor = { url, every, timeout, ping: null, listeners: new Set() };
+      monitor = { key, url, every, timeout, ping: null, pingAt: 0, listeners: new Set() };
       monitors.set(key, monitor);
+    }
+    if (monitor.reap) {
+      clearTimeout(monitor.reap);
+      monitor.reap = null;
     }
     monitor.listeners.add(listener);
     if (monitor.listeners.size === 1) start(monitor);
@@ -278,7 +294,7 @@ sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon"], (Control, Icon) => {
     },
 
     _apply(state) {
-      if (this.isDestroyed && this.isDestroyed()) return;
+      if (Util.isDestroyed(this)) return;
       // the last state this control showed - not getStatus( ), which a
       // binding can overwrite with what the backend sent back
       const previous = this._shown;
@@ -333,6 +349,15 @@ sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon"], (Control, Icon) => {
       return this.getPing() ? this.getPingUrl() : "";
     },
 
+    // Not in the renderer: setting a property of the icon there invalidates a
+    // control in the middle of rendering it. onBeforeRendering is the hook
+    // that allows it, and every change of iconSize re-renders this control.
+    onBeforeRendering() {
+      const icon = this._getIcon();
+      const size = this.getIconSize() || null;
+      if ((icon.getSize() || null) !== size) icon.setSize(size);
+    },
+
     onAfterRendering() {
       const key = `${this._pingUrl()}|${this.getPingInterval()}|${this.getPingTimeout()}`;
       if (this._unsubscribe && this._key === key) {
@@ -362,7 +387,6 @@ sap.ui.define(["sap/ui/core/Control", "sap/ui/core/Icon"], (Control, Icon) => {
       apiVersion: 2,
       render(oRm, oControl) {
         const icon = oControl._getIcon();
-        if (oControl.getIconSize()) icon.setSize(oControl.getIconSize());
 
         oRm.openStart("span", oControl);
         oRm.attr("role", "status");

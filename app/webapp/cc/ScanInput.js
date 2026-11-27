@@ -60,10 +60,11 @@
 //                   Bind keyboard two-way; showKeyboardToggle draws a
 //                   keyboard icon at the end of the field that switches it.
 //
-// UI5 1.71: every module used is in 1.71; isDestroyed( ) (1.93) is probed;
+// UI5 1.71: every module used is in 1.71; isDestroyed( ) (1.93) is probed
+// (Util.isDestroyed);
 // InputBase.addEndIcon is the protected API sap.m.Input itself draws its
 // value help icon with, in 1.71 as in current releases.
-sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => {
+sap.ui.define(["sap/m/Input", "sap/m/InputRenderer", "z2ui5_cci/cc/Util"], (Input, InputRenderer, Util) => {
   "use strict";
 
   // the complete inputmode keyword list of the HTML standard
@@ -80,11 +81,9 @@ sap.ui.define(["sap/m/Input", "sap/m/InputRenderer"], (Input, InputRenderer) => 
   const AWAIT_MS = 30000;
   const POLL_MS = 250;
 
-  const logError = (message, error) =>
-    console.error(error === undefined ? message : `${message}:`, error ?? "");
-
-  const destroyed = (obj) =>
-    Boolean(obj && (typeof obj.isDestroyed === "function" ? obj.isDestroyed() : obj.bIsDestroyed));
+  // the shared helpers of this BSP - Util.isDestroyed probes the flag on a
+  // release before isDestroyed( ) (1.93)
+  const { logError, isDestroyed: destroyed } = Util;
 
   // --- the pure part, for tools/scan-input.test.mjs -------------------------
 

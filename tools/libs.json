@@ -15,7 +15,10 @@
     "",
     "'target' is the file name inside app/webapp/lib/. BSP page names allow only",
     "letters, digits, '_' and '.' (tools/app2bsp.mjs), so a package's hyphens are",
-    "replaced here and names like 'index.umd.js' are made unique."
+    "replaced here and names like 'index.umd.js' are made unique.",
+    "",
+    "The CDN build also writes a Subresource Integrity hash (sha384) of every",
+    "'file' into LibUrls.js, keyed by its URL - see tools/vendor.mjs."
   ],
 
   "libDir": "lib",
@@ -421,9 +424,17 @@
       "'families' lists the @font-face families kept in the local stylesheet. The",
       "package also declares 'Font Awesome 5 *' and 'FontAwesome' aliases for v4/v5",
       "class names; each one would repeat its whole base64 font, so they are",
-      "dropped and only the families of the installed major version survive."
+      "dropped and only the families of the installed major version survive.",
+      "",
+      "'cdnFontUri' is a personal GitHub repository served by jsDelivr, so it is",
+      "pinned to a commit: a branch could change under every installation. The",
+      "IconPool loads it through CSS @font-face and an XHR, neither of which can",
+      "carry a Subresource Integrity hash - the commit is the pin. tools/vendor.mjs",
+      "refuses a /gh/ URL without a 40-character sha. Moving on: look up the commit",
+      "(git ls-remote https://github.com/choper725/resources.git HEAD), check the",
+      "files there and put the new sha here."
     ],
-    "cdnFontUri": "https://cdn.jsdelivr.net/gh/choper725/resources/dist/",
+    "cdnFontUri": "https://cdn.jsdelivr.net/gh/choper725/resources@503361b0f1772cbf4f744f9493e2673960f111f6/dist/",
     "families": ["Font Awesome 7 Free", "Font Awesome 7 Brands"]
   }
 }

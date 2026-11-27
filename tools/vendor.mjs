@@ -26,8 +26,24 @@
 // carry. It is vendored as a script holding the module as base64 - see
 // tools/embed-wasm.mjs. On the CDN build its URL points at the .wasm itself.
 //
+// The CDN build also pins every file by content: LibUrls.js carries a
+// Subresource Integrity hash (sha384) per URL, computed here from the file in
+// node_modules - jsDelivr's /npm/ endpoint serves the published package
+// unchanged, so it is the hash of the very bytes the CDN answers with.
+// Util.loadScript/loadStyle put it on the <script>/<link> as `integrity` with
+// crossorigin="anonymous", and a browser refuses a CDN copy that differs. The
+// hashes are regenerated with the URLs, so the `vendor` CI job (regenerate,
+// then git diff) fails a version bump that did not re-run this script, and
+// tools/sri.test.mjs recomputes them on every `npm test`.
+//
+// Only the Font Awesome IconPool directory (fontAwesome.cdnFontUri) cannot
+// carry a hash: the IconPool loads the fonts through CSS @font-face and the
+// metadata through XHR, neither of which takes one. It is pinned to a commit
+// instead - assertPinned( ) refuses a GitHub URL on jsDelivr without one.
+//
 // Run `npm run app2bsp` afterwards - this script writes app/webapp, the BSP
 // artefacts under src/01 are generated from it.
+import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
@@ -55,6 +71,22 @@ const packageVersion = (name) =>
   JSON.parse(readFileSync(join(NODE_MODULES, name, "package.json"), "utf8")).version;
 
 const read = (pkg, file) => readFileSync(join(NODE_MODULES, pkg, file), "utf8");
+
+// The value of an `integrity` attribute for the published file.
+const sriHash = (bytes) => `sha384-${createHash("sha384").update(bytes).digest("base64")}`;
+
+// A CDN URL has to name an immutable version: an npm package at an exact
+// version, or a GitHub repository at a full commit sha. A branch or tag on
+// GitHub can move, and the files behind the URL with it.
+function assertPinned(url, what) {
+  const gh = /^https:\/\/cdn\.jsdelivr\.net\/gh\/[^/]+\/[^/@]+(@[^/]*)?\//.exec(url);
+  if (gh && !/^@[0-9a-f]{40}$/.test(gh[1] || "")) {
+    throw new Error(`${what}: ${url} is not pinned to a commit - use .../gh/<user>/<repo>@<40-hex sha>/...`);
+  }
+  if (/\/npm\//.test(url) && !/@\d+\.\d+\.\d+/.test(url)) {
+    throw new Error(`${what}: ${url} names no exact npm version`);
+  }
+}
 
 // Removes the trailing source-map pointer.
 //
@@ -222,9 +254,12 @@ function writeLicences(versions) {
 // the generated module
 // ---------------------------------------------------------------------------
 
-function writeLibUrls(urls, fontUri) {
+function writeLibUrls(urls, fontUri, integrity) {
   const body = Object.entries(urls)
     .map(([key, value]) => `    ${key}: ${value},`)
+    .join("\n");
+  const hashes = Object.entries(integrity)
+    .map(([url, hash]) => `      ${JSON.stringify(url)}: ${JSON.stringify(hash)},`)
     .join("\n");
 
   const header = local
@@ -266,6 +301,11 @@ function writeLibUrls(urls, fontUri) {
     "    // IconPool needs. Empty switches the IconPool registration off - see",
     "    // the fontAwesome comment in tools/libs.json.",
     `    fontAwesomeFontUri: ${JSON.stringify(fontUri)},`,
+    "",
+    "    // Subresource Integrity (sha384) per URL above, put on the <script> /",
+    "    // <link> by Util.loadScript/loadStyle. Only the exact URL matches, so a",
+    "    // liburl/cssurl an app overrides loads without one.",
+    ...(hashes ? ["    integrity: {", hashes, "    },"] : ["    integrity: {},"]),
     "  };",
     "});",
     "",
@@ -282,6 +322,7 @@ if (existsSync(LIB_DIR)) rmSync(LIB_DIR, { recursive: true });
 
 const urls = {};
 const versions = new Map();
+const integrity = {};
 
 if (local) {
   mkdirSync(LIB_DIR, { recursive: true });
@@ -294,11 +335,15 @@ if (local) {
   for (const entry of config.entries) {
     const version = packageVersion(entry.package);
     versions.set(entry.package, version);
-    urls[entry.key] = JSON.stringify(entry.cdn.replace("{version}", version));
+    const url = entry.cdn.replace("{version}", version);
+    assertPinned(url, entry.key);
+    urls[entry.key] = JSON.stringify(url);
+    integrity[url] = sriHash(readFileSync(join(NODE_MODULES, entry.package, entry.file)));
   }
+  assertPinned(config.fontAwesome.cdnFontUri, "fontAwesome.cdnFontUri");
 }
 
-writeLibUrls(urls, local ? "" : config.fontAwesome.cdnFontUri);
+writeLibUrls(urls, local ? "" : config.fontAwesome.cdnFontUri, integrity);
 
 console.log(`vendor: wrote app/webapp/cc/LibUrls.js (wrap target ${DEFAULT_MAX} chars)`);
 console.log("vendor: run 'npm run app2bsp' to regenerate the BSP artefacts");

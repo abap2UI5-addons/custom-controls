@@ -66,6 +66,14 @@
     }
   },
   "config": {
+    "bsp": {
+      "name": "Z2UI5_CCI",
+      "text": "abap2UI5 custom controls",
+      "icfParents": [
+        { "guid": "001108d002800838e37bde4c3", "url": "/sap/bc/ui5_ui5/sap/" },
+        { "guid": "e9d59e6d81becbc8dfd57aeb7", "url": "/sap/bc/bsp/sap/" }
+      ]
+    },
     "renameSkip": {
       "src/01/": "the BSP Z2UI5_CCI (WAPA) and its two ICF nodes - abaplint 2.120.120 has no WAPA renamer (abap2UI5 backlog item abaplint-rename-wapa, abaplint PR #4721), and the abap2UI5 frontend reserves the resource root z2ui5_cci; install the BSP unrenamed"
     },
