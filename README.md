@@ -627,8 +627,8 @@ message, leave it on.
 
 `items` (bind of a `ty_t_item` table), `areas` (bind of a `ty_t_area` table),
 `selectedkeys` (bind), `highlightkeys`, `fitkeys`, `selectionmode`,
-`showcontrols`, `width`, `height` · event `itempress` (`$parameters>/key`,
-`/selected`, `/keys`).
+`showcontrols`, `zoomable`, `width`, `height` · event `itempress`
+(`$parameters>/key`, `/selected`, `/keys`).
 
 A plan seen from above that the user zooms and pans. Every row of the table is
 one box at a fixed place: `key`, `x`, `y`, `width`, `height` in plan units,
@@ -655,6 +655,11 @@ right and `y` downwards. The plan has no height of its own, so give it one.
 - **Zoom and pan** - the wheel zooms at the pointer, a drag pans, two fingers
   pinch; the buttons in the corner and `+`, `-`, `0` and the arrow keys do the
   same. The view cannot leave the plan.
+- **A fixed picture** - `zoomable = 'false'` switches all of that off: the
+  whole plan, no wheel, no drag, no pinch, no keys and no buttons, and the
+  page scrolls as usual. A click still selects, and a finger that slipped a
+  little still counts as a tap. For a plan small enough to be read as it is -
+  one drawer, one shelf. `fitkeys` still moves the view from ABAP.
 - **Level of detail** - how much text a box shows depends on how many pixels it
   has: zoomed out none, closer the `title`, closer still `text` and `info`. A
   tall, narrow box turns its text. Send all three lines once; hovering a box

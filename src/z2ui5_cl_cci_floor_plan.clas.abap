@@ -121,6 +121,9 @@ CLASS z2ui5_cl_cci_floor_plan DEFINITION
     "!                            shows the whole plan
     "! @parameter selectionmode | a value of cs_selection_mode, default Single
     "! @parameter showcontrols  | the zoom buttons in the corner, default true
+    "! @parameter zoomable      | `false`: a fixed picture of the whole plan - no
+    "!                            wheel, no drag, no pinch, no keys, no buttons;
+    "!                            a click still selects. Default true
     "! @parameter width         | CSS width, default 100%
     "! @parameter height        | CSS height, default 500px. The plan has no
     "!                            height of its own - give it one
@@ -137,6 +140,7 @@ CLASS z2ui5_cl_cci_floor_plan DEFINITION
         fitkeys       TYPE string OPTIONAL
         selectionmode TYPE string OPTIONAL
         showcontrols  TYPE string OPTIONAL
+        zoomable      TYPE string OPTIONAL
         width         TYPE string OPTIONAL
         height        TYPE string OPTIONAL
         itempress     TYPE string OPTIONAL
@@ -163,6 +167,7 @@ CLASS z2ui5_cl_cci_floor_plan IMPLEMENTATION.
                                                 ( |fitKeys={ fitkeys }| )
                                                 ( |selectionMode={ selectionmode }| )
                                                 ( |showControls={ showcontrols }| )
+                                                ( |zoomable={ zoomable }| )
                                                 ( |width={ width }| )
                                                 ( |height={ height }| )
                                                 ( |itemPress={ itempress }| ) ) ).

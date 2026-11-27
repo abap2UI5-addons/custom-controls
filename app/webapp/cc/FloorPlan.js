@@ -14,6 +14,10 @@
 //   * the viewport. Zoom and position stay where the user left them when the
 //     table changes; only `fitKeys` moves them from the backend.
 //
+// With `zoomable` off it is a fixed picture of the whole plan: no wheel, no
+// drag, no pinch, no keys and no buttons, the page scrolls as usual, and a
+// click still selects - for a plan small enough to be read as it is.
+//
 // No library. Zoom is the viewBox of one SVG element, and the arithmetic sits
 // in FloorPlanMath where it is tested without a browser.
 //
@@ -92,6 +96,9 @@ sap.ui.define(
           selectionMode: { type: "string", defaultValue: "Single" },
           // the zoom buttons in the corner
           showControls: { type: "boolean", defaultValue: true },
+          // false: a fixed picture of the whole plan - no wheel, no drag, no
+          // pinch, no keys, no buttons. A click still selects.
+          zoomable: { type: "boolean", defaultValue: true },
           width: { type: "string", defaultValue: "100%" },
           height: { type: "string", defaultValue: "500px" },
         },
@@ -252,9 +259,10 @@ sap.ui.define(
           top: "0",
           width: "100%",
           height: "100%",
-          // the gestures are ours: without this a touch pans the page
-          touchAction: "none",
-          cursor: "grab",
+          // the gestures are ours: without this a touch pans the page. A
+          // fixed plan has no gestures and leaves the page its scrolling
+          touchAction: this.getZoomable() ? "none" : "auto",
+          cursor: this.getZoomable() ? "grab" : "default",
         });
 
         // diagonal lines for a blocked item, sized from the plan so the
@@ -359,7 +367,8 @@ sap.ui.define(
         // First drawing, or the user never left the overview: show what
         // fitKeys asks for. Otherwise the viewport is the user's.
         const size = this._stageSize();
-        if (!this._viewport || this._atHome !== false) {
+        if (!this._viewport || this._atHome !== false || !this.getZoomable()) {
+          // a fixed plan has no viewport of the user's to keep
           this._showFit(false);
         } else if (size.w && size.h) {
           this._applyView(FloorPlanMath.reshape(this._viewport, size.w / size.h));
@@ -527,7 +536,9 @@ sap.ui.define(
         const pointers = new Map();
         let moved = false;
         let target = null;
+        let targetGroup = null;
         let pinch = null;
+        const zoomable = this.getZoomable();
 
         const local = (event) => {
           const rect = svg.getBoundingClientRect();
@@ -551,19 +562,22 @@ sap.ui.define(
             moved = false;
             const group = event.target.closest ? event.target.closest("[data-index]") : null;
             target = group ? this.getItems()[Number(group.getAttribute("data-index"))] : null;
+            targetGroup = group;
           } else {
             // a second finger: this is a gesture, never a click
             moved = true;
             pinch = pinchState();
           }
-          // keeps the drag alive when the pointer leaves the control
-          if (svg.setPointerCapture) svg.setPointerCapture(event.pointerId);
+          // keeps the drag alive when the pointer leaves the control - a
+          // fixed plan has no drag, and without the capture the pointer that
+          // comes up says which item it is over
+          if (zoomable && svg.setPointerCapture) svg.setPointerCapture(event.pointerId);
           this._stopFlight();
         });
 
         svg.addEventListener("pointermove", (event) => {
           const last = pointers.get(event.pointerId);
-          if (!last || !this._viewport) return;
+          if (!last || !this._viewport || !zoomable) return;
           const point = local(event);
           const size = this._stageSize();
 
@@ -601,9 +615,15 @@ sap.ui.define(
           pointers.delete(event.pointerId);
           if (pointers.size >= 2) pinch = pinchState();
           if (pointers.size) return;
-          svg.style.cursor = "grab";
-          if (!cancelled && !moved && target) this._press(target);
+          if (zoomable) svg.style.cursor = "grab";
+          // On a fixed plan a finger that slipped a little is still a tap,
+          // as long as it comes up on the item it went down on. A scroll of
+          // the page arrives as a cancel and is no click.
+          const over = event.target && event.target.closest ? event.target.closest("[data-index]") : null;
+          const same = zoomable || over === targetGroup;
+          if (!cancelled && !moved && target && same) this._press(target);
           target = null;
+          targetGroup = null;
         };
         svg.addEventListener("pointerup", (event) => release(event, false));
         svg.addEventListener("pointercancel", (event) => release(event, true));
@@ -612,7 +632,8 @@ sap.ui.define(
         svg.addEventListener(
           "wheel",
           (event) => {
-            if (!this._viewport) return;
+            // a fixed plan lets the wheel scroll the page
+            if (!this._viewport || !zoomable) return;
             event.preventDefault();
             const point = local(event);
             // deltaMode 1 counts lines, not pixels
@@ -626,7 +647,7 @@ sap.ui.define(
       // The plan itself is one tab stop: + and - zoom, 0 shows all, the
       // arrow keys pan.
       onkeydown(event) {
-        if (!this._viewport || event.target !== this._root()) return;
+        if (!this._viewport || !this.getZoomable() || event.target !== this._root()) return;
         const stepX = this._viewport.w * 0.15;
         const stepY = this._viewport.h * 0.15;
         const pan = (dx, dy) => this._moveTo({ ...this._viewport, x: this._viewport.x + dx, y: this._viewport.y + dy });
@@ -770,7 +791,9 @@ sap.ui.define(
         apiVersion: 2,
         render(rm, control) {
           rm.openStart("div", control);
-          rm.attr("tabindex", "0");
+          // the tab stop is for the keys that move the view - a fixed plan
+          // has none to offer
+          if (control.getZoomable()) rm.attr("tabindex", "0");
           rm.attr("role", "group");
           rm.attr("aria-label", "Floor plan");
           rm.style("position", "relative");
@@ -794,7 +817,7 @@ sap.ui.define(
           rm.openEnd();
           rm.close("div");
 
-          if (control.getShowControls()) {
+          if (control.getShowControls() && control.getZoomable()) {
             rm.openStart("div", `${control.getId()}-controls`);
             rm.style("position", "absolute");
             rm.style("top", "0.5rem");
