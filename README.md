@@ -109,7 +109,7 @@ client->view_display( view->stringify( ) ).
 That is all — properties bind, values are written back into your ABAP variables
 and events arrive in `on_event` like for any built-in control.
 
-## What's in it
+## Features
 
 | Control | What it does | Builder | Sample |
 |---|---|---|---|
