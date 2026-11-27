@@ -283,6 +283,18 @@ test("FloorPlan: None reports the click and selects nothing", () => {
   assert.equal(control.painted, 0);
 });
 
+test("FloorPlan: a disabled item takes no click", () => {
+  const control = mockControl({ selectedKeys: "x" });
+  control._press({ KEY: "a", DISABLED: true });
+  assert.equal(control.fired.length, 0);
+  assert.equal(control._selectedKeys, "x");
+  assert.equal(control.painted, 0);
+  // and with the mode that only reports clicks, too
+  const reporting = mockControl({ selectionMode: "None" });
+  reporting._press({ KEY: "a", DISABLED: true });
+  assert.equal(reporting.fired.length, 0);
+});
+
 test("FloorPlan: a numeric key is a key", () => {
   const control = mockControl();
   control._press({ KEY: 7001 });
