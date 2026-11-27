@@ -1,7 +1,11 @@
 <!doctype html>
 <html>
 <!--
-  Browser check for the ImageMapster SVG overlay.
+  Browser checks for the parts of the controls only a browser can answer: the
+  ImageMapster SVG overlay, the SignaturePad canvas and the code view of the
+  RichTextEditor (against the vendored SunEditor in node_modules).
+
+  The ImageMapster part:
 
   tools/map-shapes.test.mjs covers the arithmetic and the selection logic, which
   is most of the thinking - but not the part that only a layout engine can
@@ -22,8 +26,10 @@
 const modules = {};
 window.sap = { ui: { define(deps, factory) { window.__factory = { deps, factory }; } } };
 
-// the real Util.js, loaded below; a logError becomes a FAIL line
+// the real Util.js, loaded below; a logError becomes a FAIL line unless a
+// check collects the errors it expects in `errors`
 let Util;
+let errors = null;
 
 const lines = [];
 function log(msg) { lines.push(msg); }
@@ -36,12 +42,233 @@ async function load(path, name, deps) {
 
 function assert(ok, what) { log((ok ? "PASS  " : "FAIL  ") + what); }
 
+const later = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function script(path) {
+  return new Promise((resolve, reject) => {
+    const tag = document.createElement("script");
+    tag.src = path;
+    tag.onload = resolve;
+    tag.onerror = () => reject(new Error("could not load " + path));
+    document.head.appendChild(tag);
+  });
+}
+
+// ImageMapster: an image that does not load says so, and the listeners of a
+// rendering that is gone do not fire.
+async function imageMapsterLoading(def, goodImage) {
+  const make = (id, src) => {
+    host.innerHTML =
+      "<div id='" + id + "' style='width:300px'><div id='" + id + "-frame' style='position:relative'>" +
+      "<img id='" + id + "-image' style='width:100%;display:block'></div></div>";
+    document.getElementById(id + "-image").src = src;
+    const control = Object.create(def);
+    Object.assign(control, {
+      getId: () => id,
+      getSrc: () => src,
+      getAreas: () => [{ KEY: "a", SHAPE: "rect", COORDS: "0,0,10,10" }],
+      getConfig: () => ({}),
+      getSelectedKeys: () => "",
+      setProperty: () => {},
+      fireAreaPress: () => {},
+    });
+    return control;
+  };
+
+  errors = [];
+  const broken = make("bad", "data:image/png;base64,bm90IGFuIGltYWdl");
+  def.onAfterRendering.call(broken);
+  await later(100);
+  assert(errors.length === 1 && /could not be loaded/.test(errors[0]),
+    "ImageMapster: an image that fails to load is logged once (" + errors.join(" | ") + ")");
+  assert(!document.querySelector("#bad svg"), "ImageMapster: no overlay for a broken image");
+
+  errors = [];
+  def.onAfterRendering.call(broken);
+  assert(errors.length === 1, "ImageMapster: a re-render of the broken image logs again, at once (" + errors.length + ")");
+  errors = null;
+
+  // a rendering that is replaced before its image arrived: its load listener
+  // must not build an overlay afterwards
+  const stale = make("stale", goodImage + "#stale");
+  def.onAfterRendering.call(stale);
+  def.onBeforeRendering.call(stale);
+  await later(100);
+  assert(!document.querySelector("#stale svg"), "ImageMapster: onBeforeRendering drops the pending load listener");
+  def.exit.call(stale);
+}
+
+// SignaturePad on a real canvas, at a device pixel ratio of 2 so the strokes
+// are drawn through a scaling transform.
+async function signaturePad() {
+  await load("../app/webapp/cc/SignaturePad.js", "SignaturePad", {
+    "sap/ui/core/Control": { extend: (n, def) => def },
+    "z2ui5_cci/cc/Util": Util,
+  });
+  const def = modules.SignaturePad;
+  Object.defineProperty(window, "devicePixelRatio", { value: 2, configurable: true });
+  host.innerHTML =
+    "<div style='width:200px;height:100px'><canvas id='sig-canvas' style='width:100%;height:100%;display:block'></canvas></div>";
+  const canvas = document.getElementById("sig-canvas");
+  // a synthetic pointer has no capture to take
+  canvas.setPointerCapture = undefined;
+
+  let value = "";
+  const changes = [];
+  const pad = Object.create(def);
+  Object.assign(pad, {
+    getId: () => "sig",
+    getValue: () => value,
+    setProperty: (name, v) => { if (name === "value") value = v; },
+    fireChange: (p) => changes.push(p.value),
+    getEditable: () => true,
+    getLineColor: () => "#000000",
+    getLineWidth: () => 6,
+  });
+
+  const inked = () => {
+    const data = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
+    let n = 0;
+    for (let i = 3; i < data.length; i += 4) if (data[i]) n += 1;
+    return n;
+  };
+  const stroke = (x1, y1, x2, y2) => {
+    const r = canvas.getBoundingClientRect();
+    const at = (type, x, y) =>
+      canvas.dispatchEvent(new PointerEvent(type, { clientX: r.left + x, clientY: r.top + y, bubbles: true, cancelable: true }));
+    at("pointerdown", x1, y1);
+    at("pointermove", (x1 + x2) / 2, (y1 + y2) / 2);
+    at("pointermove", x2, y2);
+    at("pointerup", x2, y2);
+  };
+
+  def.onAfterRendering.call(pad);
+  assert(canvas.width === 400 && canvas.height === 200, "SignaturePad: backing store at device resolution (" + canvas.width + "x" + canvas.height + ")");
+
+  stroke(150, 60, 195, 95);
+  assert(inked() > 0 && /^data:image\/png/.test(value) && !pad.isEmpty(), "SignaturePad: a stroke draws and publishes a PNG");
+
+  // the backend clears the signature: the binding calls setValue("")
+  pad.setValue("");
+  assert(inked() === 0, "SignaturePad: setValue('') blanks the whole canvas (" + inked() + " pixels left)");
+  assert(pad.isEmpty(), "SignaturePad: and the pad is empty again");
+
+  // the same through a re-render, which keeps the canvas element and its bitmap
+  stroke(10, 10, 60, 40);
+  value = "";
+  def.onAfterRendering.call(pad);
+  assert(inked() === 0, "SignaturePad: a re-render with an empty value blanks the canvas (" + inked() + " pixels left)");
+
+  // the next stroke publishes itself only, not the strokes cleared before it
+  stroke(10, 80, 40, 90);
+  const after = value;
+  const img = new Image();
+  await new Promise((r) => { img.onload = r; img.src = after; });
+  const probe = document.createElement("canvas");
+  probe.width = canvas.width;
+  probe.height = canvas.height;
+  probe.getContext("2d").drawImage(img, 0, 0);
+  const corner = probe.getContext("2d").getImageData(300, 120, 100, 80).data;
+  assert(!corner.some((v, i) => i % 4 === 3 && v), "SignaturePad: the stroke after a clear carries none of the cleared ones");
+
+  // a restored signature is drawn; a clear before it arrives wins
+  pad.setValue("");
+  pad.setValue(after);
+  await later(100);
+  assert(inked() > 0 && !pad.isEmpty(), "SignaturePad: a data:image value is drawn");
+  pad.setValue("");
+  pad.setValue(after);
+  pad.setValue("");
+  await later(100);
+  assert(inked() === 0, "SignaturePad: a clear wins over an image still loading");
+
+  // anything but a data:image URL is never requested
+  const RealImage = window.Image;
+  let created = 0;
+  window.Image = function () { created += 1; return new RealImage(); };
+  errors = [];
+  try {
+    pad.setValue("https://example.invalid/signature.png");
+    pad.setValue("javascript:alert(1)");
+  } finally {
+    window.Image = RealImage;
+  }
+  assert(created === 0, "SignaturePad: an http(s) or other URL in value is not loaded (" + created + " images)");
+  assert(errors.length === 2 && inked() === 0 && pad.isEmpty(), "SignaturePad: it is logged and the pad stays blank (" + errors.join(" | ") + ")");
+  errors = null;
+
+  pad.clear();
+  assert(value === "" && changes[changes.length - 1] === "", "SignaturePad: clear( ) empties the value and fires change");
+  def.exit.call(pad);
+  delete window.devicePixelRatio;
+}
+
+// RichTextEditor against the vendored SunEditor: an edit made in code view
+// reaches the model - on reading and when the code area loses focus.
+async function richTextEditor() {
+  await script("../node_modules/suneditor/dist/suneditor.min.js");
+  await load("../app/webapp/cc/RichTextEditor.js", "RichTextEditor", {
+    "sap/ui/core/Control": { extend: (n, def) => def },
+    "z2ui5_cci/cc/Util": Util,
+    "z2ui5_cci/cc/LibUrls": {},
+  });
+  const def = modules.RichTextEditor;
+  host.innerHTML = "<div id='rte-host'></div>";
+
+  let value = "<p>before</p>";
+  const changes = [];
+  const rte = Object.create(def);
+  Object.assign(rte, {
+    getId: () => "rte",
+    getValue: () => value,
+    setProperty: (name, v) => { if (name === "value") value = v; },
+    fireChange: (p) => changes.push(p.value),
+    getEditable: () => true,
+    getSanitize: () => false,
+    getHeight: () => "",
+    getPlaceholder: () => "",
+    getToolbar: () => "",
+    getLanguage: () => "en",
+  });
+  def.init.call(rte);
+  rte._create("signature");
+  for (let i = 0; i < 50 && !rte._ready; i += 1) await later(20);
+  assert(rte._ready, "RichTextEditor: SunEditor created and loaded");
+  if (!rte._ready) return;
+
+  const $ = rte._editor.$;
+  const code = $.frameContext.get("code");
+  $.viewer.codeView(true);
+  code.dispatchEvent(new FocusEvent("focus"));
+  code.value = "<p>edited in <strong>code</strong> view</p>";
+  assert(rte._read() === "<p>edited in <strong>code</strong> view</p>",
+    "RichTextEditor: reading in code view returns the code area's text (" + rte._read() + ")");
+  assert($.frameContext.get("isCodeView"), "RichTextEditor: reading does not leave the code view");
+
+  code.dispatchEvent(new FocusEvent("blur"));
+  assert(value === "<p>edited in <strong>code</strong> view</p>", "RichTextEditor: blur of the code area writes the model (" + value + ")");
+  assert(changes[changes.length - 1] === value, "RichTextEditor: and fires change (" + changes.join(" | ") + ")");
+
+  code.value = "";
+  code.dispatchEvent(new Event("change"));
+  assert(value === "", "RichTextEditor: an emptied code area is an empty value (" + JSON.stringify(value) + ")");
+
+  code.value = "<p>back</p>";
+  $.viewer.codeView(false);
+  assert(rte._read() === "<p>back</p>", "RichTextEditor: leaving the code view reads the same (" + rte._read() + ")");
+  def.exit.call(rte);
+}
+
 (async () => {
   await load("../app/webapp/cc/Util.js", "Util", {
     "sap/ui/core/Element": {},
     "z2ui5_cci/cc/LibUrls": { integrity: {} },
   });
-  Util = { ...modules.Util, logError: (...a) => log("logError: " + a.join(" ")), isDestroyed: () => false };
+  Util = {
+    ...modules.Util,
+    logError: (...a) => (errors ? errors.push(a.join(" ")) : log("logError: " + a.join(" "))),
+    isDestroyed: () => false,
+  };
   await load("../app/webapp/cc/MapShapes.js", "MapShapes", {});
   await load("../app/webapp/cc/ImageMapster.js", "ImageMapster", {
     "sap/ui/core/Control": { extend: (n, def) => def },
@@ -178,6 +405,11 @@ function assert(ok, what) { log((ok ? "PASS  " : "FAIL  ") + what); }
   [...svg2.children].filter((n) => /rect|circle|polygon/.test(n.tagName))[0]
     .dispatchEvent(new MouseEvent("click", { bubbles: true }));
   assert(clip.children.length === 1 && alt.style.display === "", "selecting one region clips the alt image to it");
+  def.exit.call(control2);
+
+  await imageMapsterLoading(def, image);
+  await signaturePad();
+  await richTextEditor();
 
   out.textContent = lines.join("\n");
 })().catch((e) => { out.textContent = lines.join("\n") + "\nTHREW: " + e.message + "\n" + e.stack; });

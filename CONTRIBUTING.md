@@ -28,7 +28,7 @@ succeed. It also runs `npm run check:702`: a scratch copy of `src/` in
 | `npm run check:abap2ui5` | [abap2UI5-linter](https://github.com/abap2UI5/linter): the app class and the view it builds, judged together — controls, members, bindings, the UI5 version floor |
 | `npm test` | the Node tests under `tools/` |
 | `npm run check:js` | every control under `app/webapp/cc/` parses (`node --check`) |
-| `npm run check:browser` | the ImageMapster overlay in headless Chromium - skipped when no Chromium is found |
+| `npm run check:browser` | in headless Chromium: the ImageMapster overlay, the SignaturePad canvas and the RichTextEditor code view - skipped when no Chromium is found |
 
 The abap2UI5-linter keeps a baseline in `abap2ui5lint-baseline.json`. Findings
 recorded there are counted and never listed; a **new** finding fails the gate,
