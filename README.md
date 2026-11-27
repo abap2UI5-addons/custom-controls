@@ -183,6 +183,17 @@ names from
 `z2ui5_cl_cci_chartjs=>cs_plugin` (`datalabels`, `autocolors`, `deferred`,
 `annotation`, `venn`, `wordcloud`).
 
+Bind `config` with `omit_initial = abap_true` and nothing else: the control
+turns the ABAP field names into the camelCase names Chart.js reads
+(`border_width` → `borderWidth`). An option whose Chart.js default is true —
+`responsive`, `legend-display`, `tooltip-enabled`, `ticks-display`, … — is a
+`ty_flag`: set it to `cs_flag-false` to switch it off (`omit_initial` would
+drop an `abap_false`, and Chart.js would fall back to true), `cs_flag-true` or
+`abap_true` to switch it on, leave it empty for the default. Fractions
+(`line-tension`, `datalabels-opacity`) are `ty_fraction`, dash patterns
+(`border_dash`, `tick_border_dash`, `dash`) a `ty_dash` table of segment
+lengths.
+
 <img width="1248" height="630" alt="The ChartJs sample" src="https://github.com/user-attachments/assets/7b20eb12-1823-4b25-a3ad-0dfcab95077a" />
 
 ### Barcode
@@ -713,23 +724,27 @@ draw lanes or bins, not every pallet in them.
 
 Five controls take a whole configuration as one property (Chart.js config,
 driver.js steps, ImageMapster options, workbook columns, validation rules). Bind
-those with `omit_initial = abap_true` — and with the camelCase mapper where the
-target library expects camelCase names:
+those with `omit_initial = abap_true`:
 
 ```abap
-config = client->_bind(
-    val           = ms_chart
-    omit_initial  = abap_true
-    custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                        iv_first_json_upper = abap_false ) )
+config = client->_bind( val          = ms_chart
+                        omit_initial = abap_true )
 ```
+
+ChartJs turns the ABAP field names into camelCase itself. The other controls
+that hand a structure to a library expecting camelCase names still take the
+camelCase mapper (`custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
+iv_first_json_upper = abap_false )`), which `_bind( )` marks obsolete - see
+their sections.
 
 ABAP has no "unset" for a structure component: fields you never touched still
 serialize as `""`, `0` or `false`, and `borderWidth: 0` draws no border.
 `omit_initial` drops initial fields so the library's own defaults survive, while
 the entries of an array - a `0` in a dataset, a row of a table - are kept. The
 flip side: a field that *is* meaningfully zero, empty or false cannot be sent
-this way; `omit_initial_paths` limits the omission to the fields it lists.
+this way; `omit_initial_paths` limits the omission to the fields it lists, and
+the `ty_flag` fields of ChartJs carry such values as text, where only the empty
+string is initial.
 
 `z2ui5_cl_cci_json_filter`, which the samples used before, still works, but
 `custom_filter` is obsolete on `_bind( )` and the abap2UI5-linter reports it

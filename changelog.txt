@@ -11,6 +11,10 @@ Legend
 
 unreleased
 ----------
+* ChartJs: an option whose Chart.js default is true (responsive, legend-display, tooltip-enabled, ticks-display, grid-draw_on_chart_area, ... - 28 fields) could not be switched off: bound with omit_initial an abap_false is dropped and Chart.js falls back to true. These fields are ty_flag (text) now - cs_flag-false switches the option off, cs_flag-true or abap_true on, empty keeps the default; an assignment of abap_true or abap_false compiles and behaves as before
++ ChartJs: the control turns the ABAP field names into camelCase itself, so config is bound with omit_initial alone - the obsolete camelCase mapper is no longer needed (it still works)
+* ChartJs: line-tension and datalabels-opacity were integers and could not hold a fraction (ty_fraction now); legend-full_size was an integer (ty_flag now)
+! BREAKING ChartJs: the dash patterns (border-dash, grid-border_dash, grid-tick_border_dash, angle_lines-border_dash, line-border_dash, arc-border_dash) are ty_dash tables of segment lengths - Chart.js takes an array there, so a number or text never drew a dash. An app that assigned one gets a syntax error and writes VALUE #( ( 5 ) ( 5 ) ) instead
 + FloorPlan: an item with disabled = abap_true takes no click - no itempress, no selection, no pointer cursor
 + ScanInput: beeponsuccess = `true` plays a short, high tone when valuestate turns to Success - the scan was taken
 + FloorPlan: zoomable = `false` makes the plan a fixed picture of the whole - no wheel, drag, pinch, keys or buttons, the page scrolls as usual, a click still selects
