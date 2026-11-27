@@ -28,11 +28,9 @@ The controls ship in their **own BSP** (`Z2UI5_CCI`), not inside the framework. 
 repository and the controls are there; nothing in abap2UI5 or in the frontend BSP
 has to change, and no pull request against the framework is needed to add one.
 
-These controls replace the
-[abap2UI5-addons/js-libraries-obsolet](https://github.com/abap2UI5-addons/js-libraries-obsolet)
-and
-[abap2UI5-addons/custom-controls-obsolet](https://github.com/abap2UI5-addons/custom-controls-obsolet)
-repositories, which shipped the same JavaScript as ABAP string literals injected
+These controls replace the former repositories
+`abap2UI5-addons/js-libraries-obsolet` and
+`abap2UI5-addons/custom-controls-obsolet` (no longer on GitHub), which shipped the same JavaScript as ABAP string literals injected
 into every view. Each control's JS file names the class it came from and lists
 what changed. Favicon and MessageManager were not ported — abap2UI5 carries them
 itself (the favicon through the frontend event `cs_event-set_favicon`, the
