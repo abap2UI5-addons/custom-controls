@@ -36,6 +36,8 @@ A library of nineteen custom controls for abap2UI5: signature pad, Chart.js char
 ## Requirements
 
 - Standard ABAP 7.50 or higher
+- NetWeaver 7.02 - 7.40: the downported branch 702
+- Not the SAP BTP ABAP environment: the controls are served from a BSP, which it cannot import (the classes themselves are checked against ABAP Cloud)
 - abap2UI5 with the reserved resourceRoot z2ui5_cci in the frontend manifest
 - ExportSpreadsheet needs SAPUI5 (sap.ui.export is missing under OpenUI5)
 - Branch main needs browser access to jsDelivr; branch local does not

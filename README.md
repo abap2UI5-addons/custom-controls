@@ -1,7 +1,7 @@
 # custom-controls
 
 [![abap2UI5-addons](https://img.shields.io/badge/abap2UI5--addons-library-1873b4)](https://github.com/abap2UI5-addons)
-[![ABAP](https://img.shields.io/badge/ABAP-Standard%20%E2%89%A5%207.50-blue)](#installation)
+[![ABAP](https://img.shields.io/badge/ABAP-Standard%20%E2%89%A5%207.50%20%7C%207.02-blue)](#installation)
 [![abap2UI5](https://img.shields.io/badge/requires-abap2UI5-blue)](https://github.com/abap2UI5/abap2UI5)
 [![License](https://img.shields.io/github/license/abap2UI5-addons/custom-controls)](LICENSE)
 <br>
@@ -43,6 +43,10 @@ MessageManager as its own control `z2ui5.cc.MessageManager`).
 - Standard ABAP 7.50 or higher
 - NetWeaver 7.02 - 7.40: the branch `702`, downported automatically from
   `main` on every push - pull abap2UI5 from its `702` branch as well
+- ABAP Cloud: CI checks the classes against ABAP Cloud as well
+  (`.github/abaplint/abap_cloud.jsonc`), but the controls are served from the
+  classic BSP application `Z2UI5_CCI`, which the SAP BTP ABAP environment
+  cannot import - this repository needs a system with BSP (Standard ABAP)
 - [abap2UI5](https://github.com/abap2UI5/abap2UI5) with the reserved
   resourceRoot `z2ui5_cci` in the frontend manifest (see
   [Troubleshooting](#troubleshooting) if a control stays blank)
@@ -410,9 +414,11 @@ follows every keystroke without a roundtrip.
 The rendered HTML goes through [DOMPurify](https://github.com/cure53/DOMPurify)
 unless `sanitize` is set to `false`. Leave it on for anything a user typed or a
 model produced: Markdown carries raw HTML through, and unsanitized that HTML
-runs with the user's session. A link whose href starts with `#` does not
-navigate — it raises `linkpress` with the href, which is how a help text links
-into the app it documents. Every other link opens in a new tab.
+runs with the user's session. Besides scripts, the sanitizer drops forms,
+buttons, `select`/`textarea` and `<style>` - a fake logon form or a stylesheet
+that restyles the whole page has no business in a rendered text. A link whose
+href starts with `#` does not navigate — it raises `linkpress` with the href,
+which is how a help text links into the app it documents. Every other link opens in a new tab.
 
 <img width="900" height="508" alt="The Markdown sample" src="https://github.com/user-attachments/assets/3dd6fed0-2014-4eed-af9f-45d91bfc8e37" />
 
@@ -446,7 +452,8 @@ actually edits it.
   [DOMPurify](https://github.com/cure53/DOMPurify) on its way into the editor
   and on its way back, unless `sanitize` is `false`. Leave it on: the text ends
   up in some other page one day, and what comes in may have been typed by
-  somebody else.
+  somebody else. Forms, buttons, `select`/`textarea` and `<style>` are dropped
+  as well, as in Markdown.
 - **Toolbar.** Button groups separated by `|`, buttons by `,`, named as
   SunEditor names them: `undo,redo|bold,italic|link`. Empty is the full toolbar
   — formats, fonts, colours, alignment, lists, table, link, image, full screen

@@ -34,6 +34,10 @@ CLASS z2ui5_cl_cci_validator DEFINITION
       "! text, an unticked CheckBox or RadioButton, a Switch that is off, and a
       "! MultiComboBox or MultiInput with nothing selected (its typed text is
       "! not its value).
+      "!
+      "! A field may have several rules; they are checked in table order and
+      "! the first that fails gives the field its message and its one row in
+      "! the errors table.
       BEGIN OF ty_s_rule,
         field     TYPE string,
         "! `number`, `integer` or empty for a plain string

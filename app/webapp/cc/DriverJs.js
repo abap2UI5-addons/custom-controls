@@ -124,7 +124,7 @@ sap.ui.define(
         HTML_TEXTS.forEach((key) => {
           const value = target[key];
           if (value === undefined || value === null || value === "") return;
-          target[key] = html ? window.DOMPurify.sanitize(String(value)) : escapeHtml(value);
+          target[key] = html ? Util.purify(value) : escapeHtml(value);
         });
       },
 

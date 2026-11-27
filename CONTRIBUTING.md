@@ -14,7 +14,9 @@ npm run check
 `npm run check` runs the gates below. CI runs three more, which rewrite the
 tree and so are not part of `check`: `npm run app2bsp` and `npm run vendor`
 must leave `src/` and `app/webapp/` unchanged, and `npm run build:local` must
-succeed. If you changed `app/` or a library version, run `npm run vendor` and
+succeed. It also runs `npm run check:702`: a scratch copy of `src/` in
+`build/702`, downported and linted with `.github/abaplint/abap_702.jsonc`
+(`src/` is not touched; it fetches the 7.02 dependencies and takes a minute). If you changed `app/` or a library version, run `npm run vendor` and
 `npm run app2bsp` and commit the result.
 
 ## What the gates are

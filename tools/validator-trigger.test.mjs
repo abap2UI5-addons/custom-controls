@@ -103,6 +103,48 @@ test("Validator: Input and Select keep their value and key", () => {
   assert.equal(Validator.check({ FIELD: "f", TYPE: "number", MINIMUM: 20 }, "12") !== "", true);
 });
 
+test("Validator: two rules on one field - the first failure stays on the field", () => {
+  const input = field(["sap.m.Input", "sap.m.InputBase"], { value: "" }, {
+    setValueState(state) { this.state = state; },
+    setValueStateText(text) { this.text = text; },
+  });
+  const fields = { qty: input };
+  const V = amd("Validator.js", {
+    "sap/ui/core/library": { ValueState: { None: "None", Error: "Error" } },
+    "z2ui5_cci/cc/Util": { ...Util, resolveControl: (self, id) => fields[id] || null },
+  });
+  const self = Object.create(V);
+  const props = {};
+  self.getRules = () => [
+    { FIELD: "qty", REQUIRED: true, MESSAGE: "Quantity is required" },
+    // empty value: not checked, so this rule holds
+    { FIELD: "qty", PATTERN: "^[0-9]+$" },
+  ];
+  self.setProperty = (name, value) => { props[name] = value; };
+  self.fireValidated = () => {};
+
+  assert.equal(self.validate(), false);
+  assert.equal(input.state, "Error");
+  assert.equal(input.text, "Quantity is required");
+  assert.deepEqual(props.errors, [{ FIELD: "qty", MESSAGE: "Quantity is required" }]);
+
+  // both rules fail: still one message and one row
+  self.getRules = () => [
+    { FIELD: "qty", TYPE: "number", MESSAGE: "first" },
+    { FIELD: "qty", PATTERN: "^[0-9]+$", MESSAGE: "second" },
+  ];
+  input.getValue = () => "abc";
+  assert.equal(self.validate(), false);
+  assert.equal(input.text, "first");
+  assert.equal(props.errors.length, 1);
+
+  // fixed: cleared
+  input.getValue = () => "12";
+  assert.equal(self.validate(), true);
+  assert.equal(input.state, "None");
+  assert.equal(input.text, "");
+});
+
 // a control whose trigger is bound to `path` (or not bound, path null)
 let counter = 0;
 function triggerControl(path, name = "z2ui5_cci.cc.DriverJs") {

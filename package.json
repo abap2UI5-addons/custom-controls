@@ -13,6 +13,7 @@
     "check:cloud": "abaplint .github/abaplint/abap_cloud.jsonc",
     "test": "node --test 'tools/**/*.test.mjs'",
     "check:browser": "node tools/overlay-check.mjs",
+    "check:702": "bash .github/scripts/check-702.sh",
     "check:abap2ui5": "abap2ui5lint",
     "check:js": "for f in app/webapp/cc/*.js; do node --check \"$f\" || exit 1; done",
     "check": "npm run lint && npm run check:cloud && npm run check:abap2ui5 && npm run test && npm run check:js && npm run check:browser",
