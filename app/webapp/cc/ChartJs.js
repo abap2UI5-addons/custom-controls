@@ -60,9 +60,9 @@ sap.ui.define(
     //   dataVenn/dataRadial  ABAP needs one component per shape of `data`
     //                        (a string table, a set list, x/y/r points) and
     //                        cannot give three of them the same name
-    //   scaleID/xScaleID     the camelCase mapper lower-cases the trailing
-    //                        capitals of an ABAP field, so scale_id arrives
-    //                        as scaleid and the annotation plugin ignores it
+    //   scaleID/xScaleID     camelCase from an ABAP field lower-cases its
+    //                        trailing capitals, so scale_id arrives as
+    //                        scaleid and the annotation plugin ignores it
     const RENAME = {
       dataVenn: "data",
       dataRadial: "data",
@@ -71,6 +71,30 @@ sap.ui.define(
       yScaleid: "yScaleID",
     };
 
+    // The Chart.js options whose default is TRUE (or depends on the chart
+    // type). ABAP sends them as a string, because the one value an ABAP
+    // boolean cannot send under omit_initial is `false` - it is the initial
+    // value and is dropped, and Chart.js falls back to true. So `false` and
+    // `true` arrive as text, `X` is what abap_true turns into, and an empty
+    // string is "leave the Chart.js default" even without omit_initial. Any
+    // other text (`auto` of datalabels.display) is handed on as it is.
+    const FLAGS = new Set([
+      "autoPadding", "autoSkip", "capBezierPoints", "circular", "clip",
+      "display", "displayColors", "drawOnChartArea", "drawTicks", "enabled",
+      "fullSize", "includeBounds", "intersect", "offset", "propagate",
+      "responsive", "showLabelBackdrop", "showLine",
+    ]);
+    const FLAG_VALUES = new Map([["true", true], ["X", true], ["false", false]]);
+
+    // An ABAP field arrives under its upper-case name (FONT_SIZE) unless the
+    // app bound it with the camelCase mapper (fontSize); Chart.js only reads
+    // the second. A key without a lower-case letter is converted, one that
+    // has one is taken as it is - so both bindings work.
+    function camelCase(key) {
+      if (!/^[A-Z][A-Z0-9_]*$/.test(key)) return key;
+      return key.toLowerCase().replace(/_([a-z0-9])/g, (all, char) => char.toUpperCase());
+    }
+
     // Depth-first rename. The original did a string replace over the whole
     // serialized config, which renamed the first hit only and happily
     // rewrote a matching data VALUE too.
@@ -78,7 +102,13 @@ sap.ui.define(
       if (Array.isArray(value)) return value.map(normalize);
       if (value === null || typeof value !== "object") return value;
       const out = {};
-      for (const [key, entry] of Object.entries(value)) {
+      for (const [rawKey, entry] of Object.entries(value)) {
+        const key = camelCase(rawKey);
+        if (FLAGS.has(key) && typeof entry === "string") {
+          if (entry === "") continue;
+          out[key] = FLAG_VALUES.has(entry) ? FLAG_VALUES.get(entry) : entry;
+          continue;
+        }
         out[RENAME[key] || key] = normalize(entry);
       }
       return out;
@@ -107,6 +137,10 @@ sap.ui.define(
           },
         },
       },
+
+      // the config as Chart.js reads it - see normalize; on the control for
+      // the tests in tools/
+      _normalize: normalize,
 
       _canvas() {
         return document.getElementById(`${this.getId()}-canvas`);

@@ -165,7 +165,9 @@ renders disabled.
 
 Rule fields: `field`, `type` (`number`/`integer`), `format` (`email`/`date`),
 `pattern`, `required`, `minlength`, `maxlength`, `minimum`, `maximum`,
-`message`. No external library — works without internet access.
+`message`. No external library — works without internet access. `minimum` and
+`maximum` are text: empty means no limit, so a limit of `0` is checked too
+(bind the rules with `omit_initial = abap_true`).
 
 <img width="1246" height="636" alt="The Validator sample" src="https://github.com/user-attachments/assets/c47560cc-503e-439e-a907-f2ff76790b70" />
 
@@ -180,6 +182,17 @@ place — the framework pushes the changed model on its own. `plugins` takes the
 names from
 `z2ui5_cl_cci_chartjs=>cs_plugin` (`datalabels`, `autocolors`, `deferred`,
 `annotation`, `venn`, `wordcloud`).
+
+Bind `config` with `omit_initial = abap_true` and nothing else: the control
+turns the ABAP field names into the camelCase names Chart.js reads
+(`border_width` → `borderWidth`). An option whose Chart.js default is true —
+`responsive`, `legend-display`, `tooltip-enabled`, `ticks-display`, … — is a
+`ty_flag`: set it to `cs_flag-false` to switch it off (`omit_initial` would
+drop an `abap_false`, and Chart.js would fall back to true), `cs_flag-true` or
+`abap_true` to switch it on, leave it empty for the default. Fractions
+(`line-tension`, `datalabels-opacity`) are `ty_fraction`, dash patterns
+(`border_dash`, `tick_border_dash`, `dash`) a `ty_dash` table of segment
+lengths.
 
 <img width="1248" height="630" alt="The ChartJs sample" src="https://github.com/user-attachments/assets/7b20eb12-1823-4b25-a3ad-0dfcab95077a" />
 
@@ -711,27 +724,32 @@ draw lanes or bins, not every pallet in them.
 
 Five controls take a whole configuration as one property (Chart.js config,
 driver.js steps, ImageMapster options, workbook columns, validation rules). Bind
-those with `omit_initial = abap_true` — and with the camelCase mapper where the
-target library expects camelCase names:
+those with `omit_initial = abap_true`:
 
 ```abap
-config = client->_bind(
-    val           = ms_chart
-    omit_initial  = abap_true
-    custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-                        iv_first_json_upper = abap_false ) )
+config = client->_bind( val          = ms_chart
+                        omit_initial = abap_true )
 ```
+
+ChartJs turns the ABAP field names into camelCase itself. The other controls
+that hand a structure to a library expecting camelCase names still take the
+camelCase mapper (`custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
+iv_first_json_upper = abap_false )`), which `_bind( )` marks obsolete - see
+their sections.
 
 ABAP has no "unset" for a structure component: fields you never touched still
 serialize as `""`, `0` or `false`, and `borderWidth: 0` draws no border.
 `omit_initial` drops initial fields so the library's own defaults survive, while
 the entries of an array - a `0` in a dataset, a row of a table - are kept. The
 flip side: a field that *is* meaningfully zero, empty or false cannot be sent
-this way; `omit_initial_paths` limits the omission to the fields it lists.
+this way; `omit_initial_paths` limits the omission to the fields it lists, and
+the types of ChartJs (`ty_flag`) and Validator (`minimum`, `maximum`) carry
+such values as text, where only the empty string is initial.
 
-`z2ui5_cl_cci_json_filter`, which the samples used before, still works, but
-`custom_filter` is obsolete on `_bind( )` and the abap2UI5-linter reports it
-(`obsolete-bind-argument`).
+`z2ui5_cl_cci_json_filter`, which the samples used before, still works but is
+deprecated and will be removed in a later release: `custom_filter` is obsolete
+on `_bind( )` and the abap2UI5-linter reports it (`obsolete-bind-argument`).
+Replace it with `omit_initial = abap_true`.
 
 ### Third-party libraries
 
@@ -849,7 +867,12 @@ which look identical from inside the app.
    on `local` without a second code path. A WebAssembly module the library
    compiles gets an entry of `"kind": "wasm"` of its own (see `zxingWasmBinary`)
 3. run `npm run app2bsp` — regenerates the BSP artefacts under `src/01`
-4. add a builder class `z2ui5_cl_cci_<name>` next to the others
+4. add a builder class `z2ui5_cl_cci_<name>` next to the others; its
+   `render( )` hands the parameters to `z2ui5_cl_cci=>tag( )` as `key=value`
+   strings, which drops the empty ones (`z2ui5_cl_cci=>ele( )` for a control
+   with children such as layoutData). The values are written as they are, so
+   a binding stays a binding - literal text from user input is escaped by the
+   app with `z2ui5_cl_ui5_view_builder=>escape_literal( )`
 5. add a sample and a row in `z2ui5_cl_cci_sample_00=>model_init( )`
 
 File names under `app/webapp` become BSP page names and SAP validates them: at

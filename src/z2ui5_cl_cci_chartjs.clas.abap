@@ -8,17 +8,18 @@
 "! one, so the Chart.js documentation is the reference for what a field means -
 "! neither this class nor the control interprets them.
 "!
-"! Bind it with omit_initial and the camelCase mapper:
+"! Bind it with omit_initial:
 "!
-"!   config = client->_bind(
-"!       val           = ms_chart
-"!       omit_initial  = abap_true
-"!       custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-"!                           iv_first_json_upper = abap_false ) )
+"!   config = client->_bind( val          = ms_chart
+"!                           omit_initial = abap_true )
 "!
-"! Without omit_initial every field the app left alone would arrive as 0, ``` or
-"! false and override the Chart.js default; without the mapper the field names
-"! would stay snake_case and Chart.js would ignore all of them.
+"! Without omit_initial every field the app left alone would arrive as 0 or
+"! `` and override the Chart.js default. The control turns the ABAP field
+"! names into the camelCase names Chart.js reads (border_width -&gt;
+"! borderWidth), so no mapper is needed - the camelCase mapper of older apps
+"! still works. An option whose Chart.js default is true is a ty_flag, set to
+"! cs_flag-false to switch it off; an abap_bool field can only switch an
+"! option ON, because omit_initial drops abap_false.
 "!
 "! Ported from abap2UI5-addons/js-libraries (z2ui5_cl_cc_chartjs). The type
 "! tree is carried over unchanged, the JavaScript is now a real module in this
@@ -29,6 +30,19 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+
+    "! A Chart.js option whose default is TRUE (or depends on the chart
+    "! type): `false`, `true` (abap_true works as well) or empty for the
+    "! Chart.js default. Not abap_bool, because omit_initial drops an
+    "! abap_false - the initial value - and Chart.js would fall back to
+    "! true: a legend, a tooltip or responsiveness could not be switched off.
+    "! Use cs_flag. Any other text (`auto` of datalabels-display) is passed on.
+    TYPES ty_flag TYPE string.
+    "! A fraction such as a line tension or an opacity, 0 to 1
+    TYPES ty_fraction TYPE p LENGTH 3 DECIMALS 2.
+    "! A dash pattern - Chart.js takes an array of segment lengths, e.g.
+    "! VALUE #( ( 5 ) ( 5 ) ) for `[5, 5]`
+    TYPES ty_dash TYPE STANDARD TABLE OF i WITH EMPTY KEY.
 
     " Data
     TYPES:
@@ -81,13 +95,13 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         clamp             TYPE abap_bool,
         clip              TYPE abap_bool,
         color             TYPE string,
-        display           TYPE abap_bool,
+        display           TYPE ty_flag,
         font              TYPE ty_font,
         formatter         TYPE string,
         labels            TYPE ty_datalabels_labels,
         listeners         TYPE string,
         offset            TYPE i,
-        opacity           TYPE i,
+        opacity           TYPE ty_fraction,
         padding           TYPE ty_padding,
         rotation          TYPE i,
         text_align        TYPE string,
@@ -117,7 +131,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         border_color       TYPE string,
         border_radius      TYPE i,
         border_skipped     TYPE abap_bool,
-        show_line          TYPE abap_bool,
+        show_line          TYPE ty_flag,
         background_color_t TYPE ty_bg_color,
         background_color   TYPE string,
         hover_offset       TYPE i,
@@ -149,7 +163,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
 
     TYPES:
       BEGIN OF ty_autocolors_plugin,
-        enabled TYPE abap_bool,
+        enabled TYPE ty_flag,
         mode    TYPE string,
         offset  TYPE i,
         repeat  TYPE i,
@@ -161,7 +175,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         display   TYPE abap_bool,
         align     TYPE string,
         color     TYPE string,
-        full_size TYPE abap_bool,
+        full_size TYPE ty_flag,
         position  TYPE string,
         font      TYPE ty_font,
         padding   TYPE ty_padding,
@@ -189,10 +203,10 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
       BEGIN OF ty_legend,
         position       TYPE string,
         align          TYPE string,
-        display        TYPE abap_bool,
+        display        TYPE ty_flag,
         max_height     TYPE i,
         max_width      TYPE i,
-        full_size      TYPE i,
+        full_size      TYPE ty_flag,
         on_click       TYPE string,
         on_hover       TYPE string,
         on_leave       TYPE string,
@@ -234,10 +248,10 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
       BEGIN OF ty_tooltip,
         callbacks            TYPE ty_callback,
         mode                 TYPE string,
-        intersect            TYPE abap_bool,
+        intersect            TYPE ty_flag,
         use_point_style      TYPE abap_bool,
-        enabled              TYPE abap_bool,
-        display_colors       TYPE abap_bool,
+        enabled              TYPE ty_flag,
+        display_colors       TYPE ty_flag,
         rtl                  TYPE abap_bool,
         external             TYPE string,
         position             TYPE string,
@@ -275,7 +289,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
 
     TYPES:
       BEGIN OF ty_filler,
-        propagate TYPE abap_bool,
+        propagate TYPE ty_flag,
       END OF ty_filler .
 
     TYPES:
@@ -356,7 +370,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
 
     TYPES:
       BEGIN OF ty_point_label,
-        display             TYPE abap_bool,
+        display             TYPE ty_flag,
         center_point_labels TYPE abap_bool,
         font                TYPE ty_font,
         backdrop_color      TYPE string,
@@ -374,8 +388,8 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         align               TYPE string,
         cross_align         TYPE string,
         sample_size         TYPE i,
-        auto_skip           TYPE abap_bool,
-        include_bounds      TYPE abap_bool,
+        auto_skip           TYPE ty_flag,
+        include_bounds      TYPE ty_flag,
         mirror              TYPE abap_bool,
         auto_skip_padding   TYPE i,
         label_offset        TYPE i,
@@ -386,8 +400,8 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         backdrop_color      TYPE string,
         backdrop_padding    TYPE ty_padding,
         callback            TYPE string,
-        display             TYPE abap_bool,
-        show_label_backdrop TYPE abap_bool,
+        display             TYPE ty_flag,
+        show_label_backdrop TYPE ty_flag,
         text_stroke_color   TYPE string,
         font                TYPE ty_font,
         text_stroke_width   TYPE i,
@@ -398,9 +412,9 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
     TYPES:
       BEGIN OF ty_border,
         color       TYPE string,
-        display     TYPE abap_bool,
+        display     TYPE ty_flag,
         width       TYPE i,
-        dash        TYPE i,
+        dash        TYPE ty_dash,
         dash_offset TYPE i,
         z           TYPE i,
       END OF ty_border .
@@ -410,14 +424,14 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         color                   TYPE string,
         border_color            TYPE string,
         tick_color              TYPE string,
-        border_dash             TYPE string,
+        border_dash             TYPE ty_dash,
         border_dash_offset      TYPE p LENGTH 3 DECIMALS 2,
         circular                TYPE abap_bool,
         line_width              TYPE i,
-        draw_on_chart_area      TYPE abap_bool,
-        draw_ticks              TYPE abap_bool,
-        offset                  TYPE abap_bool,
-        tick_border_dash        TYPE i,
+        draw_on_chart_area      TYPE ty_flag,
+        draw_ticks              TYPE ty_flag,
+        offset                  TYPE ty_flag,
+        tick_border_dash        TYPE ty_dash,
         tick_border_dash_offset TYPE i,
         tick_length             TYPE i,
         tick_width              TYPE i,
@@ -428,9 +442,9 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
       BEGIN OF ty_angle_lines,
         color              TYPE string,
         border_color       TYPE string,
-        display            TYPE abap_bool,
+        display            TYPE ty_flag,
         line_width         TYPE i,
-        border_dash        TYPE i,
+        border_dash        TYPE ty_dash,
         border_dash_offset TYPE i,
       END OF ty_angle_lines .
 
@@ -443,7 +457,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         stacked          TYPE abap_bool,
         reverse          TYPE abap_bool,
         align_to_pixels  TYPE abap_bool,
-        clip             TYPE abap_bool,
+        clip             TYPE ty_flag,
         bounds           TYPE string,
         background_color TYPE string,
         type             TYPE string,
@@ -457,7 +471,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         ticks            TYPE ty_ticks,
         border           TYPE ty_border,
         grid             TYPE ty_grid,
-        offset           TYPE abap_bool,
+        offset           TYPE ty_flag,
         axis             TYPE string,
         labels           TYPE string_table,
         angle_lines      TYPE ty_angle_lines,
@@ -474,7 +488,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
     TYPES:
       BEGIN OF ty_interaction,
         mode              TYPE string,
-        intersect         TYPE abap_bool,
+        intersect         TYPE ty_flag,
         include_invisible TYPE abap_bool,
         axis              TYPE string,
       END OF ty_interaction .
@@ -496,12 +510,12 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
     TYPES:
       BEGIN OF ty_hover,
         mode      TYPE string,
-        intersect TYPE abap_bool,
+        intersect TYPE ty_flag,
       END OF ty_hover .
 
     TYPES:
       BEGIN OF ty_layout,
-        auto_padding TYPE abap_bool,
+        auto_padding TYPE ty_flag,
         padding      TYPE ty_padding,
       END OF ty_layout .
 
@@ -520,15 +534,15 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
 
     TYPES:
       BEGIN OF ty_line,
-        tension                  TYPE i,
+        tension                  TYPE ty_fraction,
         border_cap_style         TYPE string,
         border_width             TYPE i,
         fill                     TYPE string,
-        border_dash              TYPE i,
+        border_dash              TYPE ty_dash,
         border_dash_offset       TYPE i,
         border_join_style        TYPE string,
         cubic_interpolation_mode TYPE string,
-        cap_bezier_points        TYPE abap_bool,
+        cap_bezier_points        TYPE ty_flag,
         stepped                  TYPE abap_bool,
         background_color         TYPE string,
         border_color             TYPE string,
@@ -551,10 +565,10 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         background_color   TYPE string,
         border_color       TYPE string,
         border_align       TYPE string,
-        border_dash        TYPE i,
+        border_dash        TYPE ty_dash,
         border_dash_offset TYPE i,
         border_join_style  TYPE string,
-        circular           TYPE abap_bool,
+        circular           TYPE ty_flag,
         angle              TYPE i,
       END OF ty_arc.
 
@@ -569,7 +583,7 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
     TYPES:
       BEGIN OF ty_options,
         scales      TYPE ty_scales,
-        responsive  TYPE abap_bool,
+        responsive  TYPE ty_flag,
         plugins     TYPE ty_plugins,
         hover       TYPE ty_hover,
         interaction TYPE ty_interaction,
@@ -587,6 +601,13 @@ CLASS z2ui5_cl_cci_chartjs DEFINITION
         data    TYPE ty_data,
         options TYPE ty_options,
       END OF ty_chart.
+
+    CONSTANTS:
+      "! The values of a ty_flag field
+      BEGIN OF cs_flag,
+        true  TYPE ty_flag VALUE `true`,
+        false TYPE ty_flag VALUE `false`,
+      END OF cs_flag.
 
     CONSTANTS:
       "! Plugin names the control knows, for the `plugins` parameter of

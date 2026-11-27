@@ -58,35 +58,21 @@ CLASS z2ui5_cl_cci_clock IMPLEMENTATION.
 
   METHOD render.
 
-    TYPES:
-      BEGIN OF ty_s_attr,
-        n TYPE string,
-        v TYPE string,
-      END OF ty_s_attr.
-    DATA lt_attr TYPE STANDARD TABLE OF ty_s_attr WITH EMPTY KEY.
-
     result = view.
 
-    " ele( ), not z2ui5_cl_cci=>tag( ): the layout data below goes INTO the
-    " element, so the builder has to hold on to it
-    DATA(clock) = view->ele( n  = `Clock`
-                             ns = z2ui5_cl_cci=>c_ns ).
-
-    lt_attr = VALUE #( ( n = `format`  v = format )
-                       ( n = `locale`  v = locale )
-                       ( n = `icon`    v = icon )
-                       ( n = `type`    v = type )
-                       ( n = `enabled` v = enabled )
-                       ( n = `width`   v = width )
-                       ( n = `tooltip` v = tooltip )
-                       ( n = `class`   v = class ) ).
-
-    " an empty attribute would override the control's own default - drop it.
-    " a( ) lands on the clock as long as it has no child yet.
-    LOOP AT lt_attr INTO DATA(ls_attr) WHERE v IS NOT INITIAL.
-      clock->a( n = ls_attr-n
-                v = ls_attr-v ).
-    ENDLOOP.
+    " ele, not tag: the layout data below goes INTO the element, so the
+    " builder has to hold on to it
+    DATA(clock) = z2ui5_cl_cci=>ele(
+        view = view
+        name = `Clock`
+        a    = VALUE #( ( |format={ format }| )
+                        ( |locale={ locale }| )
+                        ( |icon={ icon }| )
+                        ( |type={ type }| )
+                        ( |enabled={ enabled }| )
+                        ( |width={ width }| )
+                        ( |tooltip={ tooltip }| )
+                        ( |class={ class }| ) ) ).
 
     IF priority IS INITIAL.
       RETURN.
