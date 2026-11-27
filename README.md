@@ -222,8 +222,8 @@ lengths, and the numbers where `0` or a fraction counts (`ticks-step_size`,
 ### Barcode
 
 `bcid`, `text`, `alttext`, `scale`, `height`, `includetext`, `textalign`,
-`rotate`, `backgroundcolor`, `options`, `renderas` (`canvas`/`svg`), `liburl` ·
-event `error`.
+`rotate`, `backgroundcolor`, `options`, `renderas` (`canvas`/`svg`), `liburl`,
+`barwidth` (width of a linear symbol in millimetres) · event `error`.
 
 `z2ui5_cl_cci_barcode=>get_types( )` returns a handful of symbologies with
 values that encode cleanly. Leave `height` empty for 2D codes — a fixed height
@@ -824,9 +824,10 @@ together with DOMPurify 3), zxing-wasm 3, canvas-gauges 2 and gridstack.js 14.
 Each control loads its library on
 first use, cached per URL, so ten charts on a page fetch Chart.js once.
 
-The other six need nothing: SignaturePad and Validator are self-contained,
-ExportSpreadsheet and CodeEditor use libraries the UI5 distribution already
-carries, and ImageMapster and FloorPlan draw their own SVG.
+The other nine need nothing: SignaturePad, Validator, NetworkStatus, Clock and
+ScanInput are self-contained, ExportSpreadsheet and CodeEditor use libraries
+the UI5 distribution already carries, and ImageMapster and FloorPlan draw their
+own SVG.
 
 Where it loads it from is what separates the two branches: on `main` from
 jsDelivr, on `local` from this BSP. Nothing in the repository spells a URL out
