@@ -34,7 +34,8 @@ function amd(file) {
 }
 
 const ScanInput = amd("ScanInput.js");
-const { normalizeMode, effectiveMode, isTextEntry, whyNot, errorSignal, toUpper, focusOrder } = ScanInput;
+const { normalizeMode, effectiveMode, isTextEntry, whyNot, errorSignal, successSignal, toUpper, focusOrder } =
+  ScanInput;
 
 test("ScanInput: keyboard off is always inputmode none", () => {
   assert.equal(effectiveMode(false, "numeric"), "none");
@@ -140,6 +141,7 @@ test("ScanInput: the setters the renderer draws nothing from do not re-render", 
     ["setKeepFocus", "keepFocus"],
     ["setSelectOnFocus", "selectOnFocus"],
     ["setBeepOnError", "beepOnError"],
+    ["setBeepOnSuccess", "beepOnSuccess"],
     ["setVibrateOnError", "vibrateOnError"],
     ["setKeyboard", "keyboard"],
     ["setInputMode", "inputMode"],
@@ -211,4 +213,24 @@ test("ScanInput: a letter whose capital form is two characters is kept", () => {
   // the sharp s would become SS and move the caret and the length
   assert.equal(toUpper("straße"), "STRAßE");
   assert.equal(toUpper("straße").length, "straße".length);
+});
+
+test("ScanInput: a change to Success sounds, staying Success only after a submit", () => {
+  assert.equal(successSignal({ previous: "None", next: "Success", rendered: true }), true);
+  assert.equal(successSignal({ previous: "Error", next: "Success", rendered: true }), true);
+  assert.equal(successSignal({ previous: "Success", next: "Success", rendered: true }), false);
+  assert.equal(successSignal({ previous: "Success", next: "Success", rendered: true, awaiting: true }), true);
+});
+
+test("ScanInput: no success tone for other states or for a field not yet on screen", () => {
+  assert.equal(successSignal({ previous: "Success", next: "None", rendered: true }), false);
+  assert.equal(successSignal({ previous: "None", next: "Error", rendered: true, awaiting: true }), false);
+  assert.equal(successSignal({ previous: "None", next: "Success", rendered: false }), false);
+});
+
+test("ScanInput: one change is never both an error and a success", () => {
+  for (const next of ["None", "Success", "Warning", "Error", "Information"]) {
+    const change = { previous: "None", next, rendered: true, awaiting: true };
+    assert.equal(errorSignal(change) && successSignal(change), false, next);
+  }
 });

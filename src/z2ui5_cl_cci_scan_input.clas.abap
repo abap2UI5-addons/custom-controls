@@ -48,6 +48,7 @@ CLASS z2ui5_cl_cci_scan_input DEFINITION
     "!                                    turns on takes the focus, also from another field
     "! @parameter selectonfocus         | `true`: the content is selected on focus
     "! @parameter beeponerror           | `true`: a short beep when valuestate turns to Error
+    "! @parameter beeponsuccess         | `true`: a short, high tone when valuestate turns to Success
     "! @parameter vibrateonerror        | `true`: a vibration when valuestate turns to Error
     "! @parameter keyboard              | soft keyboard on (`true`, default) or off - bind two-way
     "! @parameter inputmode             | HTML inputmode while the keyboard is on (numeric, text, ...)
@@ -78,6 +79,7 @@ CLASS z2ui5_cl_cci_scan_input DEFINITION
         keepfocus             TYPE string OPTIONAL
         selectonfocus         TYPE string OPTIONAL
         beeponerror           TYPE string OPTIONAL
+        beeponsuccess         TYPE string OPTIONAL
         vibrateonerror        TYPE string OPTIONAL
         keyboard              TYPE string OPTIONAL
         inputmode             TYPE string OPTIONAL
@@ -118,6 +120,7 @@ CLASS z2ui5_cl_cci_scan_input IMPLEMENTATION.
                         ( |keepFocus={ keepfocus }| )
                         ( |selectOnFocus={ selectonfocus }| )
                         ( |beepOnError={ beeponerror }| )
+                        ( |beepOnSuccess={ beeponsuccess }| )
                         ( |vibrateOnError={ vibrateonerror }| )
                         ( |keyboard={ keyboard }| )
                         ( |inputMode={ inputmode }| )

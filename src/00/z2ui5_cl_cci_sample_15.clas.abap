@@ -115,6 +115,7 @@ CLASS z2ui5_cl_cci_sample_15 IMPLEMENTATION.
         keepfocus             = client->_bind( focus_code )
         selectonfocus         = `true`
         beeponerror           = `true`
+        beeponsuccess         = `true`
         vibrateonerror        = `true`
         submit                = client->_event( `SCAN` ) ).
 

@@ -479,7 +479,8 @@ an open overflow menu every second.
 
 ### ScanInput
 
-`keepfocus`, `selectonfocus`, `beeponerror`, `vibrateonerror`, `keyboard`
+`keepfocus`, `selectonfocus`, `beeponerror`, `beeponsuccess`,
+`vibrateonerror`, `keyboard`
 (bind two-way), `inputmode`, `showkeyboardtoggle`, `keyboardtoggletooltip`,
 `uppercase`,
 and of `sap.m.Input`: `id`, `value`, `valuestate`, `valuestatetext`,
@@ -518,6 +519,11 @@ An `sap.m.Input` for scanning, everything in the browser:
   after a `submit` or `change` counts too. Browsers allow sound and vibration
   only after the user tapped or typed on the page; before that, and where
   the API is missing (vibration on iOS), the control stays silent.
+- **`beeponsuccess`** - the other tone: short, high and clean when
+  `valuestate` turns to `Success`, so a scan that was taken is heard without
+  a look at the screen. The same rules apply - a field that stays at
+  `Success` gets the tone from the first model update after a `submit` or
+  `change`, and a roundtrip nobody scanned for makes no sound.
 - **`keyboard`** - the soft keyboard: on, the field takes `inputmode`
   (`numeric`, `text`, ... - empty for the browser's default); off, the HTML
   inputmode `none` keeps it down while the scanner still types. Switched
