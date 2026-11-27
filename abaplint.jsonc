@@ -6,7 +6,7 @@
     {
       // the abap2UI5 framework these controls plug into - cloned by abaplint
       // for dependency resolution (z2ui5_if_app, z2ui5_if_client,
-      // z2ui5_if_exit, z2ui5_cl_ui5_view_builder)
+      // z2ui5_cl_ui5_view_builder)
       "url": "https://github.com/abap2UI5/abap2UI5",
       // main on purpose, declared rather than left off - without the key
       // abaplint clones the default branch silently (abap2UI5 CONVENTIONS §9)

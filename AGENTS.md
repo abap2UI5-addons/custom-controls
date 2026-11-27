@@ -140,8 +140,8 @@ Three rules that are easy to get wrong:
    under `<form:SimpleForm>` it is `<form:content>`, never `<content>`.
 
 The frozen `z2ui5_cl_xml_view` is gone from here and must not come back. It sits
-in the core's `src/99`, outside the released API, and the view gate can read
-nothing built with it.
+in abap2UI5-ext (the core's `src/99` until 1.151.0), outside the released API,
+and the view gate can read nothing built with it.
 
 ## Conventions
 
