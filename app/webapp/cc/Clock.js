@@ -16,9 +16,9 @@
 // of a toolbar item makes the OverflowToolbar lay itself out again, which
 // closes an open overflow menu once a second.
 //
-// Ported from the S5S apps (/KRO/UI501_CL_APP_VIEW=>xml_time_script and
-// /KRO/UI508_CL_APP_002), which injected a global script that searched every
-// control on the page for a CSS class once a second.
+// It replaces the usual way to show a clock: a global script, injected with
+// the view, that searches every control on the page for a CSS class once a
+// second.
 sap.ui.define(["sap/m/Button", "sap/m/ButtonRenderer"], (Button, ButtonRenderer) => {
   "use strict";
 
