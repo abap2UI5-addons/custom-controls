@@ -9,6 +9,18 @@
 "! resolved in the frontend, so a step may point into a nested view or a dialog
 "! without this class knowing where the control ended up.
 "!
+"! <em>trigger</em> starts the tour when it changes to a value above 0. A view
+"! rebuilt by view_display (a navigation back, say) does not start the last
+"! tour again: the value a new control instance is built with counts only when
+"! it is not the value the previous instance at the same binding last had. To
+"! start a tour in the same roundtrip that first displays the view, raise
+"! trigger to a value it has not had yet in this browser tab.
+"!
+"! The popover texts are plain text: title, description, progress and button
+"! texts are escaped before driver.js writes them into the page. Set
+"! <em>allowhtml</em> to `true` for simple markup - it is then sanitized with
+"! DOMPurify, never inserted as it stands.
+"!
 "! Bind config and highlight with the camelCase mapper and this library's JSON
 "! filter - see z2ui5_cl_cci_chartjs for the same pattern and why both are
 "! needed.
@@ -70,9 +82,9 @@ CLASS z2ui5_cl_cci_driverjs DEFINITION
       END OF cs_mode.
 
     TYPES:
-      "! The bubble shown next to a step's element. `title` and `description`
-      "! are rendered as HTML, so simple markup works - and unescaped user input
-      "! does not belong in them.
+      "! The bubble shown next to a step's element. `title`, `description`
+      "! and the button and progress texts are shown as plain text; with
+      "! render( allowhtml = `true` ) they are HTML, sanitized by DOMPurify.
       BEGIN OF ty_s_popover,
         title           TYPE string,
         description     TYPE string,
@@ -131,6 +143,9 @@ CLASS z2ui5_cl_cci_driverjs DEFINITION
     "! @parameter customcss   | extra CSS, e.g. to theme the popover
     "! @parameter liburl      | overrides where driver.js is loaded from
     "! @parameter cssurl      | overrides where its stylesheet is loaded from
+    "! @parameter allowhtml   | `true`: the popover texts are HTML, sanitized
+    "!                          with DOMPurify; default: plain text, escaped
+    "! @parameter purifyurl   | overrides where DOMPurify is loaded from
     "! @parameter highlighted | client->_event( ... ) fired per step
     "! @parameter done        | client->_event( ... ) fired when the tour ends
     "! @parameter result      | the unchanged view builder, for chaining
@@ -144,6 +159,8 @@ CLASS z2ui5_cl_cci_driverjs DEFINITION
         customcss     TYPE string OPTIONAL
         liburl        TYPE string OPTIONAL
         cssurl        TYPE string OPTIONAL
+        allowhtml     TYPE string OPTIONAL
+        purifyurl     TYPE string OPTIONAL
         highlighted   TYPE string OPTIONAL
         done          TYPE string OPTIONAL
       RETURNING
@@ -168,6 +185,8 @@ CLASS z2ui5_cl_cci_driverjs IMPLEMENTATION.
                         ( |customCss={ customcss }| )
                         ( |libUrl={ liburl }| )
                         ( |cssUrl={ cssurl }| )
+                        ( |allowHtml={ allowhtml }| )
+                        ( |purifyUrl={ purifyurl }| )
                         ( |highlighted={ highlighted }| )
                         ( |done={ done }| ) ) ).
 

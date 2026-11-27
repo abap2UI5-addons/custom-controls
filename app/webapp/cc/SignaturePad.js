@@ -11,22 +11,13 @@
 // The only change of substance: the dependency on z2ui5/core/Lib is gone. That
 // module is frontend-internal and not part of the public contract, so a
 // control shipped from its own BSP must not reach into it - a refactor there
-// would break this control silently. The two helpers it used are inlined below.
-sap.ui.define(["sap/ui/core/Control"], (Control) => {
+// would break this control silently. The helpers it used (isDestroyed,
+// logError) and the px rule for width/height come from z2ui5_cci/cc/Util, the
+// helper module of this BSP.
+sap.ui.define(["sap/ui/core/Control", "z2ui5_cci/cc/Util"], (Control, Util) => {
   "use strict";
 
-  // width/height size the pad; a bare number is treated as px.
-  const toCssSize = (val) => (/^\d+$/.test(val) ? `${val}px` : val);
-
-  // Replaces Lib.isDestroyed: guards async continuations (image load, resize
-  // observer) against a control that was torn down in the meantime.
-  const isDestroyed = (obj) => Boolean(obj?.isDestroyed && obj.isDestroyed());
-
-  // Replaces Lib.logError, which files into the frontend's developer tools.
-  // A control from its own BSP has no access to that, so log and carry on -
-  // never throw out of a lifecycle hook.
-  const logError = (message, error) =>
-    console.error(error === undefined ? message : `${message}:`, error ?? "");
+  const { isDestroyed, logError, toCssSize } = Util;
 
   return Control.extend("z2ui5_cci.cc.SignaturePad", {
     metadata: {

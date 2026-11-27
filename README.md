@@ -169,6 +169,16 @@ Rule fields: `field`, `type` (`number`/`integer`), `format` (`email`/`date`),
 `maximum` are text: empty means no limit, so a limit of `0` is checked too
 (bind the rules with `omit_initial = abap_true`).
 
+`required` fails an empty text, an unticked CheckBox or RadioButton, a Switch
+that is off, and a MultiComboBox or MultiInput with nothing selected — for
+those two the selected keys / tokens are the value, not the typed text.
+
+`trigger` runs the check when it changes to a value above 0. A view rebuilt by
+`view_display` (after a navigation back, say) does not run the last check
+again: the value a new control is built with counts only when the previous
+control at the same binding did not already have it. The same holds for
+DriverJs.
+
 <img width="1246" height="636" alt="The Validator sample" src="https://github.com/user-attachments/assets/c47560cc-503e-439e-a907-f2ff76790b70" />
 
 ### ChartJs
@@ -181,7 +191,11 @@ describe works from ABAP. Change the structure and the chart updates in
 place — the framework pushes the changed model on its own. `plugins` takes the
 names from
 `z2ui5_cl_cci_chartjs=>cs_plugin` (`datalabels`, `autocolors`, `deferred`,
-`annotation`, `venn`, `wordcloud`).
+`annotation`, `venn`, `wordcloud`). A plugin is handed to the one chart that
+names it, so labels or colours asked for by one chart do not appear on the
+others. Two exceptions touch Chart.js' page-wide registry because Chart.js
+offers no other way: `annotation` (its element types; it draws nothing on a
+chart without annotations) and the chart types `venn` and `wordcloud`.
 
 Bind `config` with `omit_initial = abap_true` and nothing else: the control
 turns the ABAP field names into the camelCase names Chart.js reads
@@ -314,10 +328,22 @@ second screen and point a phone at it, in either mode.
 ### DriverJs
 
 `config` (a `ty_s_config` structure), `highlight`, `mode`, `trigger`,
-`customcss`, `liburl`, `cssurl` · events `highlighted`, `done`.
+`customcss`, `allowhtml`, `liburl`, `cssurl`, `purifyurl` · events
+`highlighted`, `done`.
 
 A step's `element` is the **control id from your view**, not a CSS selector; it
 is resolved in the frontend, so a step may point into a nested view or a dialog.
+
+The popover texts (title, description, progress and button texts) are **plain
+text** — escaped, because driver.js writes them into the page as HTML. Pass
+``allowhtml = `true` `` for simple markup; it is then sanitized with DOMPurify
+(loaded from `purifyurl`) and never inserted as it stands.
+
+Raising `trigger` starts the tour. A view rebuilt by `view_display` does not
+start the last tour again — the value a new control is built with counts only
+when the previous control at the same binding did not already have it. To
+start a tour in the roundtrip that first shows the view, raise `trigger` to a
+value it has not had yet in that browser tab.
 
 <img width="1244" height="565" alt="The DriverJs sample" src="https://github.com/user-attachments/assets/a32d6e9d-ac58-4152-8af0-8d191fc51598" />
 
@@ -339,7 +365,10 @@ One element in the view and Font Awesome is available two ways: as UI5 icons
 Put `animate__animated animate__bounce` into a control's `class` attribute and it
 animates. The class names are constants on `z2ui5_cl_cci_animate_css`
 (`cs_base`, `cs_attention-*`, `cs_entrance-*`, `cs_exit-*`, `cs_modifier-*`).
-`duration`/`delay`/`repeat` retune every animation on the page at once.
+`duration`/`delay`/`repeat` retune every animation on the page at once. With
+several AnimateCss controls on the page the one rendered last wins; when it
+goes, the settings of the one before it come back, and when the last one goes,
+the page's own values (or animate.css' defaults) do.
 
 <img width="1253" height="623" alt="The AnimateCss sample" src="https://github.com/user-attachments/assets/b6969b85-73e6-4a27-a7e2-91d78d170b5f" />
 
@@ -770,6 +799,15 @@ jsDelivr, on `local` from this BSP. Nothing in the repository spells a URL out
 one shape or the other. So the version a browser downloads is the version this
 repository was tested against, and a version bump is an edit to `package.json`
 plus `npm run vendor`, never a hand-written URL.
+
+On `main` every CDN file is also pinned by content: `LibUrls.js` carries a
+Subresource Integrity hash (sha384) per URL, computed from the npm package, and
+the controls load the file with `integrity` and `crossorigin="anonymous"` — a
+browser refuses a CDN copy whose bytes differ. CI fails when a hash is stale
+(the `vendor` job and `tools/sri.test.mjs`). A `liburl`/`cssurl` you set
+yourself loads without a hash. The one URL that cannot carry one is the Font
+Awesome IconPool directory (fonts through CSS, metadata through XHR): it points
+at a GitHub repository on jsDelivr and is pinned to a commit instead.
 
 A single library can still be redirected per control, on either branch, with the
 `liburl` / `cssurl` property:

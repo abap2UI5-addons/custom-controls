@@ -21,19 +21,30 @@
 //      of eagerly - it is absent on OpenUI5, where the button now stays
 //      disabled with a tooltip saying so.
 sap.ui.define(
-  ["sap/ui/core/Control", "sap/m/Button", "z2ui5_cci/cc/Util"],
-  (Control, Button, Util) => {
+  ["sap/ui/core/Control", "sap/m/Button", "sap/ui/VersionInfo", "z2ui5_cci/cc/Util"],
+  (Control, Button, VersionInfo, Util) => {
     "use strict";
 
     // sap.ui.export ships with SAPUI5 only; OpenUI5 has no xlsx writer.
-    const hasExportLib = () => {
-      try {
-        return String(sap.ui.getVersionInfo().gav || "").includes("com.sap.ui5");
-      } catch (e) {
-        // getVersionInfo throws when version info was not loaded - assume the
-        // library is there and let the require below produce the real error.
-        return true;
+    //
+    // Asked once per page and asynchronously: sap.ui.getVersionInfo( ) is a
+    // synchronous request on first use (and deprecated), and it used to run in
+    // every onBeforeRendering. VersionInfo.load is in UI5 since 1.56.
+    // `exportLib.available` stays true until the answer is in - the button is
+    // usable meanwhile, and a failed lookup leaves it so: the require on press
+    // then produces the real error.
+    const exportLib = { available: true, pending: null };
+    const loadExportLib = () => {
+      if (!exportLib.pending) {
+        exportLib.pending = VersionInfo.load()
+          .then((info) => {
+            exportLib.available = String((info && info.gav) || "").includes("com.sap.ui5");
+          })
+          .catch(() => {
+            exportLib.available = true;
+          });
       }
+      return exportLib.pending;
     };
 
     return Control.extend("z2ui5_cci.cc.ExportSpreadsheet", {
@@ -85,7 +96,7 @@ sap.ui.define(
       _syncButton() {
         const button = this.getAggregation("_button");
         if (!button) return;
-        const available = hasExportLib();
+        const available = exportLib.available;
         button.setText(this.getText());
         button.setIcon(this.getIcon());
         button.setType(this.getType());
@@ -174,6 +185,13 @@ sap.ui.define(
       // onBeforeRendering is the hook that allows exactly this.
       onBeforeRendering() {
         this._syncButton();
+        if (this._versionAsked) return;
+        this._versionAsked = true;
+        // the answer arrives after this rendering - set the button again then;
+        // the button invalidates itself, this control is not re-rendered
+        loadExportLib().then(() => {
+          if (!Util.isDestroyed(this)) this._syncButton();
+        });
       },
 
       renderer: {

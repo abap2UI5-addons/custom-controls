@@ -9,6 +9,10 @@
 "! into the model, so the roundtrip that raised the trigger already brings the
 "! verdict home - no second call, no JavaScript in the app.
 "!
+"! A view rebuilt by view_display does not run the last check again: the
+"! trigger value a new control instance is built with counts only when it is
+"! not the value the previous instance at the same binding last had.
+"!
 "! Ported from abap2UI5-addons/custom-controls (z2ui5_cl_cc_validator). The
 "! original evaluated a JSON schema with ajv from a CDN and could only address
 "! three fixed field names; this one takes a table of rules, needs no external
@@ -26,7 +30,10 @@ CLASS z2ui5_cl_cci_validator DEFINITION
       "!
       "! Leave a constraint initial and it is not checked (bind with
       "! omit_initial, see rules below). An empty field only fails <em>required</em> -
-      "! every other constraint measures a filled value.
+      "! every other constraint measures a filled value. Empty is an empty
+      "! text, an unticked CheckBox or RadioButton, a Switch that is off, and a
+      "! MultiComboBox or MultiInput with nothing selected (its typed text is
+      "! not its value).
       BEGIN OF ty_s_rule,
         field     TYPE string,
         "! `number`, `integer` or empty for a plain string

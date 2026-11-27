@@ -22,6 +22,17 @@ and CI gates every change. It is installed with abapGit and depends on the
 
 `src/01/` is **generated**. Change `app/`, then run `npm run build:local`.
 
+`tools/app2bsp.mjs` is the same file, byte for byte, as in
+custom-controls-customer; what differs (BSP name, text, ICF parent GUIDs) is
+`config.bsp` in `package.json`. It refuses a line over 255 characters and a
+file that is not UTF-8 text. Change it in both repositories together.
+
+`npm run vendor` also writes a Subresource Integrity hash (sha384) per CDN URL
+into `LibUrls.js`; `Util.loadScript`/`loadStyle` set it as `integrity` with
+`crossorigin="anonymous"`. A CDN URL must name an immutable version - a
+`/gh/` URL a commit sha (`vendor.mjs` refuses anything else), checked again by
+`tools/sri.test.mjs`.
+
 ## Dependencies
 
 - [abap2UI5](https://github.com/abap2UI5/abap2UI5) — the framework
