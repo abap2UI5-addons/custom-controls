@@ -369,7 +369,8 @@ value it has not had yet in that browser tab.
 One element in the view and Font Awesome is available two ways: as UI5 icons
 (`sap-icon://fa-solid/heart` in any icon property) and as its own CSS classes
 (`class="fa-brands fa-github"`). `fonturi` points at a directory holding the font
-*and* the metadata JSON the UI5 IconPool needs.
+*and* the metadata JSON the UI5 IconPool needs. `cssurl =
+z2ui5_cl_cci_font_awesome=>c_no_css` loads no stylesheet.
 
 <img width="1248" height="507" alt="The FontAwesome sample" src="https://github.com/user-attachments/assets/1545f3d3-0c26-4797-aba9-d1a1de108d4c" />
 
