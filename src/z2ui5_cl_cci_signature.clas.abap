@@ -55,45 +55,16 @@ CLASS z2ui5_cl_cci_signature IMPLEMENTATION.
 
   METHOD render.
 
-    result = view->tag( n  = `SignaturePad`
-                        ns = z2ui5_cl_cci=>c_ns ).
-
-    " only emit the attributes the caller actually set - an empty attribute
-    " would override the control's own defaultValue with an empty string
-    IF value IS NOT INITIAL.
-      result = result->a( n = `value`
-                          v = value ).
-    ENDIF.
-
-    IF width IS NOT INITIAL.
-      result = result->a( n = `width`
-                          v = width ).
-    ENDIF.
-
-    IF height IS NOT INITIAL.
-      result = result->a( n = `height`
-                          v = height ).
-    ENDIF.
-
-    IF linewidth IS NOT INITIAL.
-      result = result->a( n = `lineWidth`
-                          v = linewidth ).
-    ENDIF.
-
-    IF linecolor IS NOT INITIAL.
-      result = result->a( n = `lineColor`
-                          v = linecolor ).
-    ENDIF.
-
-    IF editable IS NOT INITIAL.
-      result = result->a( n = `editable`
-                          v = editable ).
-    ENDIF.
-
-    IF change IS NOT INITIAL.
-      result = result->a( n = `change`
-                          v = change ).
-    ENDIF.
+    result = z2ui5_cl_cci=>tag(
+        view = view
+        name = `SignaturePad`
+        a    = VALUE #( ( |value={ value }| )
+                        ( |width={ width }| )
+                        ( |height={ height }| )
+                        ( |lineWidth={ linewidth }| )
+                        ( |lineColor={ linecolor }| )
+                        ( |editable={ editable }| )
+                        ( |change={ change }| ) ) ).
 
   ENDMETHOD.
 

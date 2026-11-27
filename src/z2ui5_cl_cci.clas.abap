@@ -71,6 +71,22 @@ CLASS z2ui5_cl_cci DEFINITION
       RETURNING
         VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
 
+    "! tag( ), but descending into the new element, like ele( ) of the view
+    "! builder: the element is returned, for a control that takes children -
+    "! an aggregation such as layoutData. Attributes as in tag( ).
+    "!
+    "! @parameter view   | the builder positioned at the parent element
+    "! @parameter name   | element name, without the namespace prefix
+    "! @parameter a      | attributes as `key=value`; empty values are dropped
+    "! @parameter result | the builder positioned at the new element
+    CLASS-METHODS ele
+      IMPORTING
+        view          TYPE REF TO z2ui5_cl_ui5_view_builder
+        name          TYPE string
+        a             TYPE ty_t_attr OPTIONAL
+      RETURNING
+        VALUE(result) TYPE REF TO z2ui5_cl_ui5_view_builder.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -87,7 +103,17 @@ CLASS z2ui5_cl_cci IMPLEMENTATION.
 
   METHOD tag.
 
-    result = view->tag( n  = name
+    ele( view = view
+         name = name
+         a    = a ).
+    " stay where we are - the element is complete, its siblings follow
+    result = view.
+
+  ENDMETHOD.
+
+  METHOD ele.
+
+    result = view->ele( n  = name
                         ns = c_ns ).
 
     LOOP AT a INTO DATA(lv_attr).
@@ -100,7 +126,7 @@ CLASS z2ui5_cl_cci IMPLEMENTATION.
         CONTINUE.
       ENDIF.
 
-      " a( ) lands on the element the chain points at - the tag just added
+      " a( ) lands on the new element as long as it has no child
       result->a( n = substring( val = lv_attr
                                 len = lv_off )
                  v = substring( val = lv_attr
