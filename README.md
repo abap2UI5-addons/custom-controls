@@ -298,6 +298,8 @@ ENDMETHOD.
 of six cartons of two articles, drawn by the Barcode control: open it on a
 second screen and point a phone at it, in either mode.
 
+<img width="1250" height="900" alt="The BarcodeScanner sample" src="img/barcode-scanner.png" />
+
 ### DriverJs
 
 `config` (a `ty_s_config` structure), `highlight`, `mode`, `trigger`,
@@ -421,6 +423,8 @@ actually edits it.
   policy has to allow `cdn.jsdelivr.net` in `script-src` and `style-src`. The
   `local` branch needs neither, and nothing needs `'unsafe-eval'`.
 
+<img width="1250" height="730" alt="The RichTextEditor sample" src="img/rich-text-editor.png" />
+
 ### NetworkStatus
 
 `status`, `latency`, `quality` (written by the control â€” bind them to read the
@@ -456,6 +460,8 @@ when the browser goes offline too, and that roundtrip cannot reach the server â€
 binding `status` and reading it on the next roundtrip is usually what an app
 wants.
 
+<img width="1250" height="300" alt="The NetworkStatus sample" src="img/network-status.png" />
+
 ### Clock
 
 `format` (`datetime`, `date`, `time`, `shorttime`), `locale` (default: the UI5
@@ -476,6 +482,8 @@ z2ui5_cl_cci_clock=>render(
 The time is written into the button's text in the DOM, not set as a property:
 a property change makes the toolbar lay itself out again, and that would close
 an open overflow menu every second.
+
+<img width="1250" height="280" alt="The Clock sample" src="img/clock.png" />
 
 ### ScanInput
 
@@ -546,6 +554,8 @@ The control decides nothing: whether a scan is wrong is the app's
 `z2ui5.cc.InputExt`, so it does not depend on the abap2UI5 frontend release
 installed next to it; the HTML inputmode is implemented the same way.
 
+<img width="1250" height="320" alt="The ScanInput sample" src="img/scan-input.png" />
+
 ### Gauge
 
 `value` (bind), `minvalue`, `maxvalue`, `title`, `units`, `width`, `height`
@@ -582,6 +592,8 @@ goes into `options`, a structure bound with the camelCase mapper; its fields
 win over the parameters above. canvas-gauges is small, has no dependencies and
 is no longer developed: the version is pinned like every other library here,
 and the `local` branch carries it in the BSP.
+
+<img width="1250" height="450" alt="The Gauge sample" src="img/gauge.png" />
 
 ### GridStack
 
@@ -622,6 +634,8 @@ The width of a cell follows the width of the control, its height is
 `cellheight`. With `float` switched off the boxes move up to close a gap, the
 way a dashboard arranges itself; for a layout in which the position is the
 message, leave it on.
+
+<img width="1250" height="680" alt="The GridStack sample" src="img/grid-stack.png" />
 
 ### FloorPlan
 
@@ -685,6 +699,7 @@ put a list next to the plan when the selection has to work without a mouse.
 A few hundred boxes are what it is made for: each one is an SVG element, so
 draw lanes or bins, not every pallet in them.
 
+<img width="1250" height="600" alt="The FloorPlan sample" src="img/floor-plan.png" />
 
 ## Two things to know
 
