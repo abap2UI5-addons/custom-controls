@@ -16,8 +16,7 @@
 "! Without omit_initial every field the app left alone would arrive as 0 or
 "! `` and override the Chart.js default. The control turns the ABAP field
 "! names into the camelCase names Chart.js reads (border_width -&gt;
-"! borderWidth), so no mapper is needed - the camelCase mapper of older apps
-"! still works. An option whose Chart.js default is true is a ty_flag, set to
+"! borderWidth), so no mapper is needed. An option whose Chart.js default is true is a ty_flag, set to
 "! cs_flag-false to switch it off; an abap_bool field can only switch an
 "! option ON, because omit_initial drops abap_false. For the same reason a
 "! number where 0 or a fraction counts (ticks-step_size, scale-suggested_min,

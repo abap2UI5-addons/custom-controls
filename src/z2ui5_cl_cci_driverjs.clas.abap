@@ -29,8 +29,7 @@
 "! Without omit_initial every field the app left alone would arrive as 0 or
 "! `` and override the driver.js default. The control turns the ABAP field
 "! names into the camelCase names driver.js reads (allow_close -&gt;
-"! allowClose), so no mapper is needed - the camelCase mapper of older apps
-"! still works. An option whose driver.js default is true is a ty_flag, set
+"! allowClose), so no mapper is needed. An option whose driver.js default is true is a ty_flag, set
 "! to cs_flag-false to switch it off; an abap_bool field can only switch an
 "! option ON, because omit_initial drops abap_false. The numbers where 0 means
 "! something (stage_padding, stage_radius, popover_offset) are text for the

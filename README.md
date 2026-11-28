@@ -788,10 +788,9 @@ config = client->_bind( val          = ms_chart
 ```
 
 The controls turn the ABAP field names into the camelCase names the libraries
-read (`border_width` → `borderWidth`), so no mapper is needed. The camelCase
-mapper of older apps (`custom_mapper = z2ui5_cl_ajson_mapping=>create_camel_case(
-iv_first_json_upper = abap_false )`) still works, but `_bind( )` marks it
-obsolete and the abap2UI5-linter reports it.
+read (`border_width` → `borderWidth`), so no mapper is needed. `_bind( )` takes
+no mapper any more: the `custom_mapper` of older apps was removed from abap2UI5
+- drop it and bind with `omit_initial = abap_true`.
 
 ABAP has no "unset" for a structure component: fields you never touched still
 serialize as `""`, `0` or `false`, and `borderWidth: 0` draws no border.
@@ -811,10 +810,8 @@ drops the attribute, so the control keeps its default (`editable =
 abap_false` leaves a field editable). Pass an ABAP flag through
 `z2ui5_cl_cci=>bool( )`.
 
-`z2ui5_cl_cci_json_filter`, which the samples used before, still works but is
-deprecated and will be removed in a later release: `custom_filter` is obsolete
-on `_bind( )` and the abap2UI5-linter reports it (`obsolete-bind-argument`).
-Replace it with `omit_initial = abap_true`.
+`z2ui5_cl_cci_json_filter`, which the samples used before, is gone, and so is
+`custom_filter` on `_bind( )`: bind with `omit_initial = abap_true` instead.
 
 ### Third-party libraries
 

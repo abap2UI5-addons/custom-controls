@@ -16,8 +16,7 @@
 "!                           omit_initial = abap_true )
 "!
 "! The control turns the ABAP field names of config into camelCase itself
-"! (fill_color -&gt; fillColor), so no mapper is needed - the camelCase mapper of
-"! older apps still works for config (not for areas, whose fields are read
+"! (fill_color -&gt; fillColor), so no mapper is needed (areas keep their fields
 "! upper case). An option whose default is true (fill, fade, highlight,
 "! is_selectable, is_deselectable, and an area's isselectable) is a ty_flag,
 "! set to cs_flag-false to switch it off; an abap_bool field can only switch an

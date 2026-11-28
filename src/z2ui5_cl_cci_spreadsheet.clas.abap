@@ -73,9 +73,9 @@ CLASS z2ui5_cl_cci_spreadsheet DEFINITION
     "!                            omit_initial = abap_true )
     "!
     "! The control turns the ABAP field names into the camelCase names the
-    "! exporter reads (unit_property -&gt; unitProperty), so no mapper is needed -
-    "! the camelCase mapper of older apps still works. display_unit, auto_scale,
-    "! display_timezone and utc are ty_flag: cs_flag-false switches them off.
+    "! exporter reads (unit_property -&gt; unitProperty), so no mapper is needed.
+    "! display_unit, auto_scale, display_timezone and utc are ty_flag:
+    "! cs_flag-false switches them off.
     "!
     "! @parameter view      | the builder positioned at the parent element
     "! @parameter tableid   | id of the table to export, as written in the view

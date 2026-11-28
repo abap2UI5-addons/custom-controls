@@ -11,6 +11,7 @@ Legend
 
 unreleased
 ----------
+- z2ui5_cl_cci_json_filter, deprecated since it was replaced by _bind( omit_initial = abap_true ) - abap2UI5 removed the custom_filter and custom_mapper parameters of _bind( ) it was passed through
 * SignaturePad: clearing the bound value from ABAP (signature = ``) blanks the pad - the canvas survives a re-render with its picture, so the strokes stayed visible and the next stroke sent the old ones along. A new value goes onto the running canvas without a re-render
 ! SignaturePad: value draws only a data:image/ URL - any other (an http(s) URL above all) is logged and never requested, the pad stays blank
 * RichTextEditor: an edit made in code view reached neither the model nor the change event - the editor read only the WYSIWYG area, and the code area reports no blur. Leaving the code area now publishes and fires change as the editor does, and a roundtrip started from the code view sends what it shows
